@@ -45,4 +45,35 @@ describe('NotificacionExternaService', () => {
     service.listarPorProceso(2).subscribe((datos) => expect(datos).toEqual([]));
     httpTesting.expectOne(`${apiUrl}?procesoId=2`).flush([]);
   });
+
+  it('crea con el cuerpo y el usuario indicados', () => {
+    const request: CrearNotificacionExternaRequest = { procesoId: 2, poolId: 3, poolDestinoId: 4, nombre: 'Aviso', tipoDestino: 'CORREO', accionSiFalla: 'DERIVAR_ERROR', actividadManejoErrorId: 6, campos: [{ nombre: 'correo', tipoDato: 'String' }] };
+    service.crear(request, 7).subscribe((datos) => expect(datos).toEqual(respuesta));
+    const req = httpTesting.expectOne(`${apiUrl}?usuarioId=7`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(request);
+    req.flush(respuesta, { status: 201, statusText: 'Created' });
+  });
+
+  it('actualiza sin enviar proceso ni pool contenedor', () => {
+    const request: ActualizarNotificacionExternaRequest = { nombre: 'Aviso actualizado', poolDestinoId: 4, tipoDestino: 'CORREO', accionSiFalla: 'DERIVAR_ERROR', actividadManejoErrorId: 6, campos: [] };
+    const actualizada = { ...respuesta, ...request };
+    service.actualizar(5, request, 7).subscribe((datos) => expect(datos).toEqual(actualizada));
+    const req = httpTesting.expectOne(`${apiUrl}/5?usuarioId=7`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(request);
+    expect(req.request.body.procesoId).toBeUndefined();
+    expect(req.request.body.poolId).toBeUndefined();
+    req.flush(actualizada);
+  });
+
+  it('elimina y acepta una respuesta sin contenido', () => {
+    let completada = false;
+    service.eliminar(5, 7).subscribe({ complete: () => { completada = true; } });
+    const req = httpTesting.expectOne(`${apiUrl}/5?usuarioId=7`);
+    expect(req.request.method).toBe('DELETE');
+    expect(req.request.body).toBeNull();
+    req.flush(null, { status: 204, statusText: 'No Content' });
+    expect(completada).toBe(true);
+  });
 });
