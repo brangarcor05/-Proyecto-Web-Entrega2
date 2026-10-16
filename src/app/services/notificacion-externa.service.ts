@@ -21,7 +21,10 @@ export class NotificacionExternaService {
     return this.http.get<NotificacionExterna>(`${this.apiUrl}/${id}`);
   }
 
-  crear(request: CrearNotificacionExternaRequest, usuarioId: number): Observable<NotificacionExterna> {
+  crear(
+    request: CrearNotificacionExternaRequest,
+    usuarioId: number,
+  ): Observable<NotificacionExterna> {
     const params = new HttpParams().set('usuarioId', usuarioId);
     return this.http.post<NotificacionExterna>(this.apiUrl, request, { params });
   }

@@ -12,7 +12,16 @@ describe('EventoService', () => {
   let service: EventoService;
   let httpTesting: HttpTestingController;
   const apiUrl = `${environment.apiUrl}/eventos`;
-  const respuesta: Evento = { id: 5, procesoId: 2, poolId: 3, nombre: 'Inicio', tipo: 'INICIO', posicionX: null, posicionY: 0, activo: true };
+  const respuesta: Evento = {
+    id: 5,
+    procesoId: 2,
+    poolId: 3,
+    nombre: 'Inicio',
+    tipo: 'INICIO',
+    posicionX: null,
+    posicionY: 0,
+    activo: true,
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -47,7 +56,14 @@ describe('EventoService', () => {
   });
 
   it('crea con el cuerpo y el usuario indicados', () => {
-    const request: CrearEventoRequest = { procesoId: 2, poolId: 3, nombre: 'Inicio', tipo: 'INICIO', posicionX: null, posicionY: 0 };
+    const request: CrearEventoRequest = {
+      procesoId: 2,
+      poolId: 3,
+      nombre: 'Inicio',
+      tipo: 'INICIO',
+      posicionX: null,
+      posicionY: 0,
+    };
     service.crear(request, 7).subscribe((datos) => expect(datos).toEqual(respuesta));
     const req = httpTesting.expectOne(`${apiUrl}?usuarioId=7`);
     expect(req.request.method).toBe('POST');
@@ -56,7 +72,12 @@ describe('EventoService', () => {
   });
 
   it('actualiza sin enviar proceso ni pool contenedor', () => {
-    const request: ActualizarEventoRequest = { nombre: 'Fin', tipo: 'FIN', posicionX: 0, posicionY: null };
+    const request: ActualizarEventoRequest = {
+      nombre: 'Fin',
+      tipo: 'FIN',
+      posicionX: 0,
+      posicionY: null,
+    };
     const actualizada = { ...respuesta, ...request };
     service.actualizar(5, request, 7).subscribe((datos) => expect(datos).toEqual(actualizada));
     const req = httpTesting.expectOne(`${apiUrl}/5?usuarioId=7`);
@@ -69,11 +90,45 @@ describe('EventoService', () => {
 
   it('elimina y acepta una respuesta sin contenido', () => {
     let completada = false;
-    service.eliminar(5, 7).subscribe({ complete: () => { completada = true; } });
+    service.eliminar(5, 7).subscribe({
+      complete: () => {
+        completada = true;
+      },
+    });
     const req = httpTesting.expectOne(`${apiUrl}/5?usuarioId=7`);
     expect(req.request.method).toBe('DELETE');
     expect(req.request.body).toBeNull();
     req.flush(null, { status: 204, statusText: 'No Content' });
     expect(completada).toBe(true);
+  });
+
+  it('propaga el recurso no encontrado sin convertirlo en una respuesta valida', () => {
+    const error = { mensaje: 'Recurso no encontrado' };
+    service.buscarPorId(99).subscribe({
+      next: () => {
+        throw new Error('La consulta debia fallar');
+      },
+      error: (response) => {
+        expect(response.status).toBe(404);
+        expect(response.error).toEqual(error);
+      },
+    });
+    httpTesting.expectOne(`${apiUrl}/99`).flush(error, {
+      status: 404,
+      statusText: 'Not Found',
+    });
+  });
+
+  it('propaga la denegacion de permisos al eliminar', () => {
+    service.eliminar(5, 7).subscribe({
+      next: () => {
+        throw new Error('La eliminacion debia fallar');
+      },
+      error: (response) => expect(response.status).toBe(403),
+    });
+    httpTesting.expectOne(`${apiUrl}/5?usuarioId=7`).flush(null, {
+      status: 403,
+      statusText: 'Forbidden',
+    });
   });
 });

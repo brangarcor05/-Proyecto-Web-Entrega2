@@ -26,11 +26,7 @@ export class EventoService {
     return this.http.post<Evento>(this.apiUrl, request, { params });
   }
 
-  actualizar(
-    id: number,
-    request: ActualizarEventoRequest,
-    usuarioId: number,
-  ): Observable<Evento> {
+  actualizar(id: number, request: ActualizarEventoRequest, usuarioId: number): Observable<Evento> {
     const params = new HttpParams().set('usuarioId', usuarioId);
     return this.http.put<Evento>(`${this.apiUrl}/${id}`, request, { params });
   }
