@@ -1,0 +1,41 @@
+<form class="filtros" [formGroup]="formulario" (ngSubmit)="aplicar()">
+  <label>
+    Nombre
+    <input type="search" formControlName="nombre" placeholder="Buscar por nombre" />
+  </label>
+
+  <label>
+    Estado
+    <select formControlName="estado">
+      <option value="">Todos</option>
+      <option value="BORRADOR">Borrador</option>
+      <option value="PUBLICADO">Publicado</option>
+      <option value="INACTIVO">Inactivo</option>
+    </select>
+  </label>
+
+  <label>
+    Categoría
+    <input type="search" formControlName="categoria" placeholder="Ej. Operaciones" />
+  </label>
+
+  <label>
+    Ordenar
+    <select formControlName="sort">
+      <option value="id,asc">Más antiguos</option>
+      <option value="id,desc">Más recientes</option>
+      <option value="nombre,asc">Nombre A–Z</option>
+      <option value="nombre,desc">Nombre Z–A</option>
+    </select>
+  </label>
+
+  <label class="filtros__casilla">
+    <input type="checkbox" formControlName="incluirInactivos" />
+    Incluir inactivos
+  </label>
+
+  <div class="filtros__acciones">
+    <button type="submit">Buscar</button>
+    <button type="button" class="secundario" (click)="limpiar()">Limpiar</button>
+  </div>
+</form>
