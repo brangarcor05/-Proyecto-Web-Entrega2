@@ -14,6 +14,7 @@ export interface CrearUsuarioRequest {
   nombre: string;
   email: string;
   rolUsuario: RolUsuario;
+  password: string
 }
 
 export interface CambiarRolRequest {

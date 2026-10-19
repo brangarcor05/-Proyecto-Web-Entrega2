@@ -1,0 +1,52 @@
+<h2>Registro de empresa</h2>
+
+<form [formGroup]="form" (ngSubmit)="guardar()">
+  <h3>Datos de la empresa</h3>
+
+  <label>Nombre <input formControlName="nombre"></label>
+  @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+    <small>El nombre es obligatorio (máx. 100 caracteres)</small>
+  }
+
+  <label>RUC / NIT <input formControlName="ruc"></label>
+  @if (form.controls.ruc.touched && form.controls.ruc.invalid) {
+    <small>El RUC / NIT es obligatorio</small>
+  }
+
+  <label>Razón social <input formControlName="razonSocial"></label>
+  @if (form.controls.razonSocial.touched && form.controls.razonSocial.invalid) {
+    <small>La razón social es obligatoria</small>
+  }
+
+  <label>Correo de contacto <input type="email" formControlName="email"></label>
+  @if (form.controls.email.touched && form.controls.email.invalid) {
+    <small>Escribe un correo válido</small>
+  }
+
+  <label>Teléfono <input formControlName="telefono"></label>
+  <label>Dirección <input formControlName="direccion"></label>
+  <label>Sector <input formControlName="sector"></label>
+
+  <h3>Administrador inicial</h3>
+  <p>Iniciará sesión con el correo de contacto y esta contraseña.</p>
+
+  <label>Nombre del representante <input formControlName="adminNombre"></label>
+  @if (form.controls.adminNombre.touched && form.controls.adminNombre.invalid) {
+    <small>El nombre del representante es obligatorio</small>
+  }
+
+  <label>Contraseña <input type="password" formControlName="adminPassword"></label>
+  @if (form.controls.adminPassword.touched && form.controls.adminPassword.invalid) {
+    <small>Mínimo 8 caracteres</small>
+  }
+
+  <button type="submit" [disabled]="cargando()">
+    {{ cargando() ? 'Registrando…' : 'Registrar empresa' }}
+  </button>
+</form>
+
+@if (mensaje()) {
+  <p class="error">{{ mensaje() }}</p>
+}
+
+<p>¿Ya tienes cuenta? <a routerLink="/login">Iniciar sesión</a></p>
