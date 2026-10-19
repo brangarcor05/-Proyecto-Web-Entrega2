@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 import { PageResponse } from '../models/common/page-response.model';
 import { ActualizarProcesoRequest } from '../models/proceso/actualizar-proceso-request.model';
@@ -87,4 +88,3 @@ export class ProcesoService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, { params });
   }
 }
-import { environment } from '../../environments/environment';
