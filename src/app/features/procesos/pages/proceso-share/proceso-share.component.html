@@ -1,0 +1,48 @@
+<main class="compartir">
+  <a class="volver" [routerLink]="['/procesos', proceso?.id]">← Volver al proceso</a>
+  <header>
+    <h1>Compartir proceso</h1>
+    @if (proceso; as actual) {
+      <span>{{ actual.nombre }}</span>
+    }
+  </header>
+
+  @if (cargando) {
+    <p class="mensaje">Cargando proceso…</p>
+  }
+
+  @if (error) {
+    <p class="mensaje mensaje--error" role="alert">{{ error }}</p>
+  }
+
+  @if (!cargando && proceso) {
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
+      <label class="casilla">
+        <input type="checkbox" formControlName="compartido" />
+        Permitir que otras empresas consulten este proceso
+      </label>
+
+      @if (formulario.controls.compartido.value) {
+        <label>
+          Identificadores de empresas invitadas
+          <input type="text" formControlName="empresasIds" placeholder="Ej. 2, 3, 5" />
+          <small>Sepáralos con comas. Las empresas invitadas tendrán acceso de solo lectura.</small>
+          @if (formulario.controls.empresasIds.invalid && formulario.controls.empresasIds.touched) {
+            <small class="error-campo">Ingresa identificadores numéricos separados por comas.</small>
+          }
+        </label>
+      }
+
+      <p class="nota">
+        Esta entrada por identificadores es temporal hasta integrar el servicio de empresas del equipo.
+      </p>
+
+      <div class="acciones">
+        <button type="submit" [disabled]="guardando || formulario.disabled">
+          {{ guardando ? 'Guardando…' : 'Guardar compartición' }}
+        </button>
+        <a [routerLink]="['/procesos', proceso.id]">Cancelar</a>
+      </div>
+    </form>
+  }
+</main>

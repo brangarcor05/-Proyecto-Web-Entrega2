@@ -1,0 +1,99 @@
+.compartir {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.volver {
+  color: #3346c8;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+header {
+  margin: 1.5rem 0;
+}
+
+header h1,
+header p {
+  margin: 0;
+}
+
+header p {
+  color: #3346c8;
+  font-weight: 700;
+}
+
+form {
+  display: grid;
+  gap: 1.2rem;
+  padding: 1.5rem;
+  border: 1px solid #dbe3f0;
+  border-radius: 1rem;
+  background: #fff;
+}
+
+label:not(.casilla) {
+  display: grid;
+  gap: 0.45rem;
+  font-weight: 650;
+}
+
+.casilla {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 650;
+}
+
+input[type='text'] {
+  border: 1px solid #cbd5e1;
+  border-radius: 0.55rem;
+  padding: 0.7rem;
+  font: inherit;
+}
+
+small,
+.nota {
+  color: #64748b;
+}
+
+.error-campo,
+.mensaje--error {
+  color: #991b1b;
+}
+
+.nota {
+  margin: 0;
+  padding: 0.8rem;
+  border-radius: 0.55rem;
+  background: #f8fafc;
+  font-size: 0.85rem;
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.acciones button {
+  border: 0;
+  border-radius: 0.55rem;
+  padding: 0.7rem 1rem;
+  background: #3346c8;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mensaje {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: #eef2ff;
+}
+
+.mensaje--error {
+  background: #fef2f2;
+}
