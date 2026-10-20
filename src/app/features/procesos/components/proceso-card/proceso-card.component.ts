@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Proceso } from '../../../../models/proceso/proceso.model';
@@ -11,6 +11,6 @@ import { EstadoProcesoComponent } from '../estado-proceso/estado-proceso.compone
   styleUrl: './proceso-card.component.css',
 })
 export class ProcesoCardComponent {
-  readonly proceso = input.required<Proceso>();
-  readonly eliminar = output<Proceso>();
+  @Input({ required: true }) proceso!: Proceso;
+  @Output() eliminar = new EventEmitter<Proceso>();
 }

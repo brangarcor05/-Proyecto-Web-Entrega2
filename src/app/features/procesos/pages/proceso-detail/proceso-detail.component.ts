@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
@@ -20,10 +20,10 @@ export class ProcesoDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  readonly proceso = signal<Proceso | null>(null);
-  readonly cargando = signal(false);
-  readonly eliminando = signal(false);
-  readonly error = signal('');
+  proceso: Proceso | null = null;
+  cargando = false;
+  eliminando = false;
+  error = '';
 
   ngOnInit(): void {
     const id = this.obtenerId();
@@ -33,7 +33,7 @@ export class ProcesoDetailComponent implements OnInit {
   }
 
   eliminar(): void {
-    const proceso = this.proceso();
+    const proceso = this.proceso;
     if (!proceso || proceso.soloLectura) {
       return;
     }
@@ -42,33 +42,33 @@ export class ProcesoDetailComponent implements OnInit {
       return;
     }
 
-    this.eliminando.set(true);
-    this.error.set('');
+    this.eliminando = true;
+    this.error = '';
     this.procesoService
       .eliminar(proceso.id, PROCESO_CONTEXTO_TEMPORAL.usuarioId)
-      .pipe(finalize(() => this.eliminando.set(false)))
+      .pipe(finalize(() => (this.eliminando = false)))
       .subscribe({
         next: () => void this.router.navigate(['/procesos']),
-        error: (error: unknown) => this.error.set(this.apiErrorService.obtenerMensaje(error)),
+        error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),
       });
   }
 
   private cargar(id: number): void {
-    this.cargando.set(true);
-    this.error.set('');
+    this.cargando = true;
+    this.error = '';
     this.procesoService
       .buscarPorId(id, PROCESO_CONTEXTO_TEMPORAL.empresaId)
-      .pipe(finalize(() => this.cargando.set(false)))
+      .pipe(finalize(() => (this.cargando = false)))
       .subscribe({
-        next: (proceso) => this.proceso.set(proceso),
-        error: (error: unknown) => this.error.set(this.apiErrorService.obtenerMensaje(error)),
+        next: (proceso) => (this.proceso = proceso),
+        error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),
       });
   }
 
   private obtenerId(): number | null {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isInteger(id) || id <= 0) {
-      this.error.set('El identificador del proceso no es válido.');
+      this.error = 'El identificador del proceso no es válido.';
       return null;
     }
     return id;

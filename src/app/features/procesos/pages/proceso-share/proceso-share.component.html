@@ -1,21 +1,21 @@
 <main class="compartir">
-  <a class="volver" [routerLink]="['/procesos', proceso()?.id]">← Volver al proceso</a>
+  <a class="volver" [routerLink]="['/procesos', proceso?.id]">← Volver al proceso</a>
   <header>
     <h1>Compartir proceso</h1>
-    @if (proceso(); as actual) {
+    @if (proceso; as actual) {
       <span>{{ actual.nombre }}</span>
     }
   </header>
 
-  @if (cargando()) {
+  @if (cargando) {
     <p class="mensaje">Cargando proceso…</p>
   }
 
-  @if (error()) {
-    <p class="mensaje mensaje--error" role="alert">{{ error() }}</p>
+  @if (error) {
+    <p class="mensaje mensaje--error" role="alert">{{ error }}</p>
   }
 
-  @if (!cargando() && proceso()) {
+  @if (!cargando && proceso) {
     <form [formGroup]="formulario" (ngSubmit)="guardar()">
       <label class="casilla">
         <input type="checkbox" formControlName="compartido" />
@@ -38,10 +38,10 @@
       </p>
 
       <div class="acciones">
-        <button type="submit" [disabled]="guardando() || formulario.disabled">
-          {{ guardando() ? 'Guardando…' : 'Guardar compartición' }}
+        <button type="submit" [disabled]="guardando || formulario.disabled">
+          {{ guardando ? 'Guardando…' : 'Guardar compartición' }}
         </button>
-        <a [routerLink]="['/procesos', proceso()?.id]">Cancelar</a>
+        <a [routerLink]="['/procesos', proceso.id]">Cancelar</a>
       </div>
     </form>
   }

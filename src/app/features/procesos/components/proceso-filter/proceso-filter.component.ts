@@ -1,4 +1,4 @@
-import { Component, output } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 import { ConsultarProcesosParams } from '../../../../models/proceso/consultar-procesos-params.model';
@@ -13,7 +13,7 @@ export type FiltrosProceso = Omit<ConsultarProcesosParams, 'empresaId' | 'page' 
   styleUrl: './proceso-filter.component.css',
 })
 export class ProcesoFilterComponent {
-  readonly buscar = output<FiltrosProceso>();
+  @Output() buscar = new EventEmitter<FiltrosProceso>();
 
   readonly formulario = new FormGroup({
     nombre: new FormControl('', { nonNullable: true }),

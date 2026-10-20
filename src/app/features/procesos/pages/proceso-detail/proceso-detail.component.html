@@ -1,15 +1,15 @@
 <main class="detalle">
   <a class="volver" routerLink="/procesos">← Volver al listado</a>
 
-  @if (cargando()) {
+  @if (cargando) {
     <p class="mensaje">Cargando proceso…</p>
   }
 
-  @if (error()) {
-    <p class="mensaje mensaje--error" role="alert">{{ error() }}</p>
+  @if (error) {
+    <p class="mensaje mensaje--error" role="alert">{{ error }}</p>
   }
 
-  @if (!cargando() && proceso(); as actual) {
+  @if (!cargando && proceso; as actual) {
     <article>
       <header>
         <div>
@@ -31,8 +31,8 @@
           <a [routerLink]="['/procesos', actual.id, 'editar']">Editar</a>
           <a [routerLink]="['/procesos', actual.id, 'historial']">Historial</a>
           <a [routerLink]="['/procesos', actual.id, 'compartir']">Compartir</a>
-          <button type="button" (click)="eliminar()" [disabled]="eliminando()">
-            {{ eliminando() ? 'Eliminando…' : 'Eliminar' }}
+          <button type="button" (click)="eliminar()" [disabled]="eliminando">
+            {{ eliminando ? 'Eliminando…' : 'Eliminar' }}
           </button>
         }
       </footer>

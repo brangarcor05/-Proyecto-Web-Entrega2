@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { EstadoProceso } from '../../../../models/proceso/estado-proceso.model';
 
@@ -8,14 +8,14 @@ import { EstadoProceso } from '../../../../models/proceso/estado-proceso.model';
   styleUrl: './estado-proceso.component.css',
 })
 export class EstadoProcesoComponent {
-  readonly estado = input.required<EstadoProceso>();
+  @Input({ required: true }) estado!: EstadoProceso;
 
-  readonly etiqueta = computed(() => {
+  get etiqueta(): string {
     const etiquetas: Record<EstadoProceso, string> = {
       BORRADOR: 'Borrador',
       PUBLICADO: 'Publicado',
       INACTIVO: 'Inactivo',
     };
-    return etiquetas[this.estado()];
-  });
+    return etiquetas[this.estado];
+  }
 }

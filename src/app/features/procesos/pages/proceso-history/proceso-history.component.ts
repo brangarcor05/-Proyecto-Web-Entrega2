@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
@@ -18,26 +18,26 @@ export class ProcesoHistoryComponent implements OnInit {
   private readonly apiErrorService = inject(ApiErrorService);
   private readonly route = inject(ActivatedRoute);
 
-  readonly procesoId = signal<number | null>(null);
-  readonly registros = signal<Historial[]>([]);
-  readonly cargando = signal(false);
-  readonly error = signal('');
+  procesoId: number | null = null;
+  registros: Historial[] = [];
+  cargando = false;
+  error = '';
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isInteger(id) || id <= 0) {
-      this.error.set('El identificador del proceso no es válido.');
+      this.error = 'El identificador del proceso no es válido.';
       return;
     }
 
-    this.procesoId.set(id);
-    this.cargando.set(true);
+    this.procesoId = id;
+    this.cargando = true;
     this.procesoService
       .consultarHistorial(id, PROCESO_CONTEXTO_TEMPORAL.empresaId)
-      .pipe(finalize(() => this.cargando.set(false)))
+      .pipe(finalize(() => (this.cargando = false)))
       .subscribe({
-        next: (registros) => this.registros.set(registros),
-        error: (error: unknown) => this.error.set(this.apiErrorService.obtenerMensaje(error)),
+        next: (registros) => (this.registros = registros),
+        error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),
       });
   }
 }

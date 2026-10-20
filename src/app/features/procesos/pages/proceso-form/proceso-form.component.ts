@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -22,13 +22,19 @@ export class ProcesoFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  readonly cargando = signal(false);
-  readonly guardando = signal(false);
-  readonly error = signal('');
-  readonly camposInvalidos = signal<Record<string, string>>({});
-  readonly entradasCamposInvalidos = computed(() => Object.entries(this.camposInvalidos()));
-  readonly procesoId = signal<number | null>(null);
-  readonly esEdicion = computed(() => this.procesoId() !== null);
+  cargando = false;
+  guardando = false;
+  error = '';
+  camposInvalidos: Record<string, string> = {};
+  procesoId: number | null = null;
+
+  get entradasCamposInvalidos(): [string, string][] {
+    return Object.entries(this.camposInvalidos);
+  }
+
+  get esEdicion(): boolean {
+    return this.procesoId !== null;
+  }
 
   readonly formulario = new FormGroup({
     nombre: new FormControl('', {
@@ -57,11 +63,11 @@ export class ProcesoFormComponent implements OnInit {
 
     const id = Number(idTexto);
     if (!Number.isInteger(id) || id <= 0) {
-      this.error.set('El identificador del proceso no es válido.');
+      this.error = 'El identificador del proceso no es válido.';
       return;
     }
 
-    this.procesoId.set(id);
+    this.procesoId = id;
     this.cargarProceso(id);
   }
 
@@ -71,16 +77,16 @@ export class ProcesoFormComponent implements OnInit {
       return;
     }
 
-    this.guardando.set(true);
+    this.guardando = true;
     this.limpiarError();
     const valor = this.formulario.getRawValue();
-    const id = this.procesoId();
+    const id = this.procesoId;
 
     const operacion = id === null
       ? this.procesoService.crear(this.construirCreacion(valor), PROCESO_CONTEXTO_TEMPORAL.usuarioId)
       : this.procesoService.actualizar(id, this.construirActualizacion(valor), PROCESO_CONTEXTO_TEMPORAL.usuarioId);
 
-    operacion.pipe(finalize(() => this.guardando.set(false))).subscribe({
+    operacion.pipe(finalize(() => (this.guardando = false))).subscribe({
       next: (proceso) => void this.router.navigate(['/procesos', proceso.id]),
       error: (error: unknown) => this.manejarError(error),
     });
@@ -92,15 +98,15 @@ export class ProcesoFormComponent implements OnInit {
   }
 
   private cargarProceso(id: number): void {
-    this.cargando.set(true);
+    this.cargando = true;
     this.limpiarError();
     this.procesoService
       .buscarPorId(id, PROCESO_CONTEXTO_TEMPORAL.empresaId)
-      .pipe(finalize(() => this.cargando.set(false)))
+      .pipe(finalize(() => (this.cargando = false)))
       .subscribe({
         next: (proceso) => {
           if (proceso.soloLectura) {
-            this.error.set('Este proceso fue compartido en modo de solo lectura y no puede editarse.');
+            this.error = 'Este proceso fue compartido en modo de solo lectura y no puede editarse.';
             this.formulario.disable();
             return;
           }
@@ -129,12 +135,12 @@ export class ProcesoFormComponent implements OnInit {
   }
 
   private manejarError(error: unknown): void {
-    this.error.set(this.apiErrorService.obtenerMensaje(error));
-    this.camposInvalidos.set(this.apiErrorService.obtenerCamposInvalidos(error));
+    this.error = this.apiErrorService.obtenerMensaje(error);
+    this.camposInvalidos = this.apiErrorService.obtenerCamposInvalidos(error);
   }
 
   private limpiarError(): void {
-    this.error.set('');
-    this.camposInvalidos.set({});
+    this.error = '';
+    this.camposInvalidos = {};
   }
 }

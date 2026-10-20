@@ -1,22 +1,22 @@
 <main class="historial">
-  <a class="volver" [routerLink]="['/procesos', procesoId()]">← Volver al proceso</a>
+  <a class="volver" [routerLink]="['/procesos', procesoId]">← Volver al proceso</a>
   <header>
     <p>Auditoría</p>
     <h1>Historial del proceso</h1>
   </header>
 
-  @if (cargando()) {
+  @if (cargando) {
     <p class="mensaje">Cargando historial…</p>
   }
 
-  @if (error()) {
-    <p class="mensaje mensaje--error" role="alert">{{ error() }}</p>
+  @if (error) {
+    <p class="mensaje mensaje--error" role="alert">{{ error }}</p>
   }
 
-  @if (!cargando() && !error()) {
-    @if (registros().length > 0) {
+  @if (!cargando && !error) {
+    @if (registros.length > 0) {
       <ol>
-        @for (registro of registros(); track registro.id) {
+        @for (registro of registros; track registro.id) {
           <li>
             <div>
               <strong>{{ registro.accion }}</strong>

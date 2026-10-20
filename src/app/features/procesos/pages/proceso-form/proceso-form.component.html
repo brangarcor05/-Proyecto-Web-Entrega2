@@ -1,20 +1,20 @@
 <main class="pagina-formulario">
   <a class="volver" routerLink="/procesos">← Volver al listado</a>
   <header>
-    <p>{{ esEdicion() ? 'Edición' : 'Creación' }}</p>
-    <h1>{{ esEdicion() ? 'Editar proceso' : 'Crear proceso' }}</h1>
+    <p>{{ esEdicion ? 'Edición' : 'Creación' }}</p>
+    <h1>{{ esEdicion ? 'Editar proceso' : 'Crear proceso' }}</h1>
   </header>
 
-  @if (cargando()) {
+  @if (cargando) {
     <p class="mensaje">Cargando información del proceso…</p>
   }
 
-  @if (error()) {
+  @if (error) {
     <section class="mensaje mensaje--error" role="alert">
-      <p>{{ error() }}</p>
-      @if (entradasCamposInvalidos().length > 0) {
+      <p>{{ error }}</p>
+      @if (entradasCamposInvalidos.length > 0) {
         <ul>
-          @for (campo of entradasCamposInvalidos(); track campo[0]) {
+          @for (campo of entradasCamposInvalidos; track campo[0]) {
             <li>{{ campo[0] }}: {{ campo[1] }}</li>
           }
         </ul>
@@ -22,7 +22,7 @@
     </section>
   }
 
-  @if (!cargando()) {
+  @if (!cargando) {
     <form [formGroup]="formulario" (ngSubmit)="guardar()">
       <label>
         Nombre
@@ -48,7 +48,7 @@
         }
       </label>
 
-      @if (esEdicion()) {
+      @if (esEdicion) {
         <label>
           Estado
           <select formControlName="estado">
@@ -60,8 +60,8 @@
       }
 
       <div class="acciones">
-        <button type="submit" [disabled]="guardando() || formulario.disabled">
-          {{ guardando() ? 'Guardando…' : esEdicion() ? 'Actualizar proceso' : 'Crear proceso' }}
+        <button type="submit" [disabled]="guardando || formulario.disabled">
+          {{ guardando ? 'Guardando…' : esEdicion ? 'Actualizar proceso' : 'Crear proceso' }}
         </button>
         <a routerLink="/procesos">Cancelar</a>
       </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -21,10 +21,10 @@ export class ProcesoShareComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  readonly proceso = signal<Proceso | null>(null);
-  readonly cargando = signal(false);
-  readonly guardando = signal(false);
-  readonly error = signal('');
+  proceso: Proceso | null = null;
+  cargando = false;
+  guardando = false;
+  error = '';
 
   readonly formulario = new FormGroup({
     compartido: new FormControl(false, { nonNullable: true }),
@@ -37,7 +37,7 @@ export class ProcesoShareComponent implements OnInit {
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isInteger(id) || id <= 0) {
-      this.error.set('El identificador del proceso no es válido.');
+      this.error = 'El identificador del proceso no es válido.';
       return;
     }
 
@@ -45,7 +45,7 @@ export class ProcesoShareComponent implements OnInit {
   }
 
   guardar(): void {
-    const proceso = this.proceso();
+    const proceso = this.proceso;
     if (!proceso || proceso.soloLectura) {
       return;
     }
@@ -62,7 +62,7 @@ export class ProcesoShareComponent implements OnInit {
       .filter((id) => Number.isInteger(id) && id > 0);
 
     if (valor.compartido && empresasIds.length === 0) {
-      this.error.set('Para compartir el proceso debes indicar al menos una empresa.');
+      this.error = 'Para compartir el proceso debes indicar al menos una empresa.';
       return;
     }
 
@@ -71,32 +71,32 @@ export class ProcesoShareComponent implements OnInit {
       empresasIds: valor.compartido ? [...new Set(empresasIds)] : [],
     };
 
-    this.guardando.set(true);
-    this.error.set('');
+    this.guardando = true;
+    this.error = '';
     this.procesoService
       .compartir(proceso.id, request, PROCESO_CONTEXTO_TEMPORAL.usuarioId)
-      .pipe(finalize(() => this.guardando.set(false)))
+      .pipe(finalize(() => (this.guardando = false)))
       .subscribe({
         next: (actualizado) => void this.router.navigate(['/procesos', actualizado.id]),
-        error: (error: unknown) => this.error.set(this.apiErrorService.obtenerMensaje(error)),
+        error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),
       });
   }
 
   private cargar(id: number): void {
-    this.cargando.set(true);
+    this.cargando = true;
     this.procesoService
       .buscarPorId(id, PROCESO_CONTEXTO_TEMPORAL.empresaId)
-      .pipe(finalize(() => this.cargando.set(false)))
+      .pipe(finalize(() => (this.cargando = false)))
       .subscribe({
         next: (proceso) => {
-          this.proceso.set(proceso);
+          this.proceso = proceso;
           this.formulario.patchValue({ compartido: proceso.compartido });
           if (proceso.soloLectura) {
-            this.error.set('No puedes cambiar la compartición de un proceso ajeno.');
+            this.error = 'No puedes cambiar la compartición de un proceso ajeno.';
             this.formulario.disable();
           }
         },
-        error: (error: unknown) => this.error.set(this.apiErrorService.obtenerMensaje(error)),
+        error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),
       });
   }
 }

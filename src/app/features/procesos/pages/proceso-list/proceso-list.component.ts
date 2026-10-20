@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
@@ -21,12 +21,15 @@ export class ProcesoListComponent implements OnInit {
   private readonly procesoService = inject(ProcesoService);
   private readonly apiErrorService = inject(ApiErrorService);
 
-  readonly pagina = signal<PageResponse<Proceso> | null>(null);
-  readonly cargando = signal(false);
-  readonly eliminandoId = signal<number | null>(null);
-  readonly error = signal('');
-  readonly camposInvalidos = signal<Record<string, string>>({});
-  readonly entradasCamposInvalidos = computed(() => Object.entries(this.camposInvalidos()));
+  pagina: PageResponse<Proceso> | null = null;
+  cargando = false;
+  eliminandoId: number | null = null;
+  error = '';
+  camposInvalidos: Record<string, string> = {};
+
+  get entradasCamposInvalidos(): [string, string][] {
+    return Object.entries(this.camposInvalidos);
+  }
 
   private filtros: FiltrosProceso = {
     incluirInactivos: false,
@@ -43,14 +46,14 @@ export class ProcesoListComponent implements OnInit {
   }
 
   paginaAnterior(): void {
-    const paginaActual = this.pagina();
+    const paginaActual = this.pagina;
     if (paginaActual && !paginaActual.first) {
       this.consultar(paginaActual.number - 1);
     }
   }
 
   paginaSiguiente(): void {
-    const paginaActual = this.pagina();
+    const paginaActual = this.pagina;
     if (paginaActual && !paginaActual.last) {
       this.consultar(paginaActual.number + 1);
     }
@@ -64,19 +67,19 @@ export class ProcesoListComponent implements OnInit {
       return;
     }
 
-    this.eliminandoId.set(proceso.id);
+    this.eliminandoId = proceso.id;
     this.limpiarError();
     this.procesoService
       .eliminar(proceso.id, PROCESO_CONTEXTO_TEMPORAL.usuarioId)
-      .pipe(finalize(() => this.eliminandoId.set(null)))
+      .pipe(finalize(() => (this.eliminandoId = null)))
       .subscribe({
-        next: () => this.consultar(this.pagina()?.number ?? 0),
+        next: () => this.consultar(this.pagina?.number ?? 0),
         error: (error: unknown) => this.manejarError(error),
       });
   }
 
   private consultar(numeroPagina: number): void {
-    this.cargando.set(true);
+    this.cargando = true;
     this.limpiarError();
 
     const parametros: ConsultarProcesosParams = {
@@ -88,23 +91,23 @@ export class ProcesoListComponent implements OnInit {
 
     this.procesoService
       .consultar(parametros)
-      .pipe(finalize(() => this.cargando.set(false)))
+      .pipe(finalize(() => (this.cargando = false)))
       .subscribe({
-        next: (pagina) => this.pagina.set(pagina),
+        next: (pagina) => (this.pagina = pagina),
         error: (error: unknown) => {
-          this.pagina.set(null);
+          this.pagina = null;
           this.manejarError(error);
         },
       });
   }
 
   private manejarError(error: unknown): void {
-    this.error.set(this.apiErrorService.obtenerMensaje(error));
-    this.camposInvalidos.set(this.apiErrorService.obtenerCamposInvalidos(error));
+    this.error = this.apiErrorService.obtenerMensaje(error);
+    this.camposInvalidos = this.apiErrorService.obtenerCamposInvalidos(error);
   }
 
   private limpiarError(): void {
-    this.error.set('');
-    this.camposInvalidos.set({});
+    this.error = '';
+    this.camposInvalidos = {};
   }
 }

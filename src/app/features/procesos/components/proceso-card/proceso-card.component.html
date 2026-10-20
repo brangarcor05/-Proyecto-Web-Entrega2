@@ -1,27 +1,27 @@
 <article class="tarjeta">
   <header class="tarjeta__encabezado">
     <div>
-      <p class="tarjeta__categoria">{{ proceso().categoria }}</p>
-      <h2>{{ proceso().nombre }}</h2>
+      <p class="tarjeta__categoria">{{ proceso.categoria }}</p>
+      <h2>{{ proceso.nombre }}</h2>
     </div>
-    <app-estado-proceso [estado]="proceso().estado" />
+    <app-estado-proceso [estado]="proceso.estado" />
   </header>
 
-  <p class="tarjeta__descripcion">{{ proceso().descripcion }}</p>
-  <p class="tarjeta__empresa">Empresa: {{ proceso().empresaNombre }}</p>
+  <p class="tarjeta__descripcion">{{ proceso.descripcion }}</p>
+  <p class="tarjeta__empresa">Empresa: {{ proceso.empresaNombre }}</p>
 
-  @if (proceso().soloLectura) {
+  @if (proceso.soloLectura) {
     <p class="tarjeta__lectura">Proceso compartido en modo de solo lectura</p>
   }
 
   <footer class="tarjeta__acciones">
-    <a class="boton boton--secundario" [routerLink]="['/procesos', proceso().id]">Ver detalle</a>
+    <a class="boton boton--secundario" [routerLink]="['/procesos', proceso.id]">Ver detalle</a>
 
-    @if (!proceso().soloLectura) {
-      <a class="boton boton--secundario" [routerLink]="['/procesos', proceso().id, 'editar']">
+    @if (!proceso.soloLectura) {
+      <a class="boton boton--secundario" [routerLink]="['/procesos', proceso.id, 'editar']">
         Editar
       </a>
-      <button class="boton boton--peligro" type="button" (click)="eliminar.emit(proceso())">
+      <button class="boton boton--peligro" type="button" (click)="eliminar.emit(proceso)">
         Eliminar
       </button>
     }
