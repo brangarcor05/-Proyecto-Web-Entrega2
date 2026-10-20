@@ -1,0 +1,58 @@
+<main class="pagina">
+  <header class="pagina__encabezado">
+    <div>
+      <p class="pagina__sobrelinea">Gestión de procesos</p>
+      <h1>Procesos de la empresa</h1>
+      <p>Consulta, filtra y administra los procesos propios y los compartidos contigo.</p>
+    </div>
+    <a class="boton-primario" routerLink="/procesos/nuevo">Crear proceso</a>
+  </header>
+
+  <app-proceso-filter (buscar)="aplicarFiltros($event)" />
+
+  @if (cargando()) {
+    <p class="mensaje">Cargando procesos…</p>
+  }
+
+  @if (error()) {
+    <section class="mensaje mensaje--error" role="alert">
+      <p>{{ error() }}</p>
+      @if (entradasCamposInvalidos().length > 0) {
+        <ul>
+          @for (campo of entradasCamposInvalidos(); track campo[0]) {
+            <li>{{ campo[0] }}: {{ campo[1] }}</li>
+          }
+        </ul>
+      }
+    </section>
+  }
+
+  @if (!cargando() && !error() && pagina(); as resultado) {
+    @if (resultado.content.length > 0) {
+      <section class="rejilla" aria-label="Listado de procesos">
+        @for (proceso of resultado.content; track proceso.id) {
+          <app-proceso-card
+            [proceso]="proceso"
+            (eliminar)="solicitarEliminacion($event)"
+          />
+        }
+      </section>
+
+      <nav class="paginacion" aria-label="Paginación de procesos">
+        <button type="button" (click)="paginaAnterior()" [disabled]="resultado.first || cargando()">
+          Anterior
+        </button>
+        <span>Página {{ resultado.number + 1 }} de {{ resultado.totalPages }}</span>
+        <button type="button" (click)="paginaSiguiente()" [disabled]="resultado.last || cargando()">
+          Siguiente
+        </button>
+      </nav>
+    } @else {
+      <p class="mensaje">No se encontraron procesos con los filtros seleccionados.</p>
+    }
+  }
+
+  @if (eliminandoId()) {
+    <p class="mensaje">Eliminando proceso…</p>
+  }
+</main>
