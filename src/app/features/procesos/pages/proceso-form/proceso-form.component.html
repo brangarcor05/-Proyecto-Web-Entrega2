@@ -1,0 +1,70 @@
+<main class="pagina-formulario">
+  <a class="volver" routerLink="/procesos">← Volver al listado</a>
+  <header>
+    <p>{{ esEdicion() ? 'Edición' : 'Creación' }}</p>
+    <h1>{{ esEdicion() ? 'Editar proceso' : 'Crear proceso' }}</h1>
+  </header>
+
+  @if (cargando()) {
+    <p class="mensaje">Cargando información del proceso…</p>
+  }
+
+  @if (error()) {
+    <section class="mensaje mensaje--error" role="alert">
+      <p>{{ error() }}</p>
+      @if (entradasCamposInvalidos().length > 0) {
+        <ul>
+          @for (campo of entradasCamposInvalidos(); track campo[0]) {
+            <li>{{ campo[0] }}: {{ campo[1] }}</li>
+          }
+        </ul>
+      }
+    </section>
+  }
+
+  @if (!cargando()) {
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
+      <label>
+        Nombre
+        <input type="text" formControlName="nombre" maxlength="150" />
+        @if (campoInvalido('nombre')) {
+          <small>El nombre es obligatorio y no puede superar 150 caracteres.</small>
+        }
+      </label>
+
+      <label>
+        Descripción
+        <textarea formControlName="descripcion" rows="6" maxlength="2000"></textarea>
+        @if (campoInvalido('descripcion')) {
+          <small>La descripción es obligatoria y no puede superar 2000 caracteres.</small>
+        }
+      </label>
+
+      <label>
+        Categoría
+        <input type="text" formControlName="categoria" maxlength="100" />
+        @if (campoInvalido('categoria')) {
+          <small>La categoría es obligatoria y no puede superar 100 caracteres.</small>
+        }
+      </label>
+
+      @if (esEdicion()) {
+        <label>
+          Estado
+          <select formControlName="estado">
+            <option value="BORRADOR">Borrador</option>
+            <option value="PUBLICADO">Publicado</option>
+            <option value="INACTIVO">Inactivo</option>
+          </select>
+        </label>
+      }
+
+      <div class="acciones">
+        <button type="submit" [disabled]="guardando() || formulario.disabled">
+          {{ guardando() ? 'Guardando…' : esEdicion() ? 'Actualizar proceso' : 'Crear proceso' }}
+        </button>
+        <a routerLink="/procesos">Cancelar</a>
+      </div>
+    </form>
+  }
+</main>
