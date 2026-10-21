@@ -2,7 +2,7 @@
   <header class="pagina__encabezado">
     <div>
       <p class="pagina__sobrelinea">Gestión de procesos</p>
-      <h1>Procesos de la empresa</h1>
+      <h1>Procesos de {{ autenticacionService.sesion()?.empresaNombre }}</h1>
       <p>Consulta, filtra y administra los procesos propios y los compartidos contigo.</p>
     </div>
     <a class="boton-primario" routerLink="/procesos/nuevo">Crear proceso</a>

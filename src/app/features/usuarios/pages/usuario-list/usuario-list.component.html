@@ -1,5 +1,6 @@
 <header>
   <h2>Usuarios de {{ sesion()?.empresaNombre }}</h2>
+  <a routerLink="/procesos">Ver procesos</a>
   <a routerLink="/usuarios/nuevo">Invitar usuario</a>
   <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>
 </header>

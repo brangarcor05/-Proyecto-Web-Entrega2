@@ -1,8 +1,16 @@
 
 <nav>
-  <a routerLink="/login">Ingresar</a>
-  <a routerLink="/empresas/nueva">Registrar empresa</a>
-  <a routerLink="/usuarios">Usuarios</a>
+  @if (sesion(); as usuarioActual) {
+    <a routerLink="/procesos">Procesos</a>
+    @if (usuarioActual.rolUsuario === 'ADMIN') {
+      <a routerLink="/usuarios">Usuarios</a>
+    }
+    <span>{{ usuarioActual.nombre }} · {{ usuarioActual.empresaNombre }}</span>
+    <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>
+  } @else {
+    <a routerLink="/login">Ingresar</a>
+    <a routerLink="/empresas/nueva">Registrar empresa</a>
+  }
 </nav>
 
 <router-outlet />

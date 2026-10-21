@@ -34,9 +34,10 @@ export class LoginFormComponent {
 
     // Paso 6: getRawValue() ya es un LoginRequest tipado
     this.auth.login(this.form.getRawValue()).subscribe({
-      next: () => {
+      next: sesion => {
         this.cargando.set(false);
-        this.router.navigate(['/usuarios']);
+        const destino = sesion.rolUsuario === 'ADMIN' ? '/usuarios' : '/procesos';
+        void this.router.navigate([destino]);
       },
       error: err => {
         this.cargando.set(false);

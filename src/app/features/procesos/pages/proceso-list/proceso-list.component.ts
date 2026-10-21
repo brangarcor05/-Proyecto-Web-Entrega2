@@ -21,7 +21,7 @@ import { ProcesoCardComponent } from '../../components/proceso-card/proceso-card
 export class ProcesoListComponent implements OnInit {
   private readonly procesoService = inject(ProcesoService);
   private readonly apiErrorService = inject(ApiErrorService);
-  private readonly autenticacionService = inject(AutenticacionService);
+  readonly autenticacionService = inject(AutenticacionService);
   private readonly router = inject(Router);
 
   pagina: PageResponse<Proceso> | null = null;
