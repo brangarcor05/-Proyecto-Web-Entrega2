@@ -4,11 +4,12 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { SesionResponse } from '../../../../models/auth/auth.model';
 import { ActualizarProcesoRequest } from '../../../../models/proceso/actualizar-proceso-request.model';
 import { CrearProcesoRequest } from '../../../../models/proceso/crear-proceso-request.model';
 import { EstadoProceso } from '../../../../models/proceso/estado-proceso.model';
+import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso.service';
-import { PROCESO_CONTEXTO_TEMPORAL } from '../../proceso-contexto';
 
 @Component({
   selector: 'app-proceso-form',
@@ -21,6 +22,7 @@ export class ProcesoFormComponent implements OnInit {
   private readonly apiErrorService = inject(ApiErrorService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly autenticacionService = inject(AutenticacionService);
 
   cargando = false;
   guardando = false;
@@ -56,6 +58,10 @@ export class ProcesoFormComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    if (!this.obtenerSesion()) {
+      return;
+    }
+
     const idTexto = this.route.snapshot.paramMap.get('id');
     if (!idTexto) {
       return;
@@ -72,6 +78,11 @@ export class ProcesoFormComponent implements OnInit {
   }
 
   guardar(): void {
+    const sesion = this.obtenerSesion();
+    if (!sesion) {
+      return;
+    }
+
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
       return;
@@ -83,8 +94,8 @@ export class ProcesoFormComponent implements OnInit {
     const id = this.procesoId;
 
     const operacion = id === null
-      ? this.procesoService.crear(this.construirCreacion(valor), PROCESO_CONTEXTO_TEMPORAL.usuarioId)
-      : this.procesoService.actualizar(id, this.construirActualizacion(valor), PROCESO_CONTEXTO_TEMPORAL.usuarioId);
+      ? this.procesoService.crear(this.construirCreacion(valor, sesion.empresaId), sesion.usuarioId)
+      : this.procesoService.actualizar(id, this.construirActualizacion(valor), sesion.usuarioId);
 
     operacion.pipe(finalize(() => (this.guardando = false))).subscribe({
       next: (proceso) => void this.router.navigate(['/procesos', proceso.id]),
@@ -98,10 +109,15 @@ export class ProcesoFormComponent implements OnInit {
   }
 
   private cargarProceso(id: number): void {
+    const sesion = this.obtenerSesion();
+    if (!sesion) {
+      return;
+    }
+
     this.cargando = true;
     this.limpiarError();
     this.procesoService
-      .buscarPorId(id, PROCESO_CONTEXTO_TEMPORAL.empresaId)
+      .buscarPorId(id, sesion.empresaId)
       .pipe(finalize(() => (this.cargando = false)))
       .subscribe({
         next: (proceso) => {
@@ -116,9 +132,9 @@ export class ProcesoFormComponent implements OnInit {
       });
   }
 
-  private construirCreacion(valor: typeof this.formulario.value): CrearProcesoRequest {
+  private construirCreacion(valor: typeof this.formulario.value, empresaId: number): CrearProcesoRequest {
     return {
-      empresaId: PROCESO_CONTEXTO_TEMPORAL.empresaId,
+      empresaId,
       nombre: valor.nombre?.trim() ?? '',
       descripcion: valor.descripcion?.trim() ?? '',
       categoria: valor.categoria?.trim() ?? '',
@@ -142,5 +158,13 @@ export class ProcesoFormComponent implements OnInit {
   private limpiarError(): void {
     this.error = '';
     this.camposInvalidos = {};
+  }
+
+  private obtenerSesion(): SesionResponse | null {
+    const sesion = this.autenticacionService.sesion();
+    if (!sesion) {
+      void this.router.navigate(['/login']);
+    }
+    return sesion;
   }
 }

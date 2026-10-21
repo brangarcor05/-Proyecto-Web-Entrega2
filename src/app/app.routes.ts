@@ -8,7 +8,7 @@ import { ProcesoListComponent } from './features/procesos/pages/proceso-list/pro
 import { ProcesoShareComponent } from './features/procesos/pages/proceso-share/proceso-share.component';
 
 export const routes: Routes = [
-   { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
   {
     path: 'login',
     loadComponent: () => import('./features/auth/components/login-form.component')
@@ -28,9 +28,7 @@ export const routes: Routes = [
     path: 'usuarios/nuevo',
     loadComponent: () => import('./features/usuarios/components/usuario-form/usuario-form.component')
       .then(m => m.UsuarioFormComponent)
-  }
-  
-  { path: '', redirectTo: 'procesos', pathMatch: 'full' },
+  },
   { path: 'procesos', component: ProcesoListComponent },
   { path: 'procesos/nuevo', component: ProcesoFormComponent },
   { path: 'procesos/:id/editar', component: ProcesoFormComponent },
@@ -38,5 +36,4 @@ export const routes: Routes = [
   { path: 'procesos/:id/compartir', component: ProcesoShareComponent },
   { path: 'procesos/:id', component: ProcesoDetailComponent },
   { path: '**', component: NotFoundComponent },
-  
 ];

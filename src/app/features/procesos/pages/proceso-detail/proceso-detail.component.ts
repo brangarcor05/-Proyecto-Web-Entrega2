@@ -3,10 +3,11 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { SesionResponse } from '../../../../models/auth/auth.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
+import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso.service';
 import { EstadoProcesoComponent } from '../../components/estado-proceso/estado-proceso.component';
-import { PROCESO_CONTEXTO_TEMPORAL } from '../../proceso-contexto';
 
 @Component({
   selector: 'app-proceso-detail',
@@ -19,6 +20,7 @@ export class ProcesoDetailComponent implements OnInit {
   private readonly apiErrorService = inject(ApiErrorService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly autenticacionService = inject(AutenticacionService);
 
   proceso: Proceso | null = null;
   cargando = false;
@@ -26,6 +28,10 @@ export class ProcesoDetailComponent implements OnInit {
   error = '';
 
   ngOnInit(): void {
+    if (!this.obtenerSesion()) {
+      return;
+    }
+
     const id = this.obtenerId();
     if (id !== null) {
       this.cargar(id);
@@ -33,6 +39,11 @@ export class ProcesoDetailComponent implements OnInit {
   }
 
   eliminar(): void {
+    const sesion = this.obtenerSesion();
+    if (!sesion) {
+      return;
+    }
+
     const proceso = this.proceso;
     if (!proceso || proceso.soloLectura) {
       return;
@@ -45,7 +56,7 @@ export class ProcesoDetailComponent implements OnInit {
     this.eliminando = true;
     this.error = '';
     this.procesoService
-      .eliminar(proceso.id, PROCESO_CONTEXTO_TEMPORAL.usuarioId)
+      .eliminar(proceso.id, sesion.usuarioId)
       .pipe(finalize(() => (this.eliminando = false)))
       .subscribe({
         next: () => void this.router.navigate(['/procesos']),
@@ -54,10 +65,15 @@ export class ProcesoDetailComponent implements OnInit {
   }
 
   private cargar(id: number): void {
+    const sesion = this.obtenerSesion();
+    if (!sesion) {
+      return;
+    }
+
     this.cargando = true;
     this.error = '';
     this.procesoService
-      .buscarPorId(id, PROCESO_CONTEXTO_TEMPORAL.empresaId)
+      .buscarPorId(id, sesion.empresaId)
       .pipe(finalize(() => (this.cargando = false)))
       .subscribe({
         next: (proceso) => (this.proceso = proceso),
@@ -72,5 +88,13 @@ export class ProcesoDetailComponent implements OnInit {
       return null;
     }
     return id;
+  }
+
+  private obtenerSesion(): SesionResponse | null {
+    const sesion = this.autenticacionService.sesion();
+    if (!sesion) {
+      void this.router.navigate(['/login']);
+    }
+    return sesion;
   }
 }

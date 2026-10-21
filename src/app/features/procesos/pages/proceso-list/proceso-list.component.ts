@@ -1,15 +1,16 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { PageResponse } from '../../../../models/common/page-response.model';
 import { ConsultarProcesosParams } from '../../../../models/proceso/consultar-procesos-params.model';
+import { SesionResponse } from '../../../../models/auth/auth.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
+import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso.service';
 import { FiltrosProceso, ProcesoFilterComponent } from '../../components/proceso-filter/proceso-filter.component';
 import { ProcesoCardComponent } from '../../components/proceso-card/proceso-card.component';
-import { PROCESO_CONTEXTO_TEMPORAL } from '../../proceso-contexto';
 
 @Component({
   selector: 'app-proceso-list',
@@ -20,6 +21,8 @@ import { PROCESO_CONTEXTO_TEMPORAL } from '../../proceso-contexto';
 export class ProcesoListComponent implements OnInit {
   private readonly procesoService = inject(ProcesoService);
   private readonly apiErrorService = inject(ApiErrorService);
+  private readonly autenticacionService = inject(AutenticacionService);
+  private readonly router = inject(Router);
 
   pagina: PageResponse<Proceso> | null = null;
   cargando = false;
@@ -37,7 +40,9 @@ export class ProcesoListComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.consultar(0);
+    if (this.obtenerSesion()) {
+      this.consultar(0);
+    }
   }
 
   aplicarFiltros(filtros: FiltrosProceso): void {
@@ -60,6 +65,11 @@ export class ProcesoListComponent implements OnInit {
   }
 
   solicitarEliminacion(proceso: Proceso): void {
+    const sesion = this.obtenerSesion();
+    if (!sesion) {
+      return;
+    }
+
     const confirmado = window.confirm(
       `¿Deseas eliminar el proceso “${proceso.nombre}”? Esta acción lo marcará como inactivo.`,
     );
@@ -70,7 +80,7 @@ export class ProcesoListComponent implements OnInit {
     this.eliminandoId = proceso.id;
     this.limpiarError();
     this.procesoService
-      .eliminar(proceso.id, PROCESO_CONTEXTO_TEMPORAL.usuarioId)
+      .eliminar(proceso.id, sesion.usuarioId)
       .pipe(finalize(() => (this.eliminandoId = null)))
       .subscribe({
         next: () => this.consultar(this.pagina?.number ?? 0),
@@ -79,11 +89,16 @@ export class ProcesoListComponent implements OnInit {
   }
 
   private consultar(numeroPagina: number): void {
+    const sesion = this.obtenerSesion();
+    if (!sesion) {
+      return;
+    }
+
     this.cargando = true;
     this.limpiarError();
 
     const parametros: ConsultarProcesosParams = {
-      empresaId: PROCESO_CONTEXTO_TEMPORAL.empresaId,
+      empresaId: sesion.empresaId,
       ...this.filtros,
       page: numeroPagina,
       size: 9,
@@ -109,5 +124,13 @@ export class ProcesoListComponent implements OnInit {
   private limpiarError(): void {
     this.error = '';
     this.camposInvalidos = {};
+  }
+
+  private obtenerSesion(): SesionResponse | null {
+    const sesion = this.autenticacionService.sesion();
+    if (!sesion) {
+      void this.router.navigate(['/login']);
+    }
+    return sesion;
   }
 }

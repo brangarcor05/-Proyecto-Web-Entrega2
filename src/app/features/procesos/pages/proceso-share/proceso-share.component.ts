@@ -4,10 +4,11 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { SesionResponse } from '../../../../models/auth/auth.model';
 import { CompartirProcesoRequest } from '../../../../models/proceso/compartir-proceso-request.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
+import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso.service';
-import { PROCESO_CONTEXTO_TEMPORAL } from '../../proceso-contexto';
 
 @Component({
   selector: 'app-proceso-share',
@@ -20,6 +21,7 @@ export class ProcesoShareComponent implements OnInit {
   private readonly apiErrorService = inject(ApiErrorService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly autenticacionService = inject(AutenticacionService);
 
   proceso: Proceso | null = null;
   cargando = false;
@@ -35,6 +37,10 @@ export class ProcesoShareComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    if (!this.obtenerSesion()) {
+      return;
+    }
+
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isInteger(id) || id <= 0) {
       this.error = 'El identificador del proceso no es válido.';
@@ -45,6 +51,11 @@ export class ProcesoShareComponent implements OnInit {
   }
 
   guardar(): void {
+    const sesion = this.obtenerSesion();
+    if (!sesion) {
+      return;
+    }
+
     const proceso = this.proceso;
     if (!proceso || proceso.soloLectura) {
       return;
@@ -74,7 +85,7 @@ export class ProcesoShareComponent implements OnInit {
     this.guardando = true;
     this.error = '';
     this.procesoService
-      .compartir(proceso.id, request, PROCESO_CONTEXTO_TEMPORAL.usuarioId)
+      .compartir(proceso.id, request, sesion.usuarioId)
       .pipe(finalize(() => (this.guardando = false)))
       .subscribe({
         next: (actualizado) => void this.router.navigate(['/procesos', actualizado.id]),
@@ -83,9 +94,14 @@ export class ProcesoShareComponent implements OnInit {
   }
 
   private cargar(id: number): void {
+    const sesion = this.obtenerSesion();
+    if (!sesion) {
+      return;
+    }
+
     this.cargando = true;
     this.procesoService
-      .buscarPorId(id, PROCESO_CONTEXTO_TEMPORAL.empresaId)
+      .buscarPorId(id, sesion.empresaId)
       .pipe(finalize(() => (this.cargando = false)))
       .subscribe({
         next: (proceso) => {
@@ -98,5 +114,13 @@ export class ProcesoShareComponent implements OnInit {
         },
         error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),
       });
+  }
+
+  private obtenerSesion(): SesionResponse | null {
+    const sesion = this.autenticacionService.sesion();
+    if (!sesion) {
+      void this.router.navigate(['/login']);
+    }
+    return sesion;
   }
 }
