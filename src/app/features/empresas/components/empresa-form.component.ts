@@ -20,7 +20,7 @@ export class EmpresaFormComponent {
   // Mismas reglas que CrearEmpresaRequest.java (@NotBlank, @Size, @Email)
   form = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.maxLength(100)]],
-    ruc: ['', [Validators.required, Validators.maxLength(20)]],
+    rut: ['', [Validators.required, Validators.maxLength(20)]],
     razonSocial: ['', [Validators.required, Validators.maxLength(200)]],
     email: ['', [Validators.required, Validators.email]],
     telefono: ['', [Validators.maxLength(20)]],

@@ -18,6 +18,16 @@
   @case ('success') {
     @if (usuarios().length === 0) {
       <p>Aún no hay usuarios.</p>
+    } @else {
+      <div class="lista-usuarios">
+        @for (usuario of usuarios(); track usuario.id) {
+          <app-tarjeta-usuario
+            [usuario]="usuario"
+            (desactivar)="desactivar($event)"
+            (cambiarRol)="cambiarRol($event)">
+          </app-tarjeta-usuario>
+        }
+      </div>
     }
   }
 }

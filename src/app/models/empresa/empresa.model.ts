@@ -1,7 +1,7 @@
 export interface Empresa {
   id: number;
   nombre: string;
-  ruc: string;
+  rut: string;
   razonSocial: string;
   email: string;
   telefono?: string;
@@ -14,7 +14,7 @@ export interface Empresa {
 
 export interface CrearEmpresaRequest {
   nombre: string;
-  ruc: string;
+  rut: string;
   razonSocial: string;
   email: string;
   telefono?: string;

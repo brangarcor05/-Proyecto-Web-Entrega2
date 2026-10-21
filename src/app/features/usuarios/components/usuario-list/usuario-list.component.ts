@@ -4,10 +4,11 @@ import { UsuarioService } from '../../../../services/usuario/Usuario.service';
 import { Usuario } from '../../../../models/usuario/usuario.model';
 import { mensajeDeError } from '../../../../shared/components/error-message/mensaje.error';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
+import { CambioRol, TarjetaUsuarioComponent } from '../../../../shared/components/card/Tarjeta-Usuario.component';
 
 @Component({
   selector: 'app-usuario-list',
-  imports: [RouterLink],
+  imports: [RouterLink, TarjetaUsuarioComponent],
   templateUrl: '../../pages/usuario-list/usuario-list.component.html'
 })
 export class UsuarioListComponent implements OnInit {
@@ -51,6 +52,14 @@ export class UsuarioListComponent implements OnInit {
       error: err => this.message.set(mensajeDeError(err))
     });
   }
+    
+  cambiarRol(cambio: CambioRol): void {
+    this.service.cambiarRol(cambio.usuario.id, { rolUsuario: cambio.rolUsuario }).subscribe({
+      next: () => this.load(),
+      error: err => this.message.set(mensajeDeError(err))
+    });
+  }
+
 
   cerrarSesion(): void {
     this.auth.logout();
