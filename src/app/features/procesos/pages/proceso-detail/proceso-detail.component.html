@@ -1,0 +1,41 @@
+<main class="detalle">
+  <a class="volver" routerLink="/procesos">← Volver al listado</a>
+
+  @if (cargando) {
+    <p class="mensaje">Cargando proceso…</p>
+  }
+
+  @if (error) {
+    <p class="mensaje mensaje--error" role="alert">{{ error }}</p>
+  }
+
+  @if (!cargando && proceso; as actual) {
+    <article>
+      <header>
+        <div>
+          <p class="categoria">{{ actual.categoria }}</p>
+          <h1>{{ actual.nombre }}</h1>
+        </div>
+        <app-estado-proceso [estado]="actual.estado" />
+      </header>
+
+      <dl>
+        <div><dt>Descripción</dt><dd>{{ actual.descripcion }}</dd></div>
+        <div><dt>Empresa propietaria</dt><dd>{{ actual.empresaNombre }}</dd></div>
+        <div><dt>Compartido</dt><dd>{{ actual.compartido ? 'Sí' : 'No' }}</dd></div>
+        <div><dt>Acceso</dt><dd>{{ actual.soloLectura ? 'Solo lectura' : 'Edición permitida' }}</dd></div>
+      </dl>
+
+      <footer>
+        @if (!actual.soloLectura) {
+          <a [routerLink]="['/procesos', actual.id, 'editar']">Editar</a>
+          <a [routerLink]="['/procesos', actual.id, 'historial']">Historial</a>
+          <a [routerLink]="['/procesos', actual.id, 'compartir']">Compartir</a>
+          <button type="button" (click)="eliminar()" [disabled]="eliminando">
+            {{ eliminando ? 'Eliminando…' : 'Eliminar' }}
+          </button>
+        }
+      </footer>
+    </article>
+  }
+</main>
