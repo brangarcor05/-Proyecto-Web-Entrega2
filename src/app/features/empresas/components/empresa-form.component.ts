@@ -7,7 +7,8 @@ import { mensajeDeError } from '../../../shared/components/error-message/mensaje
 @Component({
   selector: 'app-empresa-form',
   imports: [ReactiveFormsModule, RouterLink],
-  templateUrl: '../pages/empresa-form/empresa-form.component.html'
+  templateUrl: '../pages/empresa-form/empresa-form.component.html',
+  styleUrls: ['../pages/empresa-form/empresa-form.css']
 })
 export class EmpresaFormComponent {
   private fb = inject(FormBuilder);

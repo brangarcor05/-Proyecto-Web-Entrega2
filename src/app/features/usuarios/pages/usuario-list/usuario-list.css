@@ -1,0 +1,76 @@
+header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+header h2 {
+  margin: 0;
+  margin-right: auto;
+  font-size: 1.5rem;
+}
+
+header a {
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  transition: all var(--transition);
+}
+
+header a:hover {
+  background: var(--bg-soft);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+header a[routerLink="/usuarios/nuevo"] {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+header a[routerLink="/usuarios/nuevo"]:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+}
+
+header button {
+  padding: 0.55rem 1rem;
+  font-size: 0.9rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+header button:hover {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+/* ============ LISTA ============ */
+.lista-usuarios {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Estado vacío / loading */
+:host > p {
+  text-align: center;
+  color: var(--text-dim);
+  padding: 3rem 0;
+  font-size: 1rem;
+}
+
+/* Botón reintentar */
+:host > button {
+  display: block;
+  margin: 2rem auto;
+}
