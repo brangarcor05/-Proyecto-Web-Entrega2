@@ -1,52 +1,54 @@
-<h2>Registro de empresa</h2>
+<div class="pagina-formulario">
+  <h2>Registro de empresa</h2>
 
-<form [formGroup]="form" (ngSubmit)="guardar()">
-  <h3>Datos de la empresa</h3>
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="tarjeta">
+    <h3>Datos de la empresa</h3>
 
-  <label>Nombre <input formControlName="nombre"></label>
-  @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
-    <small>El nombre es obligatorio (máx. 100 caracteres)</small>
+    <label class="campo">Nombre <input formControlName="nombre"></label>
+    @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+      <small>El nombre es obligatorio (máx. 100 caracteres)</small>
+    }
+
+    <label class="campo">RUT <input formControlName="rut"></label>
+    @if (form.controls.rut.touched && form.controls.rut.invalid) {
+      <small>El RUT es obligatorio</small>
+    }
+
+    <label class="campo">Razón social <input formControlName="razonSocial"></label>
+    @if (form.controls.razonSocial.touched && form.controls.razonSocial.invalid) {
+      <small>La razón social es obligatoria</small>
+    }
+
+    <label class="campo">Correo de contacto <input type="email" formControlName="email"></label>
+    @if (form.controls.email.touched && form.controls.email.invalid) {
+      <small>Escribe un correo válido</small>
+    }
+
+    <label class="campo">Teléfono <input formControlName="telefono"></label>
+    <label class="campo">Dirección <input formControlName="direccion"></label>
+    <label class="campo">Sector <input formControlName="sector"></label>
+
+    <h3>Administrador inicial</h3>
+    <p class="nota">Iniciará sesión con el correo de contacto y esta contraseña.</p>
+
+    <label class="campo">Nombre del representante <input formControlName="adminNombre"></label>
+    @if (form.controls.adminNombre.touched && form.controls.adminNombre.invalid) {
+      <small>El nombre del representante es obligatorio</small>
+    }
+
+    <label class="campo">Contraseña <input type="password" formControlName="adminPassword"></label>
+    @if (form.controls.adminPassword.touched && form.controls.adminPassword.invalid) {
+      <small>Mínimo 8 caracteres</small>
+    }
+
+    <button type="submit" class="btn btn--primario" [disabled]="cargando()">
+      {{ cargando() ? 'Registrando…' : 'Registrar empresa' }}
+    </button>
+  </form>
+
+  @if (mensaje()) {
+    <p class="mensaje mensaje--error">{{ mensaje() }}</p>
   }
 
-  <label>RUT <input formControlName="rut"></label>
-  @if (form.controls.rut.touched && form.controls.rut.invalid) {
-    <small>El RUT es obligatorio</small>
-  }
-
-  <label>Razón social <input formControlName="razonSocial"></label>
-  @if (form.controls.razonSocial.touched && form.controls.razonSocial.invalid) {
-    <small>La razón social es obligatoria</small>
-  }
-
-  <label>Correo de contacto <input type="email" formControlName="email"></label>
-  @if (form.controls.email.touched && form.controls.email.invalid) {
-    <small>Escribe un correo válido</small>
-  }
-
-  <label>Teléfono <input formControlName="telefono"></label>
-  <label>Dirección <input formControlName="direccion"></label>
-  <label>Sector <input formControlName="sector"></label>
-
-  <h3>Administrador inicial</h3>
-  <p>Iniciará sesión con el correo de contacto y esta contraseña.</p>
-
-  <label>Nombre del representante <input formControlName="adminNombre"></label>
-  @if (form.controls.adminNombre.touched && form.controls.adminNombre.invalid) {
-    <small>El nombre del representante es obligatorio</small>
-  }
-
-  <label>Contraseña <input type="password" formControlName="adminPassword"></label>
-  @if (form.controls.adminPassword.touched && form.controls.adminPassword.invalid) {
-    <small>Mínimo 8 caracteres</small>
-  }
-
-  <button type="submit" [disabled]="cargando()">
-    {{ cargando() ? 'Registrando…' : 'Registrar empresa' }}
-  </button>
-</form>
-
-@if (mensaje()) {
-  <p class="error">{{ mensaje() }}</p>
-}
-
-<p>¿Ya tienes cuenta? <a routerLink="/login">Iniciar sesión</a></p>
+  <p class="auth-footer">¿Ya tienes cuenta? <a routerLink="/login">Iniciar sesión</a></p>
+</div>

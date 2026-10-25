@@ -4,13 +4,12 @@
   min-height: 100vh;
 }
 
-/* ============ NAVBAR ============ */
 nav {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  padding: 1rem 2rem;
-  background: rgba(22, 26, 34, 0.75);
+  padding: 0.9rem 2rem;
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
@@ -27,13 +26,13 @@ nav {
 
 nav a {
   color: var(--text-dim);
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.95rem;
   padding: 0.4rem 0.2rem;
   position: relative;
 }
 
-nav a:hover { color: #fff; }
+nav a:hover { color: var(--primary); }
 
 nav a::after {
   content: '';
@@ -52,6 +51,8 @@ nav span {
   margin-left: auto;
   color: var(--text-dim);
   font-size: 0.9rem;
+  display: flex;
+  align-items: center;
 }
 
 nav span::before {
@@ -62,60 +63,36 @@ nav span::before {
   border-radius: 50%;
   background: var(--success);
   margin-right: 0.5rem;
-  box-shadow: 0 0 8px var(--success);
+  box-shadow: 0 0 8px rgba(21, 128, 61, 0.5);
 }
 
 nav button {
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
   background: transparent;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
   color: var(--text-dim);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
 }
 
 nav button:hover {
-  background: var(--danger);
-  border-color: var(--danger);
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+  background: var(--danger-soft);
+  border-color: #fecaca;
+  color: var(--danger);
 }
 
-/* ============ TRANSICIÓN DE RUTAS ============ */
-/* El componente que se monta en el outlet */
-/*router-outlet + * {
+/* Layout del outlet */
+router-outlet + * {
   display: block;
-  padding: 3rem 2rem;
-  max-width: 1100px;
+  padding: 2rem;
+  max-width: 1180px;
   margin: 0 auto;
   width: 100%;
-  animation: pageSlide 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@keyframes pageSlide {
-  from {
-    opacity: 0;
-    transform: translateX(60px);   /* entra desde la derecha */
- /* }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes pageEnter {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.99);
-    filter: blur(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}*/
-
-/* ============ RESPONSIVE ============ */
 @media (max-width: 640px) {
   nav {
     flex-wrap: wrap;
@@ -123,5 +100,5 @@ nav button:hover {
     padding: 0.75rem 1rem;
   }
   nav span { margin-left: 0; width: 100%; order: 3; }
-  router-outlet + * { padding: 2rem 1rem; }
+  router-outlet + * { padding: 1rem; }
 }

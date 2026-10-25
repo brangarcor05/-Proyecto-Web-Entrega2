@@ -1,29 +1,34 @@
-<h2>Iniciar sesión</h2>
+<div class="auth-card tarjeta">
+  <h2>Iniciar sesión</h2>
 
-<form [formGroup]="form" (ngSubmit)="ingresar()">
-  <label>
-    Correo
-    <input type="email" formControlName="email">
-  </label>
-  @if (form.controls.email.touched && form.controls.email.invalid) {
-    <small>Escribe un correo válido</small>
+  <form [formGroup]="form" (ngSubmit)="ingresar()">
+    <label class="campo">
+      Correo
+      <input type="email" formControlName="email">
+    </label>
+    @if (form.controls.email.touched && form.controls.email.invalid) {
+      <small>Escribe un correo válido</small>
+    }
+
+    <label class="campo">
+      Contraseña
+      <input type="password" formControlName="password">
+    </label>
+    @if (form.controls.password.touched && form.controls.password.invalid) {
+      <small>La contraseña es obligatoria</small>
+    }
+
+    <button type="submit" class="btn btn--primario" [disabled]="cargando()">
+      {{ cargando() ? 'Ingresando…' : 'Ingresar' }}
+    </button>
+  </form>
+
+  @if (mensaje()) {
+    <p class="mensaje mensaje--error">{{ mensaje() }}</p>
   }
 
-  <label>
-    Contraseña
-    <input type="password" formControlName="password">
-  </label>
-  @if (form.controls.password.touched && form.controls.password.invalid) {
-    <small>La contraseña es obligatoria</small>
-  }
-
-  <button type="submit" [disabled]="cargando()">
-    {{ cargando() ? 'Ingresando…' : 'Ingresar' }}
-  </button>
-</form>
-
-@if (mensaje()) {
-  <p class="error">{{ mensaje() }}</p>
-}
-
-<p>¿Tu empresa no está registrada? <a routerLink="/empresas/nueva">Registrar empresa</a></p>
+  <p class="auth-footer">
+    ¿Tu empresa no está registrada?
+    <a routerLink="/empresas/nueva">Registrar empresa</a>
+  </p>
+</div>
