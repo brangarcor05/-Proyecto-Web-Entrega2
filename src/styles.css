@@ -192,33 +192,52 @@ h3 {
 
 /* ============================================
    TRANSICIONES ENTRE RUTAS (View Transitions API)
+   Nav fijo · solo el contenido se desliza de lado
    ============================================ */
-::view-transition-old(root) {
-  animation: slideOutLeft 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+
+/* ── NAVBAR: no se anima, se queda quieto ── */
+::view-transition-old(navbar),
+::view-transition-new(navbar) {
+  animation: none;
+}
+
+/* ── CONTENIDO: la página vieja se va a la izquierda ── */
+::view-transition-old(contenido) {
+  animation: slideOutLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   background: var(--bg);
 }
 
-::view-transition-new(root) {
-  animation: slideInRight 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+/* ── CONTENIDO: la página nueva entra desde la derecha ── */
+::view-transition-new(contenido) {
+  animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   background: var(--bg);
 }
 
-::view-transition-group(root) {
+/* Capas internas del contenido: fondo opaco, sin blend */
+::view-transition-group(contenido) {
   overflow: clip;
   background: var(--bg);
 }
 
-::view-transition-image-pair(root) {
+::view-transition-image-pair(contenido) {
   background: var(--bg);
   isolation: auto;
 }
 
+/* Desactivamos la animación del root para que no se duplique
+   (root incluye nav + contenido; si lo animamos, el nav también se mueve) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  background: var(--bg);
+}
+
 @keyframes slideOutLeft {
   from { transform: translateX(0); }
-  to   { transform: translateX(-60px); }
+  to   { transform: translateX(-100%); }
 }
 
 @keyframes slideInRight {
-  from { transform: translateX(60px); }
+  from { transform: translateX(100%); }
   to   { transform: translateX(0); }
 }

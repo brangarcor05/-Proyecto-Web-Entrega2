@@ -4,6 +4,7 @@
   min-height: 100vh;
 }
 
+/* ============ NAVBAR ============ */
 nav {
   display: flex;
   align-items: center;
@@ -16,81 +17,31 @@ nav {
   position: sticky;
   top: 0;
   z-index: 50;
-  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* 👇 nombre para que NO se anime */
+  view-transition-name: navbar;
 }
 
-@keyframes slideDown {
-  from { transform: translateY(-100%); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
+/* ...tus estilos de nav a, span, button que ya tenías... */
+
+/* ============ CONTENIDO (el que se desliza) ============ */
+.contenido-ruta {
+  display: block;
+  width: 100%;
+  flex: 1;
+
+  /* 👇 nombre para animarlo por separado del nav */
+  view-transition-name: contenido;
 }
 
-nav a {
-  color: var(--text-dim);
-  font-weight: 600;
-  font-size: 0.95rem;
-  padding: 0.4rem 0.2rem;
-  position: relative;
-}
-
-nav a:hover { color: var(--primary); }
-
-nav a::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -2px;
-  height: 2px;
-  width: 0;
-  background: var(--primary);
-  transition: width var(--transition);
-}
-
-nav a:hover::after { width: 100%; }
-
-nav span {
-  margin-left: auto;
-  color: var(--text-dim);
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-}
-
-nav span::before {
-  content: '';
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--success);
-  margin-right: 0.5rem;
-  box-shadow: 0 0 8px rgba(21, 128, 61, 0.5);
-}
-
-nav button {
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-  background: transparent;
-  border: 1px solid var(--border-strong);
-  border-radius: 8px;
-  color: var(--text-dim);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition);
-}
-
-nav button:hover {
-  background: var(--danger-soft);
-  border-color: #fecaca;
-  color: var(--danger);
-}
-
-/* Layout del outlet */
-router-outlet + * {
+/* El componente que Angular monta dentro del outlet */
+.contenido-ruta > * {
   display: block;
   padding: 2rem;
   max-width: 1180px;
   margin: 0 auto;
   width: 100%;
+  /* sin animación aquí — la hace View Transitions */
 }
 
 @media (max-width: 640px) {
@@ -100,5 +51,5 @@ router-outlet + * {
     padding: 0.75rem 1rem;
   }
   nav span { margin-left: 0; width: 100%; order: 3; }
-  router-outlet + * { padding: 1rem; }
+  .contenido-ruta > * { padding: 1rem; }
 }
