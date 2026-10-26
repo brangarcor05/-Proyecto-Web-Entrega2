@@ -1,0 +1,28 @@
+.actividad-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.actividad-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.actividad-table th,
+.actividad-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.actividad-table th {
+    background-color: #f4f4f4;
+}
+
+.error-message {
+    color: #d9534f;
+    background-color: #f9d6d5;
+    padding: 10px;
+    border-radius: 4px;
+}

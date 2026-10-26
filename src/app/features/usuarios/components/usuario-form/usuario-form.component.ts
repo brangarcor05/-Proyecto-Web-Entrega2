@@ -9,7 +9,8 @@ import { AutenticacionService } from '../../../../services/auth/auth.service';
 @Component({
   selector: 'app-usuario-form',
   imports: [ReactiveFormsModule, RouterLink],
-  templateUrl: '../../pages/usuario-form/usuario-form.component.html'
+  templateUrl: '../../pages/usuario-form/usuario-form.component.html',
+  styleUrls: ['../../pages/usuario-form/usuario-form.css']
 })
 export class UsuarioFormComponent implements OnInit {
   private fb = inject(FormBuilder);

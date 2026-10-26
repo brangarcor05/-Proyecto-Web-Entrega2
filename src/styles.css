@@ -1,25 +1,243 @@
-/* You can add global styles to this file, and also import other style files */
-
+/* ============ VARIABLES (paleta del grupo, modernizada) ============ */
 :root {
-  color: #172033;
-  background: #f5f7fb;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --bg: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-soft: #f1f5f9;
+  --border: #dbe3f0;
+  --border-strong: #cbd5e1;
+  --text: #0f172a;
+  --text-dim: #64748b;
+  --primary: #3346c8;
+  --primary-hover: #2936a3;
+  --primary-soft: #eef2ff;
+  --danger: #991b1b;
+  --danger-soft: #fef2f2;
+  --success: #15803d;
+  --radius: 12px;
+  --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  color-scheme: light;
 }
 
+/* ============ RESET ============ */
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background: var(--bg);
+  height: 100%;
 }
 
 body {
-  margin: 0;
-  min-width: 320px;
+  height: 100%;
   min-height: 100vh;
-  background: linear-gradient(145deg, #f7f9ff 0%, #f3f6fb 55%, #eef2ff 100%);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-button,
-input,
-select,
-textarea {
-  color: inherit;
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+a:hover { color: var(--primary-hover); }
+
+h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.25rem;
+}
+
+h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 1.5rem 0 1rem;
+}
+
+/* ============ CLASES REUTILIZABLES (no etiquetas) ============ */
+
+/* Tarjeta / contenedor */
+.tarjeta {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+}
+
+/* Campo de formulario */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  color: var(--text);
+  font: inherit;
+  font-weight: 400;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(51, 70, 200, 0.15);
+}
+
+.campo input::placeholder { color: #94a3b8; }
+
+/* Botones */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.1rem;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition),
+              box-shadow var(--transition);
+}
+
+.btn--primario {
+  background: var(--primary);
+  color: #fff;
+}
+.btn--primario:hover:not(:disabled) {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(51, 70, 200, 0.3);
+}
+
+.btn--secundario {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.btn--secundario:hover:not(:disabled) {
+  background: #e0e7ff;
+}
+
+.btn--peligro {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.btn--peligro:hover:not(:disabled) {
+  background: #fee2e2;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Mensajes */
+.mensaje {
+  padding: 0.9rem 1rem;
+  border-radius: 8px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 0.9rem;
+  animation: fadeIn 0.3s var(--transition);
+}
+
+.mensaje--error {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border: 1px solid #fecaca;
+}
+
+/* Texto de error de campo */
+.campo small {
+  color: var(--danger);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* ============ ANIMACIONES ============ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ============================================
+   TRANSICIONES ENTRE RUTAS (View Transitions API)
+   Nav fijo · solo el contenido se desliza de lado
+   ============================================ */
+
+/* ── NAVBAR: no se anima, se queda quieto ── */
+::view-transition-old(navbar),
+::view-transition-new(navbar) {
+  animation: none;
+}
+
+/* ── CONTENIDO: la página vieja se va a la izquierda ── */
+::view-transition-old(contenido) {
+  animation: slideOutLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  background: var(--bg);
+}
+
+/* ── CONTENIDO: la página nueva entra desde la derecha ── */
+::view-transition-new(contenido) {
+  animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  background: var(--bg);
+}
+
+/* Capas internas del contenido: fondo opaco, sin blend */
+::view-transition-group(contenido) {
+  overflow: clip;
+  background: var(--bg);
+}
+
+::view-transition-image-pair(contenido) {
+  background: var(--bg);
+  isolation: auto;
+}
+
+/* Desactivamos la animación del root para que no se duplique
+   (root incluye nav + contenido; si lo animamos, el nav también se mueve) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  background: var(--bg);
+}
+
+@keyframes slideOutLeft {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
 }

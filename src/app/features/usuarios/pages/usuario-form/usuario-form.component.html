@@ -1,38 +1,40 @@
-<h2>Invitar usuario</h2>
+<div class="pagina-formulario">
+  <h2>Invitar usuario</h2>
 
-<form [formGroup]="form" (ngSubmit)="guardar()">
-  <label>Nombre <input formControlName="nombre"></label>
-  @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
-    <small>El nombre es obligatorio</small>
-  }
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="tarjeta">
+    <label class="campo">Nombre <input formControlName="nombre"></label>
+    @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+      <small>El nombre es obligatorio</small>
+    }
 
-  <label>Correo <input type="email" formControlName="email"></label>
-  @if (form.controls.email.touched && form.controls.email.invalid) {
-    <small>Escribe un correo válido</small>
-  }
+    <label class="campo">Correo <input type="email" formControlName="email"></label>
+    @if (form.controls.email.touched && form.controls.email.invalid) {
+      <small>Escribe un correo válido</small>
+    }
 
-  <label>
-    Rol de acceso
-    <select formControlName="rolUsuario">
-      @for (r of roles; track r) {
-        <option [value]="r">{{ r }}</option>
-      }
-    </select>
-  </label>
-  <label>
-    Contraseña
-    <input type="password" formControlName="password" />
-    </label>
-    @if (form.controls.password.touched && form.controls.password.invalid) {
-    <p class="error">La contraseña es obligatoria (mínimo 8 caracteres).</p>
+    <label class="campo">
+      Rol de acceso
+      <select formControlName="rolUsuario">
+        @for (r of roles; track r) {
+          <option [value]="r">{{ r }}</option>
         }
+      </select>
+    </label>
 
-  <button type="submit" [disabled]="cargando()">
-    {{ cargando() ? 'Guardando…' : 'Invitar' }}
-  </button>
-  <a routerLink="/usuarios">Volver</a>
-</form>
+    <label class="campo">Contraseña <input type="password" formControlName="password"></label>
+    @if (form.controls.password.touched && form.controls.password.invalid) {
+      <small>La contraseña es obligatoria (mínimo 8 caracteres).</small>
+    }
 
-@if (mensaje()) {
-  <p class="error">{{ mensaje() }}</p>
-}
+    <div class="acciones">
+      <button type="submit" class="btn btn--primario" [disabled]="cargando()">
+        {{ cargando() ? 'Guardando…' : 'Invitar' }}
+      </button>
+      <a routerLink="/usuarios" class="btn btn--secundario">Volver</a>
+    </div>
+  </form>
+
+  @if (mensaje()) {
+    <p class="mensaje mensaje--error">{{ mensaje() }}</p>
+  }
+</div>

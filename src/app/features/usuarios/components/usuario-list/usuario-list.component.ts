@@ -9,7 +9,8 @@ import { CambioRol, TarjetaUsuarioComponent } from '../../../../shared/component
 @Component({
   selector: 'app-usuario-list',
   imports: [RouterLink, TarjetaUsuarioComponent],
-  templateUrl: '../../pages/usuario-list/usuario-list.component.html'
+  templateUrl: '../../pages/usuario-list/usuario-list.component.html',
+  styleUrls: ['../../pages/usuario-list/usuario-list.css']
 })
 export class UsuarioListComponent implements OnInit {
   private service = inject(UsuarioService);
