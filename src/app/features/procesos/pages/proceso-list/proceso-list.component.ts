@@ -11,6 +11,7 @@ import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso.service';
 import { FiltrosProceso, ProcesoFilterComponent } from '../../components/proceso-filter/proceso-filter.component';
 import { ProcesoCardComponent } from '../../components/proceso-card/proceso-card.component';
+import { puedeAdministrarProceso, puedeCrearOEditarProceso } from '../../proceso-permisos';
 
 @Component({
   selector: 'app-proceso-list',
@@ -32,6 +33,16 @@ export class ProcesoListComponent implements OnInit {
 
   get entradasCamposInvalidos(): [string, string][] {
     return Object.entries(this.camposInvalidos);
+  }
+
+  get puedeCrearOEditar(): boolean {
+    const sesion = this.autenticacionService.sesion();
+    return sesion !== null && puedeCrearOEditarProceso(sesion.rolUsuario);
+  }
+
+  get puedeEliminar(): boolean {
+    const sesion = this.autenticacionService.sesion();
+    return sesion !== null && puedeAdministrarProceso(sesion.rolUsuario);
   }
 
   private filtros: FiltrosProceso = {
@@ -66,7 +77,7 @@ export class ProcesoListComponent implements OnInit {
 
   solicitarEliminacion(proceso: Proceso): void {
     const sesion = this.obtenerSesion();
-    if (!sesion) {
+    if (!sesion || !puedeAdministrarProceso(sesion.rolUsuario) || proceso.soloLectura) {
       return;
     }
 

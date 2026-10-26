@@ -9,6 +9,7 @@ import { CompartirProcesoRequest } from '../../../../models/proceso/compartir-pr
 import { Proceso } from '../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso.service';
+import { puedeAdministrarProceso } from '../../proceso-permisos';
 
 @Component({
   selector: 'app-proceso-share',
@@ -37,7 +38,12 @@ export class ProcesoShareComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    if (!this.obtenerSesion()) {
+    const sesion = this.obtenerSesion();
+    if (!sesion) {
+      return;
+    }
+    if (!puedeAdministrarProceso(sesion.rolUsuario)) {
+      void this.router.navigate(['/procesos']);
       return;
     }
 
@@ -52,7 +58,7 @@ export class ProcesoShareComponent implements OnInit {
 
   guardar(): void {
     const sesion = this.obtenerSesion();
-    if (!sesion) {
+    if (!sesion || !puedeAdministrarProceso(sesion.rolUsuario)) {
       return;
     }
 

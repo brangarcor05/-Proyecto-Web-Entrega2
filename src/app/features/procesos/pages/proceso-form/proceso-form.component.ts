@@ -10,6 +10,7 @@ import { CrearProcesoRequest } from '../../../../models/proceso/crear-proceso-re
 import { EstadoProceso } from '../../../../models/proceso/estado-proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso.service';
+import { puedeCrearOEditarProceso } from '../../proceso-permisos';
 
 @Component({
   selector: 'app-proceso-form',
@@ -58,7 +59,12 @@ export class ProcesoFormComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    if (!this.obtenerSesion()) {
+    const sesion = this.obtenerSesion();
+    if (!sesion) {
+      return;
+    }
+    if (!puedeCrearOEditarProceso(sesion.rolUsuario)) {
+      void this.router.navigate(['/procesos']);
       return;
     }
 
@@ -79,7 +85,7 @@ export class ProcesoFormComponent implements OnInit {
 
   guardar(): void {
     const sesion = this.obtenerSesion();
-    if (!sesion) {
+    if (!sesion || !puedeCrearOEditarProceso(sesion.rolUsuario)) {
       return;
     }
 

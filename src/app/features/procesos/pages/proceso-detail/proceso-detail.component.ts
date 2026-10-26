@@ -8,6 +8,7 @@ import { Proceso } from '../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso.service';
 import { EstadoProcesoComponent } from '../../components/estado-proceso/estado-proceso.component';
+import { puedeAdministrarProceso, puedeCrearOEditarProceso } from '../../proceso-permisos';
 
 @Component({
   selector: 'app-proceso-detail',
@@ -27,6 +28,16 @@ export class ProcesoDetailComponent implements OnInit {
   eliminando = false;
   error = '';
 
+  get puedeEditar(): boolean {
+    const sesion = this.autenticacionService.sesion();
+    return sesion !== null && puedeCrearOEditarProceso(sesion.rolUsuario);
+  }
+
+  get puedeAdministrar(): boolean {
+    const sesion = this.autenticacionService.sesion();
+    return sesion !== null && puedeAdministrarProceso(sesion.rolUsuario);
+  }
+
   ngOnInit(): void {
     if (!this.obtenerSesion()) {
       return;
@@ -45,7 +56,7 @@ export class ProcesoDetailComponent implements OnInit {
     }
 
     const proceso = this.proceso;
-    if (!proceso || proceso.soloLectura) {
+    if (!proceso || proceso.soloLectura || !puedeAdministrarProceso(sesion.rolUsuario)) {
       return;
     }
 

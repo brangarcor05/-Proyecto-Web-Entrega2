@@ -17,10 +17,12 @@
   <footer class="tarjeta__acciones">
     <a class="boton boton--secundario" [routerLink]="['/procesos', proceso.id]">Ver detalle</a>
 
-    @if (!proceso.soloLectura) {
+    @if (!proceso.soloLectura && puedeEditar) {
       <a class="boton boton--secundario" [routerLink]="['/procesos', proceso.id, 'editar']">
         Editar
       </a>
+    }
+    @if (!proceso.soloLectura && puedeEliminar) {
       <button class="boton boton--peligro" type="button" (click)="eliminar.emit(proceso)">
         Eliminar
       </button>

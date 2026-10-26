@@ -28,12 +28,16 @@
 
       <footer>
         @if (!actual.soloLectura) {
-          <a [routerLink]="['/procesos', actual.id, 'editar']">Editar</a>
           <a [routerLink]="['/procesos', actual.id, 'historial']">Historial</a>
-          <a [routerLink]="['/procesos', actual.id, 'compartir']">Compartir</a>
-          <button type="button" (click)="eliminar()" [disabled]="eliminando">
-            {{ eliminando ? 'Eliminando…' : 'Eliminar' }}
-          </button>
+          @if (puedeEditar) {
+            <a [routerLink]="['/procesos', actual.id, 'editar']">Editar</a>
+          }
+          @if (puedeAdministrar) {
+            <a [routerLink]="['/procesos', actual.id, 'compartir']">Compartir</a>
+            <button type="button" (click)="eliminar()" [disabled]="eliminando">
+              {{ eliminando ? 'Eliminando…' : 'Eliminar' }}
+            </button>
+          }
         }
       </footer>
     </article>
