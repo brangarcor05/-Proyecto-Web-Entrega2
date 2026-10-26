@@ -1,0 +1,40 @@
+<div class="gateway-container">
+    <h2>Gateways del Proceso {{ procesoId }}</h2>
+
+    @if (status() === 'loading') {
+    <p>Cargando gateways...</p>
+    }
+
+    @if (status() === 'error') {
+    <div class="error-message">
+        <p>{{ errorMessage() }}</p>
+    </div>
+    }
+
+    @if (status() === 'success') {
+    @if (gateways().length === 0) {
+    <p>No hay gateways registrados para este proceso.</p>
+    } @else {
+    <table class="gateway-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Activo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (gateway of gateways(); track gateway.id) {
+            <tr>
+                <td>{{ gateway.id }}</td>
+                <td>{{ gateway.nombre }}</td>
+                <td>{{ gateway.tipo }}</td>
+                <td>{{ gateway.activo ? 'Sí' : 'No' }}</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    }
+    }
+</div>

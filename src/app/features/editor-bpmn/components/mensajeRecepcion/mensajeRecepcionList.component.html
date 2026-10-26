@@ -1,0 +1,44 @@
+<div class="mensaje-recepcion-container">
+    <h2>Mensajes de Recepción del Proceso {{ procesoId }}</h2>
+
+    @if (status() === 'loading') {
+    <p>Cargando mensajes de recepción...</p>
+    }
+
+    @if (status() === 'error') {
+    <div class="error-message">
+        <p>{{ errorMessage() }}</p>
+    </div>
+    }
+
+    @if (status() === 'success') {
+    @if (mensajesRecepcion().length === 0) {
+    <p>No hay mensajes de recepción registrados para este proceso.</p>
+    } @else {
+    <table class="mensaje-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre Mensaje</th>
+                <th>Variante</th>
+                <th>Origen Externo</th>
+                <th>Clave Correlación</th>
+                <th>Activo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (msg of mensajesRecepcion(); track msg.id) {
+            <tr>
+                <td>{{ msg.id }}</td>
+                <td>{{ msg.nombreMensaje }}</td>
+                <td>{{ msg.variante }}</td>
+                <td>{{ msg.origenExterno ? 'Sí' : 'No' }}</td>
+                <td>{{ msg.claveCorrelacion || 'N/A' }}</td>
+                <td>{{ msg.activo ? 'Sí' : 'No' }}</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    }
+    }
+</div>
