@@ -7,7 +7,8 @@ import { mensajeDeError } from '../../../shared/components/error-message/mensaje
 @Component({
   selector: 'app-login-form',
   imports: [ReactiveFormsModule, RouterLink],
-  templateUrl: '../pages/login-form/login-form.component.html'
+  templateUrl: '../pages/login-form/login-form.component.html',
+  styleUrls: ['../pages/login-form/login-form.css']
 })
 export class LoginFormComponent {
   private fb = inject(FormBuilder);
