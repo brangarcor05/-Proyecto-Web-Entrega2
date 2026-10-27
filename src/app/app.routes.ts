@@ -8,6 +8,7 @@ import { ProcesoListComponent } from './features/procesos/pages/proceso-list/pro
 import { ProcesoShareComponent } from './features/procesos/pages/proceso-share/proceso-share.component';
 import { PoolFormComponent } from './features/editor-bpmn/components/pool/pool-form/pool-form.component';
 import { PoolListComponent } from './features/editor-bpmn/components/pool/pool-list/pool-list.component';
+import { PermisoPoolComponent } from './features/configuracion/permisos-pool/permiso-pool.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -37,6 +38,7 @@ export const routes: Routes = [
         (m) => m.UsuarioFormComponent,
       ),
   },
+  { path: 'configuracion/permisos-pool', component: PermisoPoolComponent },
   { path: 'procesos', component: ProcesoListComponent },
   { path: 'procesos/nuevo', component: ProcesoFormComponent },
   {

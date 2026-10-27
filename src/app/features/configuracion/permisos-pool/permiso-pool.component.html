@@ -1,0 +1,51 @@
+<main class="pagina-permisos">
+  <a class="volver" routerLink="/procesos">← Volver a procesos</a>
+  <header>
+    <p>Configuración de la empresa</p>
+    <h1>Permisos de pools y lanes</h1>
+    <span>Define qué acciones puede realizar cada rol sobre los participantes del diagrama.</span>
+  </header>
+
+  @if (cargando) {
+    <p class="mensaje">Cargando permisos…</p>
+  }
+  @if (error) {
+    <p class="mensaje mensaje--error" role="alert">{{ error }}</p>
+  }
+  @if (mensaje) {
+    <p class="mensaje mensaje--exito" role="status">{{ mensaje }}</p>
+  }
+
+  @if (!cargando && permisos.length > 0) {
+    <section class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th>Rol</th>
+            <th>Crear</th>
+            <th>Editar</th>
+            <th>Eliminar</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (permiso of permisos; track permiso.rolUsuario) {
+            <tr>
+              <th scope="row">{{ permiso.rolUsuario }}</th>
+              <td><input type="checkbox" aria-label="Permitir crear" [checked]="permiso.puedeCrear" (change)="actualizarValor(permiso, 'puedeCrear', $any($event.target).checked)" /></td>
+              <td><input type="checkbox" aria-label="Permitir editar" [checked]="permiso.puedeEditar" (change)="actualizarValor(permiso, 'puedeEditar', $any($event.target).checked)" /></td>
+              <td><input type="checkbox" aria-label="Permitir eliminar" [checked]="permiso.puedeEliminar" (change)="actualizarValor(permiso, 'puedeEliminar', $any($event.target).checked)" /></td>
+              <td>{{ permiso.configurado ? 'Personalizado' : 'Predeterminado' }}</td>
+              <td>
+                <button class="btn btn--primario" type="button" (click)="guardar(permiso)" [disabled]="guardandoRol !== null">
+                  {{ guardandoRol === permiso.rolUsuario ? 'Guardando…' : 'Guardar' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+</main>
