@@ -1,0 +1,78 @@
+<article class="tarjeta">
+  <h2>{{ elemento().nombre }}</h2>
+  <dl>
+    <div>
+      <dt>Destino</dt>
+      <dd>{{ elemento().tipoDestino }}</dd>
+    </div>
+    <div>
+      <dt>Pool de destino</dt>
+      <dd>{{ elemento().poolDestinoId }}</dd>
+    </div>
+    <div>
+      <dt>Momento del proceso</dt>
+      <dd>{{ elemento().momentoProceso || 'Sin especificar' }}</dd>
+    </div>
+    <div>
+      <dt>Si falla</dt>
+      <dd>{{ elemento().accionSiFalla }}</dd>
+    </div>
+    @if (elemento().actividadManejoErrorId) {
+      <div>
+        <dt>Actividad de manejo de error</dt>
+        <dd>{{ elemento().actividadManejoErrorId }}</dd>
+      </div>
+    }
+    <div>
+      <dt>Campos de datos</dt>
+      <dd>
+        @for (campo of elemento().campos; track $index) {
+          <p>{{ campo.nombre }} · {{ campo.tipoDato }}</p>
+        } @empty {
+          <p>Sin campos de datos.</p>
+        }
+      </dd>
+    </div>
+    <div>
+      <dt>Pool de origen</dt>
+      <dd>{{ elemento().poolId }}</dd>
+    </div>
+    <div>
+      <dt>Posición X / Y</dt>
+      <dd>
+        {{ elemento().posicionX ?? 'Sin definir' }} / {{ elemento().posicionY ?? 'Sin definir' }}
+      </dd>
+    </div>
+  </dl>
+  <footer>
+    @if (!detalle()) {
+      <a [routerLink]="['/procesos', elemento().procesoId, 'notificaciones', elemento().id]"
+        >Ver detalle</a
+      >
+    }
+    @if (puedeEditar()) {
+      <a
+        data-testid="editar"
+        [routerLink]="[
+          '/procesos',
+          elemento().procesoId,
+          'notificaciones',
+          elemento().id,
+          'editar',
+        ]"
+        >Editar</a
+      >
+    }
+    @if (puedeEliminar()) {
+      <button
+        type="button"
+        class="peligro"
+        data-testid="eliminar"
+        [disabled]="eliminando()"
+        (click)="eliminar.emit(elemento())"
+      >
+        {{ eliminando() ? 'Eliminando…' : 'Eliminar' }}
+      </button>
+    }
+  </footer>
+</article>

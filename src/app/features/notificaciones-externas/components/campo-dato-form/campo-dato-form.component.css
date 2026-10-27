@@ -1,0 +1,34 @@
+h2 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+.campo-dato {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.8rem;
+  margin: 1rem 0;
+}
+label {
+  display: grid;
+  gap: 0.4rem;
+  flex: 1 1 180px;
+}
+input {
+  padding: 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 100%;
+  font: inherit;
+}
+button {
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+}
+small {
+  flex-basis: 100%;
+  color: var(--danger);
+}

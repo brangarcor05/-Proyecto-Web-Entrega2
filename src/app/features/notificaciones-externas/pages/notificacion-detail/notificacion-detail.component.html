@@ -1,0 +1,57 @@
+<main class="pagina" [attr.inert]="pendiente ? '' : null">
+  <a [routerLink]="['/procesos', procesoId]">← Volver al proceso</a>
+  <nav aria-label="Secciones del proceso">
+    <a [routerLink]="['/procesos', procesoId, 'eventos']">Eventos</a>
+    <a [routerLink]="['/procesos', procesoId, 'notificaciones']">Notificaciones externas</a>
+  </nav>
+  <header>
+    <div>
+      <p class="subtitulo">{{ proceso?.nombre }}</p>
+      <h1>Detalle de notificación externa</h1>
+    </div>
+    <a [routerLink]="['/procesos', procesoId, 'notificaciones']">Volver al listado</a>
+  </header>
+  @if (cargando) {
+    <p class="estado" role="status">Cargando notificaciones externas…</p>
+  }
+  @if (error) {
+    <p class="estado error" role="alert">{{ error }}</p>
+  }
+  @if (!cargando && proceso && !puedeEditar) {
+    <p class="estado">Tienes acceso de solo lectura a estos elementos.</p>
+  }
+  @if (!cargando && elemento; as actual) {
+    <app-notificacion-card
+      [elemento]="actual"
+      [detalle]="true"
+      [puedeEditar]="puedeEditar"
+      [puedeEliminar]="puedeEliminar"
+      [eliminando]="eliminando"
+      (eliminar)="eliminar($event)"
+    />
+  }
+</main>
+@if (pendiente; as seleccionado) {
+  <dialog
+    open
+    aria-modal="true"
+    aria-labelledby="confirmar-eliminacion"
+    (keydown.escape)="cancelarEliminacion()"
+  >
+    <h2 id="confirmar-eliminacion">Confirmar eliminación</h2>
+    <p>¿Deseas eliminar “{{ seleccionado.nombre }}”? El elemento quedará inactivo.</p>
+    <div class="acciones">
+      <button
+        type="button"
+        class="peligro"
+        [disabled]="eliminando"
+        (click)="confirmarEliminacion()"
+      >
+        {{ eliminando ? 'Eliminando…' : 'Confirmar eliminación' }}
+      </button>
+      <button type="button" autofocus [disabled]="eliminando" (click)="cancelarEliminacion()">
+        Cancelar
+      </button>
+    </div>
+  </dialog>
+}

@@ -1,0 +1,146 @@
+<main class="pagina">
+  <a [routerLink]="['/procesos', procesoId, 'notificaciones']">← Volver al listado</a>
+  <header>
+    <div>
+      <p class="subtitulo">{{ proceso?.nombre }}</p>
+      <h1>{{ esEdicion ? 'Editar' : 'Crear' }} notificación externa</h1>
+    </div>
+  </header>
+  @if (cargando) {
+    <p class="estado" role="status">Cargando formulario…</p>
+  }
+  @if (error) {
+    <section class="estado error" role="alert">
+      <p>{{ error }}</p>
+      @for (campo of erroresCampos; track campo[0]) {
+        <p>{{ campo[0] }}: {{ campo[1] }}</p>
+      }
+    </section>
+  }
+  @if (!cargando && proceso) {
+    @if (!puedeEditar) {
+      <p class="estado">No tienes permiso para modificar este proceso.</p>
+    }
+    @if (pools.length === 0 || poolsDestino.length === 0) {
+      <p class="estado">
+        Este proceso necesita un pool de origen y un pool de destino de caja negra antes de guardar.
+      </p>
+    }
+    <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+      <fieldset [disabled]="guardando || !puedeEditar">
+        <label
+          >Nombre<input formControlName="nombre" maxlength="150" />
+          @if (formulario.controls.nombre.invalid && formulario.controls.nombre.touched) {
+            <small>El nombre es obligatorio y admite hasta 150 caracteres.</small>
+          }
+        </label>
+        <label
+          >Pool de origen<select formControlName="poolId">
+            <option [ngValue]="null">Selecciona un pool</option>
+            @for (pool of pools; track pool.id) {
+              <option [ngValue]="pool.id">{{ pool.nombre }}</option>
+            }
+          </select>
+          @if (formulario.controls.poolId.invalid && formulario.controls.poolId.touched) {
+            <small>Selecciona un pool de origen.</small>
+          }
+        </label>
+        <label
+          >Pool de destino<select formControlName="poolDestinoId">
+            <option [ngValue]="null">Selecciona un destino de caja negra</option>
+            @for (pool of poolsDestino; track pool.id) {
+              <option [ngValue]="pool.id">{{ pool.nombre }}</option>
+            }
+          </select>
+          @if (
+            formulario.controls.poolDestinoId.invalid && formulario.controls.poolDestinoId.touched
+          ) {
+            <small>Selecciona un pool de destino.</small>
+          }
+        </label>
+        <label
+          >Tipo de destino<select formControlName="tipoDestino">
+            @for (tipo of tiposDestino; track tipo) {
+              <option [value]="tipo">
+                {{
+                  tipo === 'CORREO' ? 'Correo' : tipo === 'SERVICIO_WEB' ? 'Servicio web' : 'Cola'
+                }}
+              </option>
+            }
+          </select></label
+        >
+        <label
+          >Momento del proceso<textarea
+            formControlName="momentoProceso"
+            maxlength="250"
+            rows="3"
+          ></textarea>
+          @if (
+            formulario.controls.momentoProceso.invalid && formulario.controls.momentoProceso.touched
+          ) {
+            <small>El momento del proceso admite hasta 250 caracteres.</small>
+          }
+        </label>
+        <label
+          >Si la notificación falla<select formControlName="accionSiFalla">
+            @for (accion of accionesFallo; track accion) {
+              <option [value]="accion">
+                {{
+                  accion === 'CONTINUAR'
+                    ? 'Continuar'
+                    : accion === 'DERIVAR_ERROR'
+                      ? 'Derivar a una actividad de manejo de error'
+                      : 'Finalizar'
+                }}
+              </option>
+            }
+          </select></label
+        >
+        @if (formulario.controls.accionSiFalla.value === 'DERIVAR_ERROR') {
+          <label
+            >Actividad de manejo de error<select formControlName="actividadManejoErrorId">
+              <option [ngValue]="null">Selecciona una actividad</option>
+              @for (actividad of actividades; track actividad.id) {
+                <option [ngValue]="actividad.id">{{ actividad.nombre }}</option>
+              }
+            </select>
+            @if (formulario.hasError('actividadError') && formulario.touched) {
+              <small>Selecciona una actividad activa de este proceso.</small>
+            }
+          </label>
+          @if (actividades.length === 0) {
+            <p class="estado">El proceso todavía no tiene actividades para manejar el error.</p>
+          }
+        }
+        <app-campo-dato-form
+          [campos]="formulario.controls.campos"
+          [bloqueado]="guardando || !puedeEditar"
+        />
+        <div class="fila">
+          <label
+            >Posición X (opcional)<input type="number" step="any" formControlName="posicionX"
+          /></label>
+          <label
+            >Posición Y (opcional)<input type="number" step="any" formControlName="posicionY"
+          /></label>
+        </div>
+        @if (formulario.controls.posicionX.invalid || formulario.controls.posicionY.invalid) {
+          <small>Las coordenadas deben ser números válidos.</small>
+        }
+      </fieldset>
+      <div class="acciones">
+        @if (puedeEditar) {
+          <button
+            type="submit"
+            [disabled]="
+              guardando || formulario.disabled || pools.length === 0 || poolsDestino.length === 0
+            "
+          >
+            {{ guardando ? 'Guardando…' : esEdicion ? 'Guardar cambios' : 'Crear' }}
+          </button>
+        }
+        <a [routerLink]="['/procesos', procesoId, 'notificaciones']">Cancelar</a>
+      </div>
+    </form>
+  }
+</main>
