@@ -1,6 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import { catchError, finalize, of } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { SesionResponse } from '../../../../models/auth/auth.model';
@@ -20,6 +20,7 @@ export class ProcesoHistoryComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly autenticacionService = inject(AutenticacionService);
+  private readonly cdr = inject(ChangeDetectorRef); 
 
   procesoId: number | null = null;
   registros: Historial[] = [];
@@ -27,25 +28,45 @@ export class ProcesoHistoryComponent implements OnInit {
   error = '';
 
   ngOnInit(): void {
+    this.cargando = true;
+    this.cdr.markForCheck(); 
+
     const sesion = this.obtenerSesion();
     if (!sesion) {
+      this.cargando = false;
+      this.cdr.markForCheck();
       return;
     }
 
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isInteger(id) || id <= 0) {
       this.error = 'El identificador del proceso no es válido.';
+      this.cargando = false;
+      this.cdr.markForCheck();
       return;
     }
 
     this.procesoId = id;
-    this.cargando = true;
+
     this.procesoService
       .consultarHistorial(id, sesion.empresaId)
-      .pipe(finalize(() => (this.cargando = false)))
+      .pipe(
+        catchError((error) => {
+          console.error('Error al cargar historial:', error); 
+          this.error = this.apiErrorService.obtenerMensaje(error);
+          return of([]); 
+        }),
+        finalize(() => {
+          this.cargando = false;
+          this.cdr.markForCheck(); 
+        })
+      )
       .subscribe({
-        next: (registros) => (this.registros = registros),
-        error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),
+        next: (registros) => {
+          console.log('Registros recibidos:', registros); 
+          this.registros = registros ?? [];
+          this.cdr.markForCheck(); 
+        },
       });
   }
 
