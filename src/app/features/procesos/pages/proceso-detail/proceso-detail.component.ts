@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
@@ -18,6 +18,7 @@ import { puedeAdministrarProceso, puedeCrearOEditarProceso } from '../../proceso
 })
 export class ProcesoDetailComponent implements OnInit {
   private readonly procesoService = inject(ProcesoService);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly apiErrorService = inject(ApiErrorService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -85,7 +86,12 @@ export class ProcesoDetailComponent implements OnInit {
     this.error = '';
     this.procesoService
       .buscarPorId(id, sesion.empresaId)
-      .pipe(finalize(() => (this.cargando = false)))
+      .pipe(
+        finalize(() => {
+          this.cargando = false;
+          this.cdr.markForCheck();
+        }),
+      )
       .subscribe({
         next: (proceso) => (this.proceso = proceso),
         error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),

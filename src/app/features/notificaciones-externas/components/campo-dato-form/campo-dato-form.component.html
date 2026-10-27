@@ -1,0 +1,26 @@
+<section aria-labelledby="campos-titulo">
+  <h2 id="campos-titulo">Campos de datos</h2>
+  @for (campo of campos().controls; track campo; let i = $index) {
+    <div class="campo-dato" [formGroup]="campo">
+      <label>Nombre del campo {{ i + 1 }}<input formControlName="nombre" maxlength="100" /></label>
+      <label>Tipo de dato {{ i + 1 }}<input formControlName="tipoDato" maxlength="50" /></label>
+      <button
+        type="button"
+        [disabled]="bloqueado()"
+        (click)="quitar(i)"
+        [attr.aria-label]="'Quitar campo ' + (i + 1)"
+      >
+        Quitar
+      </button>
+      @if (campo.invalid && campo.touched) {
+        <small
+          >Indica nombre (máximo 100 caracteres) y tipo de dato (máximo 50), sin dejarlos en
+          blanco.</small
+        >
+      }
+    </div>
+  } @empty {
+    <p>No hay campos de datos. Puedes agregarlos si la notificación los necesita.</p>
+  }
+  <button type="button" [disabled]="bloqueado()" (click)="agregar()">Agregar campo</button>
+</section>
