@@ -1,4 +1,5 @@
 import { CampoDato } from '../common/campo-dato.model';
+import { AccionFalloNotificacion, TipoDestinoExterno } from './opciones-notificacion.model';
 
 export interface NotificacionExterna {
   id: number;
@@ -6,9 +7,9 @@ export interface NotificacionExterna {
   poolId: number;
   poolDestinoId: number;
   nombre: string;
-  tipoDestino: string;
+  tipoDestino: TipoDestinoExterno;
   momentoProceso: string | null;
-  accionSiFalla: string;
+  accionSiFalla: AccionFalloNotificacion;
   actividadManejoErrorId: number | null;
   campos: CampoDato[];
   posicionX: number | null;
