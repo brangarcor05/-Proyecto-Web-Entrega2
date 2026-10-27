@@ -1,0 +1,33 @@
+<div class="form-container">
+    <h2>{{ isEditMode ? 'Editar Actividad' : 'Nueva Actividad' }}</h2>
+
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
+        <label>
+            Nombre:
+            <input type="text" formControlName="nombre" placeholder="Nombre de la actividad" />
+        </label>
+        @if (formulario.get('nombre')?.invalid && formulario.get('nombre')?.touched) {
+        <span class="error">El nombre es obligatorio (mínimo 3 caracteres).</span>
+        }
+
+        <label>
+            Lane ID:
+            <input type="number" formControlName="laneId" placeholder="ID del carril" />
+        </label>
+
+        <label>
+            Tipo:
+            <input type="text" formControlName="tipo" placeholder="Tipo de actividad" />
+        </label>
+
+        <label>
+            Descripción:
+            <textarea formControlName="descripcion" placeholder="Descripción opcional"></textarea>
+        </label>
+
+        <div class="acciones">
+            <button type="submit" [disabled]="formulario.invalid">Guardar</button>
+            <button type="button" (click)="volverAlListado()">Cancelar</button>
+        </div>
+    </form>
+</div>

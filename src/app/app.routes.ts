@@ -36,4 +36,20 @@ export const routes: Routes = [
   { path: 'procesos/:id/compartir', component: ProcesoShareComponent },
   { path: 'procesos/:id', component: ProcesoDetailComponent },
   { path: '**', component: NotFoundComponent },
+  {
+    path: 'procesos/:procesoId/gateways',
+    loadComponent: () => import('./features/editor-bpmn/components/gateway/gatewayList.component').then(m => m.GatewayListComponent)
+  },
+  {
+    path: 'procesos/:procesoId/actividades',
+    loadComponent: () => import('./features/editor-bpmn/components/actividad/actividadList.component').then(m => m.ActividadListComponent)
+  },
+  {
+    path: 'procesos/:procesoId/mensajes-envio',
+    loadComponent: () => import('./features/editor-bpmn/components/mensajeEnvio/mensajeEnvioList.component').then(m => m.MensajeEnvioListComponent)
+  },
+  {
+    path: 'procesos/:procesoId/mensajes-recepcion',
+    loadComponent: () => import('./features/editor-bpmn/components/mensajeRecepcion/mensajeRecepcionList.component').then(m => m.MensajeRecepcionListComponent)
+  }
 ];
