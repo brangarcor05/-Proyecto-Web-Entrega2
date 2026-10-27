@@ -6,9 +6,12 @@ import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { SesionResponse } from '../../models/auth/auth.model';
 import { Proceso } from '../../models/proceso/proceso.model';
+import { Historial } from '../../models/proceso/historial.model';
 import { AutenticacionService } from '../../services/auth/auth.service';
 import { ProcesoListComponent } from './pages/proceso-list/proceso-list.component';
 import { ProcesoDetailComponent } from './pages/proceso-detail/proceso-detail.component';
+import { ProcesoFormComponent } from './pages/proceso-form/proceso-form.component';
+import { ProcesoHistoryComponent } from './pages/proceso-history/proceso-history.component';
 
 describe('Navegacion de procesos hacia el diagrama', () => {
   const proceso: Proceso = {
@@ -34,6 +37,8 @@ describe('Navegacion de procesos hacia el diagrama', () => {
         provideHttpClientTesting(),
         provideRouter([
           { path: 'procesos', component: ProcesoListComponent },
+          { path: 'procesos/:id/editar', component: ProcesoFormComponent },
+          { path: 'procesos/:id/historial', component: ProcesoHistoryComponent },
           { path: 'procesos/:id', component: ProcesoDetailComponent },
         ]),
         {
@@ -94,5 +99,39 @@ describe('Navegacion de procesos hacia el diagrama', () => {
       harness.routeNativeElement?.querySelector('a[href="/procesos/42/notificaciones"]'),
     ).not.toBeNull();
     expect(harness.routeNativeElement?.textContent).not.toContain('Cargando proceso');
+  });
+
+  it('muestra el historial al recibir la respuesta sin requerir otra navegacion', async () => {
+    const historial: Historial[] = [{
+      id: 1,
+      entidadTipo: 'PROCESO',
+      entidadId: 42,
+      accion: 'CREACION',
+      detalle: 'Proceso creado',
+      fecha: '2026-10-27T10:00:00',
+      usuarioId: 17,
+      usuarioNombre: 'Juliana',
+    }];
+
+    await harness.navigateByUrl('/procesos/42/historial');
+    http.expectOne('/api/procesos/42/historial?empresaId=23').flush(historial);
+    await harness.fixture.whenStable();
+
+    expect(harness.routeNativeElement?.textContent).toContain('Proceso creado');
+    expect(harness.routeNativeElement?.textContent).not.toContain('Cargando historial');
+  });
+
+  it('muestra el formulario editado al recibir el proceso sin requerir otra navegacion', async () => {
+    await harness.navigateByUrl('/procesos/42/editar');
+    http.expectOne('/api/procesos/42?empresaId=23').flush(proceso);
+    await harness.fixture.whenStable();
+
+    const nombre = harness.routeNativeElement?.querySelector<HTMLInputElement>(
+      'input[formControlName="nombre"]',
+    );
+    expect(nombre?.value).toBe('Proceso seleccionado');
+    expect(harness.routeNativeElement?.textContent).not.toContain(
+      'Cargando información del proceso',
+    );
   });
 });

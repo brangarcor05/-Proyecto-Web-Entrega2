@@ -75,7 +75,7 @@ describe('ProcesoHistoryComponent', () => {
     fixture.detectChanges();
 
     expect(consulta).toEqual({ id: 12, empresaId: 6 });
-    expect(fixture.componentInstance.registros).toEqual(historial);
+    expect(fixture.componentInstance.registros()).toEqual(historial);
   });
 
   it('redirige al login cuando no existe sesión', () => {
@@ -93,6 +93,6 @@ describe('ProcesoHistoryComponent', () => {
     fixture.detectChanges();
 
     expect(consulta).toBeNull();
-    expect(fixture.componentInstance.error).toContain('no es válido');
+    expect(fixture.componentInstance.error()).toContain('no es válido');
   });
 });
