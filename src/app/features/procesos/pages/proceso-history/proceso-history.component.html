@@ -1,0 +1,34 @@
+<main class="historial">
+  <a class="volver" [routerLink]="['/procesos', procesoId]">← Volver al proceso</a>
+  <header>
+    <p>Auditoría</p>
+    <h1>Historial del proceso</h1>
+  </header>
+
+  @if (cargando) {
+    <p class="mensaje">Cargando historial…</p>
+  }
+
+  @if (error) {
+    <p class="mensaje mensaje--error" role="alert">{{ error }}</p>
+  }
+
+  @if (!cargando && !error) {
+    @if (registros.length > 0) {
+      <ol>
+        @for (registro of registros; track registro.id) {
+          <li>
+            <div>
+              <strong>{{ registro.accion }}</strong>
+              <time [dateTime]="registro.fecha">{{ registro.fecha }}</time>
+            </div>
+            <p>{{ registro.detalle }}</p>
+            <small>Realizado por {{ registro.usuarioNombre }}</small>
+          </li>
+        }
+      </ol>
+    } @else {
+      <p class="mensaje">Este proceso todavía no tiene registros en su historial.</p>
+    }
+  }
+</main>

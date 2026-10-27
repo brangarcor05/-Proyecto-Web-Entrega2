@@ -1,0 +1,66 @@
+.historial {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.volver {
+  color: #3346c8;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+header {
+  margin: 1.5rem 0;
+}
+
+header h1,
+header p {
+  margin: 0;
+}
+
+header p {
+  color: #3346c8;
+  font-weight: 700;
+}
+
+ol {
+  display: grid;
+  gap: 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+li {
+  padding: 1rem 1.2rem;
+  border-left: 4px solid #4f46e5;
+  border-radius: 0.4rem 0.8rem 0.8rem 0.4rem;
+  background: #fff;
+  box-shadow: 0 6px 18px rgb(15 23 42 / 6%);
+}
+
+li div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+li p {
+  margin: 0.7rem 0;
+}
+
+li time,
+li small {
+  color: #64748b;
+}
+
+.mensaje {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: #eef2ff;
+}
+
+.mensaje--error {
+  background: #fef2f2;
+  color: #991b1b;
+}

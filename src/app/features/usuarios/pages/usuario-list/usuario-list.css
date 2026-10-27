@@ -1,0 +1,38 @@
+/* usuario-list.component.css */
+.pagina__encabezado {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.pagina__encabezado h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-left: auto;
+}
+
+.lista-usuarios {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.estado {
+  text-align: center;
+  color: var(--text-dim);
+  padding: 2rem 0;
+}
+
+@media (max-width: 640px) {
+  .acciones { margin-left: 0; width: 100%; }
+}

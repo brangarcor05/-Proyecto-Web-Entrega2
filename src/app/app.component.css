@@ -1,0 +1,55 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ============ NAVBAR ============ */
+nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.9rem 2rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  /* 👇 nombre para que NO se anime */
+  view-transition-name: navbar;
+}
+
+/* ...tus estilos de nav a, span, button que ya tenías... */
+
+/* ============ CONTENIDO (el que se desliza) ============ */
+.contenido-ruta {
+  display: block;
+  width: 100%;
+  flex: 1;
+
+  /* 👇 nombre para animarlo por separado del nav */
+  view-transition-name: contenido;
+}
+
+/* El componente que Angular monta dentro del outlet */
+.contenido-ruta > * {
+  display: block;
+  padding: 2rem;
+  max-width: 1180px;
+  margin: 0 auto;
+  width: 100%;
+  /* sin animación aquí — la hace View Transitions */
+}
+
+@media (max-width: 640px) {
+  nav {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+  }
+  nav span { margin-left: 0; width: 100%; order: 3; }
+  .contenido-ruta > * { padding: 1rem; }
+}

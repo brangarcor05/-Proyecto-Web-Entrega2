@@ -1,0 +1,40 @@
+<div class="pagina-formulario">
+  <h2>Invitar usuario</h2>
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="tarjeta">
+    <label class="campo">Nombre <input formControlName="nombre"></label>
+    @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+      <small>El nombre es obligatorio</small>
+    }
+
+    <label class="campo">Correo <input type="email" formControlName="email"></label>
+    @if (form.controls.email.touched && form.controls.email.invalid) {
+      <small>Escribe un correo válido</small>
+    }
+
+    <label class="campo">
+      Rol de acceso
+      <select formControlName="rolUsuario">
+        @for (r of roles; track r) {
+          <option [value]="r">{{ r }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="campo">Contraseña <input type="password" formControlName="password"></label>
+    @if (form.controls.password.touched && form.controls.password.invalid) {
+      <small>La contraseña es obligatoria (mínimo 8 caracteres).</small>
+    }
+
+    <div class="acciones">
+      <button type="submit" class="btn btn--primario" [disabled]="cargando()">
+        {{ cargando() ? 'Guardando…' : 'Invitar' }}
+      </button>
+      <a routerLink="/usuarios" class="btn btn--secundario">Volver</a>
+    </div>
+  </form>
+
+  @if (mensaje()) {
+    <p class="mensaje mensaje--error">{{ mensaje() }}</p>
+  }
+</div>
