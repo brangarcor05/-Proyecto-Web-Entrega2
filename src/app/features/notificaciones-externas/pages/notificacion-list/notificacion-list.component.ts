@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { finalize, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NotificacionExterna } from '../../../../models/notificacionexterna/notificacion-externa.model';
-import { NotificacionExternaService } from '../../../../services/notificacion-externa.service';
+import { NotificacionExternaService } from '../../../../services/notificacionExterna/notificacion-externa.service';
 import { DiagramaContexto } from '../../../diagrama/diagrama-contexto';
 import { NotificacionExternaCardComponent } from '../../components/notificacion-card/notificacion-card.component';
 

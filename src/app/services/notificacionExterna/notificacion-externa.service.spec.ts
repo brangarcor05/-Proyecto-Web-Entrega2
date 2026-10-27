@@ -2,24 +2,29 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { environment } from '../../environments/environment';
-import { Evento } from '../models/evento/evento.model';
-import { CrearEventoRequest } from '../models/evento/crear-evento-request.model';
-import { ActualizarEventoRequest } from '../models/evento/actualizar-evento-request.model';
-import { EventoService } from './evento.service';
+import { environment } from '../../../environments/environment';
+import { NotificacionExterna } from '../../models/notificacionexterna/notificacion-externa.model';
+import { CrearNotificacionExternaRequest } from '../../models/notificacionexterna/crear-notificacion-externa-request.model';
+import { ActualizarNotificacionExternaRequest } from '../../models/notificacionexterna/actualizar-notificacion-externa-request.model';
+import { NotificacionExternaService } from './notificacion-externa.service';
 
-describe('EventoService', () => {
-  let service: EventoService;
+describe('NotificacionExternaService', () => {
+  let service: NotificacionExternaService;
   let httpTesting: HttpTestingController;
-  const apiUrl = `${environment.apiUrl}/eventos`;
-  const respuesta: Evento = {
+  const apiUrl = `${environment.apiUrl}/notificaciones-externas`;
+  const respuesta: NotificacionExterna = {
     id: 5,
     procesoId: 2,
     poolId: 3,
-    nombre: 'Inicio',
-    tipo: 'INICIO',
-    posicionX: null,
-    posicionY: 0,
+    poolDestinoId: 4,
+    nombre: 'Aviso',
+    tipoDestino: 'CORREO',
+    momentoProceso: null,
+    accionSiFalla: 'DERIVAR_ERROR',
+    actividadManejoErrorId: 6,
+    campos: [{ nombre: 'correo', tipoDato: 'String' }],
+    posicionX: 0,
+    posicionY: null,
     activo: true,
   };
 
@@ -27,7 +32,7 @@ describe('EventoService', () => {
     TestBed.configureTestingModule({
       providers: [provideHttpClient(), provideHttpClientTesting()],
     });
-    service = TestBed.inject(EventoService);
+    service = TestBed.inject(NotificacionExternaService);
     httpTesting = TestBed.inject(HttpTestingController);
   });
 
@@ -56,13 +61,15 @@ describe('EventoService', () => {
   });
 
   it('crea con el cuerpo y el usuario indicados', () => {
-    const request: CrearEventoRequest = {
+    const request: CrearNotificacionExternaRequest = {
       procesoId: 2,
       poolId: 3,
-      nombre: 'Inicio',
-      tipo: 'INICIO',
-      posicionX: null,
-      posicionY: 0,
+      poolDestinoId: 4,
+      nombre: 'Aviso',
+      tipoDestino: 'CORREO',
+      accionSiFalla: 'DERIVAR_ERROR',
+      actividadManejoErrorId: 6,
+      campos: [{ nombre: 'correo', tipoDato: 'String' }],
     };
     service.crear(request, 7).subscribe((datos) => expect(datos).toEqual(respuesta));
     const req = httpTesting.expectOne(`${apiUrl}?usuarioId=7`);
@@ -72,11 +79,13 @@ describe('EventoService', () => {
   });
 
   it('actualiza sin enviar proceso ni pool contenedor', () => {
-    const request: ActualizarEventoRequest = {
-      nombre: 'Fin',
-      tipo: 'FIN',
-      posicionX: 0,
-      posicionY: null,
+    const request: ActualizarNotificacionExternaRequest = {
+      nombre: 'Aviso actualizado',
+      poolDestinoId: 4,
+      tipoDestino: 'CORREO',
+      accionSiFalla: 'DERIVAR_ERROR',
+      actividadManejoErrorId: 6,
+      campos: [],
     };
     const actualizada = { ...respuesta, ...request };
     service.actualizar(5, request, 7).subscribe((datos) => expect(datos).toEqual(actualizada));

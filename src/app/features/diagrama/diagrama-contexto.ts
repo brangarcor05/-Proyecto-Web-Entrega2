@@ -5,7 +5,7 @@ import { EMPTY, Observable, catchError, finalize, switchMap, tap } from 'rxjs';
 import { ApiErrorService } from '../../core/services/api-error.service';
 import { Proceso } from '../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../services/auth/auth.service';
-import { ProcesoService } from '../../services/proceso.service';
+import { ProcesoService } from '../../services/proceso/proceso.service';
 
 export function idValido(valor: unknown): number | null {
   if (typeof valor !== 'number' && typeof valor !== 'string') return null;

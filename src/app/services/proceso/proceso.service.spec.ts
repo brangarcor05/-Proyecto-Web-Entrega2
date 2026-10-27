@@ -2,13 +2,13 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { environment } from '../../environments/environment';
-import { PageResponse } from '../models/common/page-response.model';
-import { ActualizarProcesoRequest } from '../models/proceso/actualizar-proceso-request.model';
-import { CompartirProcesoRequest } from '../models/proceso/compartir-proceso-request.model';
-import { CrearProcesoRequest } from '../models/proceso/crear-proceso-request.model';
-import { Historial } from '../models/proceso/historial.model';
-import { Proceso } from '../models/proceso/proceso.model';
+import { environment } from '../../../environments/environment';
+import { PageResponse } from '../../models/common/page-response.model';
+import { ActualizarProcesoRequest } from '../../models/proceso/actualizar-proceso-request.model';
+import { CompartirProcesoRequest } from '../../models/proceso/compartir-proceso-request.model';
+import { CrearProcesoRequest } from '../../models/proceso/crear-proceso-request.model';
+import { Historial } from '../../models/proceso/historial.model';
+import { Proceso } from '../../models/proceso/proceso.model';
 import { ProcesoService } from './proceso.service';
 
 describe('ProcesoService', () => {

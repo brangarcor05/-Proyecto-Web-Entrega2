@@ -7,7 +7,7 @@ import { PageResponse } from '../../../../models/common/page-response.model';
 import { ConsultarProcesosParams } from '../../../../models/proceso/consultar-procesos-params.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
-import { ProcesoService } from '../../../../services/proceso.service';
+import { ProcesoService } from '../../../../services/proceso/proceso.service';
 import { Router } from '@angular/router';
 import { ProcesoListComponent } from './proceso-list.component';
 

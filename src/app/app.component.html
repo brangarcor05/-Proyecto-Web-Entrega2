@@ -4,6 +4,7 @@
     <a routerLink="/procesos">Procesos</a>
     @if (usuarioActual.rolUsuario === 'ADMIN') {
       <a routerLink="/usuarios">Usuarios</a>
+      <a routerLink="/configuracion/permisos-pool">Permisos de pools</a>
     }
     <span>{{ usuarioActual.nombre }} · {{ usuarioActual.empresaNombre }}</span>
     <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>
