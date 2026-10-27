@@ -109,8 +109,8 @@ describe('ProcesoShareComponent', () => {
     fixture.detectChanges();
 
     expect(busqueda).toEqual({ id: 15, empresaId: 7 });
-    expect(fixture.componentInstance.proceso).toEqual(proceso);
-    expect(fixture.componentInstance.empresas).toEqual([empresas[1]]);
+    expect(fixture.componentInstance.proceso()).toEqual(proceso);
+    expect(fixture.componentInstance.empresas()).toEqual([empresas[1]]);
     expect(fixture.componentInstance.formulario.controls.empresasIds.value).toEqual([2]);
   });
 
@@ -149,7 +149,7 @@ describe('ProcesoShareComponent', () => {
     fixture.componentInstance.guardar();
 
     expect(comparticion).toBeNull();
-    expect(fixture.componentInstance.error).toContain('al menos una empresa');
+    expect(fixture.componentInstance.error()).toContain('al menos una empresa');
   });
 
   it('agrega y retira empresas desde el selector', () => {
