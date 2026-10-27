@@ -1,7 +1,7 @@
 <section class="lanes tarjeta">
   <header class="lanes__encabezado">
     <h3>Lanes</h3>
-    @if (puedeEditar && !mostrandoFormulario()) {
+    @if (puedeCrear && !mostrandoFormulario()) {
       <button type="button" class="btn btn--secundario" (click)="iniciarCreacion()">
         Agregar lane
       </button>
@@ -27,11 +27,13 @@
           <span class="lanes__orden">{{ lane.orden + 1 }}</span>
           <span class="lanes__nombre">{{ lane.rolProcesoNombre }}</span>
 
-          @if (puedeEditar) {
+          @if (puedeEditar || puedeEliminar) {
             <div class="lanes__acciones">
-              <button type="button" class="btn-icono" [disabled]="primero || reordenando()" (click)="moverArriba(lane)" title="Subir">↑</button>
-              <button type="button" class="btn-icono" [disabled]="ultimo || reordenando()" (click)="moverAbajo(lane)" title="Bajar">↓</button>
-              <button type="button" class="btn btn--secundario" (click)="iniciarEdicion(lane)">Editar</button>
+              @if (puedeEditar) {
+                <button type="button" class="btn-icono" [disabled]="primero || reordenando()" (click)="moverArriba(lane)" title="Subir">↑</button>
+                <button type="button" class="btn-icono" [disabled]="ultimo || reordenando()" (click)="moverAbajo(lane)" title="Bajar">↓</button>
+                <button type="button" class="btn btn--secundario" (click)="iniciarEdicion(lane)">Editar</button>
+              }
               @if (puedeEliminar) {
                 <button
                   type="button"
@@ -49,7 +51,7 @@
     </ol>
   }
 
-  @if (puedeEditar && mostrandoFormulario()) {
+  @if ((esEdicion ? puedeEditar : puedeCrear) && mostrandoFormulario()) {
     <form class="lanes__formulario" [formGroup]="formulario" (ngSubmit)="guardar()">
       <label class="campo">
         Rol de proceso

@@ -4,16 +4,24 @@ import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { Lane } from '../../../../models/bpmn/lane/lane.model';
+import { PermisoPool } from '../../../../models/permisopool/permiso-pool.model';
 import { RolProceso } from '../../../../models/bpmn/rolProceso/rolProceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { LaneService } from '../../../../services/lane/lane.service';
+import { PermisoPoolService } from '../../../../services/permisoPool/permiso-pool.service';
 import { RolProcesoService } from '../../../../services/rolProceso/rolProceso.service';
-import { puedeCrearOEditarLane, puedeEliminarLane } from '../../lane-permisos';
 
 /**
- * Administra las lanes de un pool (HU-22). No tiene ruta propia: se embebe donde
- * viva la edición del pool (todavía no existe en el frontend — features/editor-bpmn/
- * components/pool sigue vacío), pasándole el poolId por @Input.
+ * Administra las lanes de un pool (HU-22). Se embebe en pool-form.component
+ * (solo cuando se edita un pool existente y no es caja negra), pasándole el
+ * poolId por @Input.
+ *
+ * El permiso para crear/editar/eliminar lanes es el mismo que para pools
+ * (HU-24, PermisoService#validarPuedeXPoolsYLanes en el backend): cada
+ * empresa puede configurarlo via PermisoPoolService, con ADMIN/EDITOR
+ * pudiendo crear y editar, y solo ADMIN pudiendo eliminar, como reglas por
+ * defecto mientras la empresa no defina las suyas. Por eso se consulta
+ * PermisoPoolService en vez de usar una regla fija en el frontend.
  */
 @Component({
   selector: 'app-lane-list',
@@ -27,11 +35,13 @@ export class LaneListComponent implements OnChanges {
 
   private readonly laneService = inject(LaneService);
   private readonly rolProcesoService = inject(RolProcesoService);
+  private readonly permisoPoolService = inject(PermisoPoolService);
   private readonly apiErrorService = inject(ApiErrorService);
   private readonly autenticacionService = inject(AutenticacionService);
 
   lanes = signal<Lane[]>([]);
   rolesDisponibles = signal<RolProceso[]>([]);
+  permiso = signal<PermisoPool | null>(null);
   cargando = signal(false);
   guardando = signal(false);
   reordenando = signal(false);
@@ -45,13 +55,15 @@ export class LaneListComponent implements OnChanges {
   });
 
   get puedeEditar(): boolean {
-    const sesion = this.autenticacionService.sesion();
-    return sesion !== null && puedeCrearOEditarLane(sesion.rolUsuario);
+    return this.permiso()?.puedeEditar ?? false;
+  }
+
+  get puedeCrear(): boolean {
+    return this.permiso()?.puedeCrear ?? false;
   }
 
   get puedeEliminar(): boolean {
-    const sesion = this.autenticacionService.sesion();
-    return sesion !== null && puedeEliminarLane(sesion.rolUsuario);
+    return this.permiso()?.puedeEliminar ?? false;
   }
 
   get esEdicion(): boolean {
@@ -61,6 +73,7 @@ export class LaneListComponent implements OnChanges {
   ngOnChanges(): void {
     this.cargarLanes();
     this.cargarRolesDisponibles();
+    this.cargarPermiso();
   }
 
   cargarLanes(): void {
@@ -86,6 +99,39 @@ export class LaneListComponent implements OnChanges {
     });
   }
 
+  /**
+   * Trae el permiso configurado para el rol del usuario actual, con el
+   * mismo fallback por defecto que aplica el backend (ADMIN/EDITOR pueden
+   * crear y editar; solo ADMIN puede eliminar) por si la empresa no ha
+   * configurado nada en /configuracion/permisos-pool.
+   */
+  private cargarPermiso(): void {
+    const sesion = this.autenticacionService.sesion();
+    if (!sesion) {
+      return;
+    }
+    this.permisoPoolService.consultar(sesion.empresaId).subscribe({
+      next: (permisos) => {
+        const configurado = permisos.find((permiso) => permiso.rolUsuario === sesion.rolUsuario);
+        this.permiso.set(configurado ?? this.permisoPorDefecto(sesion.rolUsuario));
+      },
+      error: (error: unknown) => this.manejarError(error),
+    });
+  }
+
+  private permisoPorDefecto(rolUsuario: PermisoPool['rolUsuario']): PermisoPool {
+    const puedeEditarPorDefecto = rolUsuario === 'ADMIN' || rolUsuario === 'EDITOR';
+    return {
+      id: null,
+      empresaId: this.autenticacionService.sesion()?.empresaId ?? 0,
+      rolUsuario,
+      puedeCrear: puedeEditarPorDefecto,
+      puedeEditar: puedeEditarPorDefecto,
+      puedeEliminar: rolUsuario === 'ADMIN',
+      configurado: false,
+    };
+  }
+
   iniciarCreacion(): void {
     this.editandoId.set(null);
     this.formulario.reset();
@@ -106,7 +152,9 @@ export class LaneListComponent implements OnChanges {
 
   guardar(): void {
     const sesion = this.autenticacionService.sesion();
-    if (!sesion || !puedeCrearOEditarLane(sesion.rolUsuario)) {
+    const idEnEdicion = this.editandoId();
+    const tienePermiso = idEnEdicion === null ? this.puedeCrear : this.puedeEditar;
+    if (!sesion || !tienePermiso) {
       return;
     }
 
@@ -119,7 +167,6 @@ export class LaneListComponent implements OnChanges {
     this.guardando.set(true);
     this.error.set('');
 
-    const idEnEdicion = this.editandoId();
     const operacion = idEnEdicion === null
       ? this.laneService.crear({ poolId: this.poolId, rolProcesoId }, sesion.usuarioId)
       : this.laneService.actualizar(idEnEdicion, { rolProcesoId }, sesion.usuarioId);
@@ -137,7 +184,7 @@ export class LaneListComponent implements OnChanges {
 
   eliminar(lane: Lane): void {
     const sesion = this.autenticacionService.sesion();
-    if (!sesion || !puedeEliminarLane(sesion.rolUsuario)) {
+    if (!sesion || !this.puedeEliminar) {
       return;
     }
 
@@ -167,7 +214,7 @@ export class LaneListComponent implements OnChanges {
 
   private mover(lane: Lane, direccion: -1 | 1): void {
     const sesion = this.autenticacionService.sesion();
-    if (!sesion || !puedeCrearOEditarLane(sesion.rolUsuario)) {
+    if (!sesion || !this.puedeEditar) {
       return;
     }
 

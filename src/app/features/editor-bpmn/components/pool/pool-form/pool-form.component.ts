@@ -10,10 +10,11 @@ import { AutenticacionService } from '../../../../../services/auth/auth.service'
 import { PermisoPoolService } from '../../../../../services/permisoPool/permiso-pool.service';
 import { PoolService } from '../../../../../services/pool/pool.service';
 import { ProcesoService } from '../../../../../services/proceso/proceso.service';
+import { LaneListComponent } from '../../lane/lane-list.component';
 
 @Component({
   selector: 'app-pool-form',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, LaneListComponent],
   templateUrl: './pool-form.component.html',
   styleUrl: './pool-form.component.css',
 })
@@ -44,6 +45,11 @@ export class PoolFormComponent implements OnInit {
 
   get esEdicion(): boolean {
     return this.poolId !== null;
+  }
+
+  /** Un pool caja negra no puede tener lanes (ReglaNegocioException en el backend). */
+  get muestraLanes(): boolean {
+    return this.poolId !== null && !this.formulario.controls.cajaNegra.value;
   }
 
   get entradasCamposInvalidos(): [string, string][] {
