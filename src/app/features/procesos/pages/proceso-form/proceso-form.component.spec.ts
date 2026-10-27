@@ -164,6 +164,6 @@ describe('ProcesoFormComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.formulario.disabled).toBe(true);
-    expect(fixture.componentInstance.error).toContain('solo lectura');
+    expect(fixture.componentInstance.error()).toContain('solo lectura');
   });
 });
