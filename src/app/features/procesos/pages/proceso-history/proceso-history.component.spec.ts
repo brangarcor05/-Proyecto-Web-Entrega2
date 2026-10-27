@@ -6,7 +6,7 @@ import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { SesionResponse } from '../../../../models/auth/auth.model';
 import { Historial } from '../../../../models/proceso/historial.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
-import { ProcesoService } from '../../../../services/proceso.service';
+import { ProcesoService } from '../../../../services/proceso/proceso.service';
 import { ProcesoHistoryComponent } from './proceso-history.component';
 
 describe('ProcesoHistoryComponent', () => {
