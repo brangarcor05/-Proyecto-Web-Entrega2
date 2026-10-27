@@ -1,0 +1,97 @@
+<main class="pagina">
+  <header class="pagina__encabezado">
+    <div>
+      <p class="pagina__sobrelinea">Gestión de roles de proceso</p>
+      <h1>Roles de proceso de {{ autenticacionService.sesion()?.empresaNombre }}</h1>
+      <p>Catálogo de funciones (Analista, Supervisor, Auditor…) que se usa para nombrar lanes.</p>
+    </div>
+    @if (puedeAdministrar) {
+      <a class="btn btn--primario" routerLink="/roles-proceso/nuevo">Crear rol de proceso</a>
+    }
+  </header>
+
+  <div class="campo campo--buscar">
+    <input
+      type="search"
+      placeholder="Buscar por nombre…"
+      [value]="filtroNombre"
+      (input)="buscar($any($event.target).value)"
+    />
+  </div>
+
+  @if (cargando) {
+    <p class="mensaje">Cargando roles de proceso…</p>
+  }
+
+  @if (error) {
+    <section class="mensaje mensaje--error" role="alert">
+      <p>{{ error }}</p>
+      @if (entradasCamposInvalidos.length > 0) {
+        <ul>
+          @for (campo of entradasCamposInvalidos; track campo[0]) {
+            <li>{{ campo[0] }}: {{ campo[1] }}</li>
+          }
+        </ul>
+      }
+    </section>
+  }
+
+  @if (!cargando && pagina; as resultado) {
+    @if (resultado.content.length > 0) {
+      <table class="tabla-roles" aria-label="Listado de roles de proceso">
+        <thead>
+          <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col">Descripción</th>
+            <th scope="col">En uso</th>
+            @if (puedeAdministrar) {
+              <th scope="col">Acciones</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (rol of resultado.content; track rol.id) {
+            <tr>
+              <td>{{ rol.nombre }}</td>
+              <td>{{ rol.descripcion || '—' }}</td>
+              <td>
+                @if (rol.enUso) {
+                  <span class="etiqueta" [title]="rol.procesosDondeSeUsa.join(', ')">
+                    Sí ({{ rol.procesosDondeSeUsa.length }})
+                  </span>
+                } @else {
+                  <span class="etiqueta etiqueta--suave">No</span>
+                }
+              </td>
+              @if (puedeAdministrar) {
+                <td class="tabla-roles__acciones">
+                  <a class="btn btn--secundario" [routerLink]="['/roles-proceso', rol.id, 'editar']">Editar</a>
+                  <button
+                    type="button"
+                    class="btn btn--peligro"
+                    [disabled]="eliminandoId === rol.id"
+                    (click)="solicitarEliminacion(rol)"
+                  >
+                    {{ eliminandoId === rol.id ? 'Eliminando…' : 'Eliminar' }}
+                  </button>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <nav class="paginacion" aria-label="Paginación de roles de proceso">
+        <button type="button" class="btn btn--secundario" (click)="paginaAnterior()" [disabled]="resultado.first || cargando">
+          Anterior
+        </button>
+        <span>Página {{ resultado.number + 1 }} de {{ resultado.totalPages }}</span>
+        <button type="button" class="btn btn--secundario" (click)="paginaSiguiente()" [disabled]="resultado.last || cargando">
+          Siguiente
+        </button>
+      </nav>
+    } @else {
+      <p class="mensaje">No se encontraron roles de proceso con los filtros seleccionados.</p>
+    }
+  }
+</main>

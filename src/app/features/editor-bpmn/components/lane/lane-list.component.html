@@ -1,0 +1,75 @@
+<section class="lanes tarjeta">
+  <header class="lanes__encabezado">
+    <h3>Lanes</h3>
+    @if (puedeEditar && !mostrandoFormulario()) {
+      <button type="button" class="btn btn--secundario" (click)="iniciarCreacion()">
+        Agregar lane
+      </button>
+    }
+  </header>
+
+  @if (error()) {
+    <p class="mensaje mensaje--error" role="alert">{{ error() }}</p>
+  }
+
+  @if (cargando()) {
+    <p class="mensaje">Cargando lanes…</p>
+  }
+
+  @if (!cargando() && lanes().length === 0) {
+    <p class="mensaje">Este pool todavía no tiene lanes.</p>
+  }
+
+  @if (!cargando() && lanes().length > 0) {
+    <ol class="lanes__lista">
+      @for (lane of lanes(); track lane.id; let primero = $first; let ultimo = $last) {
+        <li class="lanes__item">
+          <span class="lanes__orden">{{ lane.orden + 1 }}</span>
+          <span class="lanes__nombre">{{ lane.rolProcesoNombre }}</span>
+
+          @if (puedeEditar) {
+            <div class="lanes__acciones">
+              <button type="button" class="btn-icono" [disabled]="primero || reordenando()" (click)="moverArriba(lane)" title="Subir">↑</button>
+              <button type="button" class="btn-icono" [disabled]="ultimo || reordenando()" (click)="moverAbajo(lane)" title="Bajar">↓</button>
+              <button type="button" class="btn btn--secundario" (click)="iniciarEdicion(lane)">Editar</button>
+              @if (puedeEliminar) {
+                <button
+                  type="button"
+                  class="btn btn--peligro"
+                  [disabled]="eliminandoId() === lane.id"
+                  (click)="eliminar(lane)"
+                >
+                  {{ eliminandoId() === lane.id ? 'Eliminando…' : 'Eliminar' }}
+                </button>
+              }
+            </div>
+          }
+        </li>
+      }
+    </ol>
+  }
+
+  @if (puedeEditar && mostrandoFormulario()) {
+    <form class="lanes__formulario" [formGroup]="formulario" (ngSubmit)="guardar()">
+      <label class="campo">
+        Rol de proceso
+        <select formControlName="rolProcesoId">
+          <option [ngValue]="null" disabled>Selecciona un rol…</option>
+          @for (rol of rolesDisponibles(); track rol.id) {
+            <option [ngValue]="rol.id">{{ rol.nombre }}</option>
+          }
+        </select>
+        @if (rolesDisponibles().length === 0) {
+          <small>Esta empresa todavía no tiene roles de proceso activos. Crea uno primero.</small>
+        }
+      </label>
+
+      <div class="acciones">
+        <button type="submit" class="btn btn--primario" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando…' : esEdicion ? 'Actualizar lane' : 'Agregar lane' }}
+        </button>
+        <button type="button" class="btn btn--secundario" (click)="cancelarEdicion()">Cancelar</button>
+      </div>
+    </form>
+  }
+</section>

@@ -1,0 +1,39 @@
+.pagina-formulario {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.volver {
+  color: var(--primary);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+header {
+  margin: 1.5rem 0;
+}
+
+header h1,
+header p {
+  margin: 0;
+}
+
+header p {
+  color: var(--primary);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+}
+
+form {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}

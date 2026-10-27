@@ -110,5 +110,20 @@ export const routes: Routes = [
   { path: 'procesos/:procesoId/pools/:poolId/editar', component: PoolFormComponent },
   { path: 'procesos/:procesoId/pools', component: PoolListComponent },
   { path: 'procesos/:id', component: ProcesoDetailComponent },
+  {
+    path: 'roles-proceso',
+    loadComponent: () => import('./features/roles-proceso/pages/rol-proceso-list/rol-proceso-list.component')
+      .then(m => m.RolProcesoListComponent)
+  },
+  {
+    path: 'roles-proceso/nuevo',
+    loadComponent: () => import('./features/roles-proceso/pages/rol-proceso-form/rol-proceso-form.component')
+      .then(m => m.RolProcesoFormComponent)
+  },
+  {
+    path: 'roles-proceso/:id/editar',
+    loadComponent: () => import('./features/roles-proceso/pages/rol-proceso-form/rol-proceso-form.component')
+      .then(m => m.RolProcesoFormComponent)
+  },
   { path: '**', component: NotFoundComponent },
 ];
