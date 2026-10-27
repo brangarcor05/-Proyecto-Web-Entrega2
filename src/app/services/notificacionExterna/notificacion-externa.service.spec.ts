@@ -2,10 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { environment } from '../../environments/environment';
-import { NotificacionExterna } from '../models/notificacionexterna/notificacion-externa.model';
-import { CrearNotificacionExternaRequest } from '../models/notificacionexterna/crear-notificacion-externa-request.model';
-import { ActualizarNotificacionExternaRequest } from '../models/notificacionexterna/actualizar-notificacion-externa-request.model';
+import { environment } from '../../../environments/environment';
+import { NotificacionExterna } from '../../models/notificacionexterna/notificacion-externa.model';
+import { CrearNotificacionExternaRequest } from '../../models/notificacionexterna/crear-notificacion-externa-request.model';
+import { ActualizarNotificacionExternaRequest } from '../../models/notificacionexterna/actualizar-notificacion-externa-request.model';
 import { NotificacionExternaService } from './notificacion-externa.service';
 
 describe('NotificacionExternaService', () => {

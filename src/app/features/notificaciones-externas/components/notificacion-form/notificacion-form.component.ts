@@ -5,7 +5,7 @@ import { forkJoin, of, finalize, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CrearNotificacionExternaRequest } from '../../../../models/notificacionexterna/crear-notificacion-externa-request.model';
 import { ActualizarNotificacionExternaRequest } from '../../../../models/notificacionexterna/actualizar-notificacion-externa-request.model';
-import { NotificacionExternaService } from '../../../../services/notificacion-externa.service';
+import { NotificacionExternaService } from '../../../../services/notificacionExterna/notificacion-externa.service';
 import { DiagramaContexto } from '../../../diagrama/diagrama-contexto';
 import { DiagramaCatalogoService, PoolDiagrama } from '../../../diagrama/diagrama-catalogo.service';
 import { textoObligatorio, numeroFinito, idPositivo } from '../../../diagrama/diagrama-validadores';

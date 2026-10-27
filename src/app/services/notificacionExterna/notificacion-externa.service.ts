@@ -2,10 +2,10 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { environment } from '../../environments/environment';
-import { ActualizarNotificacionExternaRequest } from '../models/notificacionexterna/actualizar-notificacion-externa-request.model';
-import { CrearNotificacionExternaRequest } from '../models/notificacionexterna/crear-notificacion-externa-request.model';
-import { NotificacionExterna } from '../models/notificacionexterna/notificacion-externa.model';
+import { environment } from '../../../environments/environment';
+import { ActualizarNotificacionExternaRequest } from '../../models/notificacionexterna/actualizar-notificacion-externa-request.model';
+import { CrearNotificacionExternaRequest } from '../../models/notificacionexterna/crear-notificacion-externa-request.model';
+import { NotificacionExterna } from '../../models/notificacionexterna/notificacion-externa.model';
 
 @Injectable({ providedIn: 'root' })
 export class NotificacionExternaService {
