@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Actividad, NewActividad } from '../../models/bpmn/actividad/actividad.model';
+import { Actividad, CreateActividadRequest, UpdateActividadRequest } from '../../models/bpmn/actividad/actividad.model';
 
 @Injectable({
     providedIn: 'root'
@@ -18,11 +18,11 @@ export class ActividadService {
         return this.http.get<Actividad>(`${this.apiUrl}/${id}`);
     }
 
-    crear(actividad: NewActividad): Observable<Actividad> {
+    crear(actividad: CreateActividadRequest): Observable<Actividad> {
         return this.http.post<Actividad>(this.apiUrl, actividad);
     }
 
-    actualizar(id: number, actividad: NewActividad): Observable<Actividad> {
+    actualizar(id: number, actividad: UpdateActividadRequest): Observable<Actividad> {
         return this.http.put<Actividad>(`${this.apiUrl}/${id}`, actividad);
     }
 

@@ -1,0 +1,41 @@
+<div class="form-container">
+    <h2>{{ isEditMode ? 'Editar Gateway' : 'Nuevo Gateway' }}</h2>
+
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
+        <label>
+            Nombre del Gateway:
+            <input type="text" formControlName="nombre" placeholder="Ej. ¿Aprobado?" />
+        </label>
+
+        <label>
+            Tipo de Gateway (*):
+            <select formControlName="tipo">
+                <option value="">-- Selecciona un tipo --</option>
+                <option value="EXCLUSIVE">Exclusivo (XOR)</option>
+                <option value="PARALLEL">Paralelo (AND)</option>
+                <option value="INCLUSIVE">Inclusivo (OR)</option>
+            </select>
+        </label>
+        @if (formulario.get('tipo')?.invalid && formulario.get('tipo')?.touched) {
+        <span class="error">El tipo de gateway es obligatorio (@NotNull).</span>
+        }
+
+        <label>
+            Lane ID (*):
+            <input type="number" formControlName="laneId" placeholder="ID del carril" />
+        </label>
+        @if (formulario.get('laneId')?.invalid && formulario.get('laneId')?.touched) {
+        <span class="error">El Lane ID es obligatorio.</span>
+        }
+
+        <label>
+            Pool ID (Opcional):
+            <input type="number" formControlName="poolId" placeholder="ID del pool" />
+        </label>
+
+        <div class="acciones">
+            <button type="submit" [disabled]="formulario.invalid">Guardar</button>
+            <button type="button" (click)="volverAlListado()">Cancelar</button>
+        </div>
+    </form>
+</div>
