@@ -16,4 +16,8 @@ export class EmpresaService {
   obtener(id: number): Observable<Empresa> {
     return this.http.get<Empresa>(`${this.url}/${id}`);
   }
+
+  listar(): Observable<Empresa[]> {
+    return this.http.get<Empresa[]>(this.url);
+  }
 }

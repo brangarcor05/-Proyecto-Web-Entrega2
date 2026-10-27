@@ -4,8 +4,10 @@ import { of } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { SesionResponse } from '../../../../models/auth/auth.model';
+import { Empresa } from '../../../../models/empresa/empresa.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
+import { EmpresaService } from '../../../../services/empresa/Empresa.service';
 import { ProcesoService } from '../../../../services/proceso/proceso.service';
 import { ProcesoShareComponent } from './proceso-share.component';
 
@@ -28,8 +30,31 @@ describe('ProcesoShareComponent', () => {
     estado: 'PUBLICADO',
     activo: true,
     compartido: false,
+    empresasCompartidasIds: [2],
     soloLectura: false,
   };
+  const empresas: Empresa[] = [
+    {
+      id: 7,
+      nombre: 'Empresa',
+      rut: '900000001',
+      razonSocial: 'Empresa actual',
+      email: 'actual@example.com',
+      estado: 'ACTIVO',
+      fechaRegistro: '2026-10-26T10:00:00',
+      adminUsuarioId: 3,
+    },
+    {
+      id: 2,
+      nombre: 'Empresa invitada',
+      rut: '900000002',
+      razonSocial: 'Empresa invitada',
+      email: 'invitada@example.com',
+      estado: 'ACTIVO',
+      fechaRegistro: '2026-10-26T10:00:00',
+      adminUsuarioId: 4,
+    },
+  ];
 
   let sesion: SesionResponse | null;
   let routeId: string | null;
@@ -48,6 +73,7 @@ describe('ProcesoShareComponent', () => {
       imports: [ProcesoShareComponent],
       providers: [
         { provide: AutenticacionService, useValue: { sesion: () => sesion } },
+        { provide: EmpresaService, useValue: { listar: () => of(empresas) } },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => routeId } } } },
         {
           provide: Router,
@@ -84,6 +110,8 @@ describe('ProcesoShareComponent', () => {
 
     expect(busqueda).toEqual({ id: 15, empresaId: 7 });
     expect(fixture.componentInstance.proceso).toEqual(proceso);
+    expect(fixture.componentInstance.empresas).toEqual([empresas[1]]);
+    expect(fixture.componentInstance.formulario.controls.empresasIds.value).toEqual([2]);
   });
 
   it('impide el acceso directo a EDITOR y LECTURA', () => {
@@ -100,7 +128,7 @@ describe('ProcesoShareComponent', () => {
     fixture.detectChanges();
     fixture.componentInstance.formulario.setValue({
       compartido: true,
-      empresasIds: '2, 3, 2',
+      empresasIds: [2, 3, 2],
     });
 
     fixture.componentInstance.guardar();
@@ -116,11 +144,22 @@ describe('ProcesoShareComponent', () => {
   it('exige al menos una empresa cuando se activa la compartición', () => {
     const fixture = TestBed.createComponent(ProcesoShareComponent);
     fixture.detectChanges();
-    fixture.componentInstance.formulario.setValue({ compartido: true, empresasIds: '' });
+    fixture.componentInstance.formulario.setValue({ compartido: true, empresasIds: [] });
 
     fixture.componentInstance.guardar();
 
     expect(comparticion).toBeNull();
     expect(fixture.componentInstance.error).toContain('al menos una empresa');
+  });
+
+  it('agrega y retira empresas desde el selector', () => {
+    const fixture = TestBed.createComponent(ProcesoShareComponent);
+    fixture.detectChanges();
+
+    fixture.componentInstance.cambiarEmpresa(2, true);
+    expect(fixture.componentInstance.formulario.controls.empresasIds.value).toEqual([2]);
+
+    fixture.componentInstance.cambiarEmpresa(2, false);
+    expect(fixture.componentInstance.formulario.controls.empresasIds.value).toEqual([]);
   });
 });

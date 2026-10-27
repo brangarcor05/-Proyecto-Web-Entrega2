@@ -46,16 +46,36 @@ label:not(.casilla) {
   font-weight: 650;
 }
 
-input[type='text'] {
-  border: 1px solid #cbd5e1;
-  border-radius: 0.55rem;
-  padding: 0.7rem;
-  font: inherit;
-}
-
 small,
 .nota {
   color: #64748b;
+}
+
+.empresas {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+}
+
+.empresas legend {
+  padding: 0 0.35rem;
+  font-weight: 700;
+}
+
+.empresa-opcion {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem;
+  border-radius: 0.5rem;
+  background: #f8fafc;
+}
+
+.empresa-opcion span {
+  display: grid;
 }
 
 .error-campo,
