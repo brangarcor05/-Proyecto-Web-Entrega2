@@ -5,7 +5,7 @@ import { forkJoin, of, finalize, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CrearEventoRequest } from '../../../../models/evento/crear-evento-request.model';
 import { ActualizarEventoRequest } from '../../../../models/evento/actualizar-evento-request.model';
-import { EventoService } from '../../../../services/evento.service';
+import { EventoService } from '../../../../services/evento/evento.service';
 import { DiagramaContexto } from '../../../diagrama/diagrama-contexto';
 import { DiagramaCatalogoService, PoolDiagrama } from '../../../diagrama/diagrama-catalogo.service';
 import { textoObligatorio, numeroFinito, idPositivo } from '../../../diagrama/diagrama-validadores';

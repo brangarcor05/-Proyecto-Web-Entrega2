@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { finalize, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Evento } from '../../../../models/evento/evento.model';
-import { EventoService } from '../../../../services/evento.service';
+import { EventoService } from '../../../../services/evento/evento.service';
 import { DiagramaContexto } from '../../../diagrama/diagrama-contexto';
 import { EventoCardComponent } from '../../components/evento-card/evento-card.component';
 

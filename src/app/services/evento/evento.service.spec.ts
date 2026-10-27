@@ -2,10 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { environment } from '../../environments/environment';
-import { Evento } from '../models/evento/evento.model';
-import { CrearEventoRequest } from '../models/evento/crear-evento-request.model';
-import { ActualizarEventoRequest } from '../models/evento/actualizar-evento-request.model';
+import { environment } from '../../../environments/environment';
+import { Evento } from '../../models/evento/evento.model';
+import { CrearEventoRequest } from '../../models/evento/crear-evento-request.model';
+import { ActualizarEventoRequest } from '../../models/evento/actualizar-evento-request.model';
 import { EventoService } from './evento.service';
 
 describe('EventoService', () => {

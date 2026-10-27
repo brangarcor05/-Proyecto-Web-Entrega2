@@ -2,10 +2,10 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { environment } from '../../environments/environment';
-import { ActualizarEventoRequest } from '../models/evento/actualizar-evento-request.model';
-import { CrearEventoRequest } from '../models/evento/crear-evento-request.model';
-import { Evento } from '../models/evento/evento.model';
+import { environment } from '../../../environments/environment';
+import { ActualizarEventoRequest } from '../../models/evento/actualizar-evento-request.model';
+import { CrearEventoRequest } from '../../models/evento/crear-evento-request.model';
+import { Evento } from '../../models/evento/evento.model';
 
 @Injectable({ providedIn: 'root' })
 export class EventoService {
