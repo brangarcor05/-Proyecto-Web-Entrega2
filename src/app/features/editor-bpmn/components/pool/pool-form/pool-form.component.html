@@ -1,0 +1,49 @@
+<main class="pagina-formulario">
+  <a class="volver" [routerLink]="['/procesos', procesoId, 'pools']">← Volver a pools</a>
+  <header>
+    <p>{{ esEdicion ? 'Edición' : 'Creación' }}</p>
+    <h1>{{ esEdicion ? 'Editar pool' : 'Crear pool' }}</h1>
+  </header>
+
+  @if (cargando) {
+    <p class="mensaje">Cargando información…</p>
+  }
+  @if (error) {
+    <section class="mensaje mensaje--error" role="alert">
+      <p>{{ error }}</p>
+      @if (entradasCamposInvalidos.length > 0) {
+        <ul>
+          @for (campo of entradasCamposInvalidos; track campo[0]) {
+            <li>{{ campo[0] }}: {{ campo[1] }}</li>
+          }
+        </ul>
+      }
+    </section>
+  }
+
+  @if (!cargando) {
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
+      <label class="campo">
+        Nombre
+        <input type="text" formControlName="nombre" maxlength="150" />
+        @if (campoNombreInvalido()) {
+          <small>El nombre es obligatorio y no puede superar 150 caracteres.</small>
+        }
+      </label>
+
+      <label class="casilla">
+        <input type="checkbox" formControlName="cajaNegra" />
+        Representar como caja negra
+      </label>
+      <p class="ayuda">Una caja negra representa un participante externo cuyo flujo interno no se modela.</p>
+
+      <div class="acciones">
+        <button class="btn btn--primario" type="submit"
+                [disabled]="guardando || formulario.disabled">
+          {{ guardando ? 'Guardando…' : esEdicion ? 'Actualizar pool' : 'Crear pool' }}
+        </button>
+        <a class="btn btn--secundario" [routerLink]="['/procesos', procesoId, 'pools']">Cancelar</a>
+      </div>
+    </form>
+  }
+</main>

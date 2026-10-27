@@ -6,6 +6,8 @@ import { ProcesoFormComponent } from './features/procesos/pages/proceso-form/pro
 import { ProcesoHistoryComponent } from './features/procesos/pages/proceso-history/proceso-history.component';
 import { ProcesoListComponent } from './features/procesos/pages/proceso-list/proceso-list.component';
 import { ProcesoShareComponent } from './features/procesos/pages/proceso-share/proceso-share.component';
+import { PoolFormComponent } from './features/editor-bpmn/components/pool/pool-form/pool-form.component';
+import { PoolListComponent } from './features/editor-bpmn/components/pool/pool-list/pool-list.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -34,6 +36,9 @@ export const routes: Routes = [
   { path: 'procesos/:id/editar', component: ProcesoFormComponent },
   { path: 'procesos/:id/historial', component: ProcesoHistoryComponent },
   { path: 'procesos/:id/compartir', component: ProcesoShareComponent },
+  { path: 'procesos/:procesoId/pools/nuevo', component: PoolFormComponent },
+  { path: 'procesos/:procesoId/pools/:poolId/editar', component: PoolFormComponent },
+  { path: 'procesos/:procesoId/pools', component: PoolListComponent },
   { path: 'procesos/:id', component: ProcesoDetailComponent },
   { path: '**', component: NotFoundComponent },
 ];

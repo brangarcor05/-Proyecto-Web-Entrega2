@@ -27,6 +27,7 @@
       </dl>
 
       <footer>
+        <a [routerLink]="['/procesos', actual.id, 'pools']">Pools</a>
         @if (!actual.soloLectura) {
           <a [routerLink]="['/procesos', actual.id, 'historial']">Historial</a>
           @if (puedeEditar) {

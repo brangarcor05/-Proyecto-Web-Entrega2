@@ -1,0 +1,57 @@
+<main class="pagina-pools">
+  <a class="volver" [routerLink]="['/procesos', procesoId]">← Volver al proceso</a>
+
+  <header>
+    <div>
+      <p class="sobrelinea">Participantes BPMN</p>
+      <h1>Pools del proceso</h1>
+      <p>Administra la empresa propietaria y los participantes externos del diagrama.</p>
+    </div>
+    @if (puedeCrearOEditar) {
+      <a class="btn btn--primario" [routerLink]="['/procesos', procesoId, 'pools', 'nuevo']">
+        Crear pool
+      </a>
+    }
+  </header>
+
+  @if (cargando) {
+    <p class="mensaje">Cargando pools…</p>
+  }
+  @if (error) {
+    <p class="mensaje mensaje--error" role="alert">{{ error }}</p>
+  }
+
+  @if (!cargando && !error) {
+    @if (pools.length > 0) {
+      <section class="rejilla">
+        @for (pool of pools; track pool.id) {
+          <article class="tarjeta-pool">
+            <div class="tarjeta-pool__titulo">
+              <h2>{{ pool.nombre }}</h2>
+              @if (pool.esPropietario) {
+                <span>Propietario</span>
+              }
+            </div>
+            <p>{{ pool.cajaNegra ? 'Caja negra: no muestra flujo interno' : 'Flujo interno visible' }}</p>
+            <footer>
+              @if (puedeCrearOEditar) {
+                <a class="btn btn--secundario"
+                   [routerLink]="['/procesos', procesoId, 'pools', pool.id, 'editar']">
+                  Editar
+                </a>
+              }
+              @if (puedeEliminar && !pool.esPropietario) {
+                <button class="btn btn--peligro" type="button"
+                        (click)="eliminar(pool)" [disabled]="eliminandoId === pool.id">
+                  {{ eliminandoId === pool.id ? 'Eliminando…' : 'Eliminar' }}
+                </button>
+              }
+            </footer>
+          </article>
+        }
+      </section>
+    } @else {
+      <p class="mensaje">El proceso todavía no tiene pools activos.</p>
+    }
+  }
+</main>
