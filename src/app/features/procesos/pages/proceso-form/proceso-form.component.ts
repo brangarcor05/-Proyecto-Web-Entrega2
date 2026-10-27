@@ -9,7 +9,7 @@ import { ActualizarProcesoRequest } from '../../../../models/proceso/actualizar-
 import { CrearProcesoRequest } from '../../../../models/proceso/crear-proceso-request.model';
 import { EstadoProceso } from '../../../../models/proceso/estado-proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
-import { ProcesoService } from '../../../../services/proceso.service';
+import { ProcesoService } from '../../../../services/proceso/proceso.service';
 import { puedeCrearOEditarProceso } from '../../proceso-permisos';
 
 @Component({

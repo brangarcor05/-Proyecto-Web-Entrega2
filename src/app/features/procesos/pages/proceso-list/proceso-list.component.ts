@@ -8,7 +8,7 @@ import { ConsultarProcesosParams } from '../../../../models/proceso/consultar-pr
 import { SesionResponse } from '../../../../models/auth/auth.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
-import { ProcesoService } from '../../../../services/proceso.service';
+import { ProcesoService } from '../../../../services/proceso/proceso.service';
 import {
   FiltrosProceso,
   ProcesoFilterComponent,
