@@ -2,10 +2,10 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { environment } from '../../environments/environment';
-import { ActualizarPoolRequest } from '../models/pool/actualizar-pool-request.model';
-import { CrearPoolRequest } from '../models/pool/crear-pool-request.model';
-import { Pool } from '../models/pool/pool.model';
+import { environment } from '../../../environments/environment';
+import { ActualizarPoolRequest } from '../../models/pool/actualizar-pool-request.model';
+import { CrearPoolRequest } from '../../models/pool/crear-pool-request.model';
+import { Pool } from '../../models/pool/pool.model';
 
 @Injectable({ providedIn: 'root' })
 export class PoolService {

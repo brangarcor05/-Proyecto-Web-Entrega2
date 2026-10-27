@@ -5,10 +5,11 @@ import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../../core/services/api-error.service';
 import { SesionResponse } from '../../../../../models/auth/auth.model';
+import { PermisoPool } from '../../../../../models/permisopool/permiso-pool.model';
 import { AutenticacionService } from '../../../../../services/auth/auth.service';
-import { PoolService } from '../../../../../services/pool.service';
-import { ProcesoService } from '../../../../../services/proceso.service';
-import { puedeCrearOEditarProceso } from '../../../../procesos/proceso-permisos';
+import { PermisoPoolService } from '../../../../../services/permisoPool/permiso-pool.service';
+import { PoolService } from '../../../../../services/pool/pool.service';
+import { ProcesoService } from '../../../../../services/proceso/proceso.service';
 
 @Component({
   selector: 'app-pool-form',
@@ -19,6 +20,7 @@ import { puedeCrearOEditarProceso } from '../../../../procesos/proceso-permisos'
 export class PoolFormComponent implements OnInit {
   private readonly poolService = inject(PoolService);
   private readonly procesoService = inject(ProcesoService);
+  private readonly permisoPoolService = inject(PermisoPoolService);
   private readonly autenticacionService = inject(AutenticacionService);
   private readonly apiErrorService = inject(ApiErrorService);
   private readonly route = inject(ActivatedRoute);
@@ -26,6 +28,7 @@ export class PoolFormComponent implements OnInit {
 
   procesoId: number | null = null;
   poolId: number | null = null;
+  permisoActual: PermisoPool | null = null;
   cargando = false;
   guardando = false;
   error = '';
@@ -52,22 +55,30 @@ export class PoolFormComponent implements OnInit {
     if (!sesion) {
       return;
     }
-    if (!puedeCrearOEditarProceso(sesion.rolUsuario)) {
-      void this.router.navigate(['/procesos']);
-      return;
-    }
-
     const procesoId = this.obtenerId('procesoId');
     if (procesoId === null) {
       return;
     }
     this.procesoId = procesoId;
-    this.validarProcesoEditable(procesoId, sesion);
+
+    const poolIdTexto = this.route.snapshot.paramMap.get('poolId');
+    if (poolIdTexto !== null) {
+      const poolId = this.obtenerId('poolId');
+      if (poolId === null) {
+        return;
+      }
+      this.poolId = poolId;
+    }
+
+    this.validarPermiso(sesion);
   }
 
   guardar(): void {
     const sesion = this.obtenerSesion();
-    if (!sesion || !puedeCrearOEditarProceso(sesion.rolUsuario) || this.procesoId === null) {
+    const tienePermiso = this.poolId === null
+      ? this.permisoActual?.puedeCrear
+      : this.permisoActual?.puedeEditar;
+    if (!sesion || !tienePermiso || this.procesoId === null) {
       return;
     }
     if (this.formulario.invalid) {
@@ -93,27 +104,44 @@ export class PoolFormComponent implements OnInit {
     });
   }
 
+  private validarPermiso(sesion: SesionResponse): void {
+    this.cargando = true;
+    this.permisoPoolService.consultar(sesion.empresaId).subscribe({
+      next: (permisos) => {
+        this.permisoActual = permisos.find(
+          (permiso) => permiso.rolUsuario === sesion.rolUsuario,
+        ) ?? null;
+        const tienePermiso = this.poolId === null
+          ? this.permisoActual?.puedeCrear
+          : this.permisoActual?.puedeEditar;
+        if (!tienePermiso) {
+          void this.router.navigate(['/procesos', this.procesoId, 'pools']);
+          return;
+        }
+        this.validarProcesoEditable(this.procesoId!, sesion);
+      },
+      error: (error: unknown) => {
+        this.cargando = false;
+        this.error = this.apiErrorService.obtenerMensaje(error);
+      },
+    });
+  }
+
   campoNombreInvalido(): boolean {
     const control = this.formulario.controls.nombre;
     return control.invalid && (control.dirty || control.touched);
   }
 
   private validarProcesoEditable(procesoId: number, sesion: SesionResponse): void {
-    this.cargando = true;
     this.procesoService.buscarPorId(procesoId, sesion.empresaId).subscribe({
       next: (proceso) => {
         if (proceso.soloLectura) {
           void this.router.navigate(['/procesos', procesoId, 'pools']);
           return;
         }
-        const poolIdTexto = this.route.snapshot.paramMap.get('poolId');
-        if (poolIdTexto !== null) {
-          const poolId = this.obtenerId('poolId');
-          if (poolId !== null) {
-            this.poolId = poolId;
-            this.cargarPool(poolId);
-            return;
-          }
+        if (this.poolId !== null) {
+          this.cargarPool(this.poolId);
+          return;
         }
         this.cargando = false;
       },

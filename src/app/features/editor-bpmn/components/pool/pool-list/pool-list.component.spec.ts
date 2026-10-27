@@ -4,11 +4,13 @@ import { of } from 'rxjs';
 
 import { ApiErrorService } from '../../../../../core/services/api-error.service';
 import { SesionResponse } from '../../../../../models/auth/auth.model';
+import { PermisoPool } from '../../../../../models/permisopool/permiso-pool.model';
 import { Pool } from '../../../../../models/pool/pool.model';
 import { Proceso } from '../../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../../services/auth/auth.service';
-import { PoolService } from '../../../../../services/pool.service';
-import { ProcesoService } from '../../../../../services/proceso.service';
+import { PermisoPoolService } from '../../../../../services/permisoPool/permiso-pool.service';
+import { PoolService } from '../../../../../services/pool/pool.service';
+import { ProcesoService } from '../../../../../services/proceso/proceso.service';
 import { PoolListComponent } from './pool-list.component';
 
 describe('PoolListComponent', () => {
@@ -39,6 +41,15 @@ describe('PoolListComponent', () => {
     cajaNegra: false,
     esPropietario: false,
     activo: true,
+  };
+  const permisoAdmin: PermisoPool = {
+    id: null,
+    empresaId: 5,
+    rolUsuario: 'ADMIN',
+    puedeCrear: true,
+    puedeEditar: true,
+    puedeEliminar: true,
+    configurado: false,
   };
 
   let sesion: SesionResponse | null;
@@ -72,6 +83,7 @@ describe('PoolListComponent', () => {
           provide: ProcesoService,
           useValue: { buscarPorId: () => of(procesoConsultado) },
         },
+        { provide: PermisoPoolService, useValue: { consultar: () => of([permisoAdmin]) } },
         {
           provide: PoolService,
           useValue: {
@@ -100,20 +112,23 @@ describe('PoolListComponent', () => {
     expect(fixture.componentInstance.pools).toEqual([pool]);
   });
 
-  it('respeta los permisos ADMIN, EDITOR y LECTURA', () => {
+  it('aplica los permisos configurados para el rol de la sesión', () => {
     const fixture = TestBed.createComponent(PoolListComponent);
     fixture.detectChanges();
 
     expect(fixture.componentInstance.puedeCrearOEditar).toBe(true);
     expect(fixture.componentInstance.puedeEliminar).toBe(true);
 
-    sesion = { ...sesionAdmin, rolUsuario: 'EDITOR' };
-    expect(fixture.componentInstance.puedeCrearOEditar).toBe(true);
-    expect(fixture.componentInstance.puedeEliminar).toBe(false);
-
-    sesion = { ...sesionAdmin, rolUsuario: 'LECTURA' };
+    fixture.componentInstance.permisoActual = {
+      ...permisoAdmin,
+      rolUsuario: 'EDITOR',
+      puedeCrear: false,
+      puedeEditar: false,
+      puedeEliminar: true,
+      configurado: true,
+    };
     expect(fixture.componentInstance.puedeCrearOEditar).toBe(false);
-    expect(fixture.componentInstance.puedeEliminar).toBe(false);
+    expect(fixture.componentInstance.puedeEliminar).toBe(true);
   });
 
   it('desactiva las acciones sobre un proceso compartido en solo lectura', () => {

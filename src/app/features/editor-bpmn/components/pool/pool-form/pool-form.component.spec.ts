@@ -4,11 +4,13 @@ import { of } from 'rxjs';
 
 import { ApiErrorService } from '../../../../../core/services/api-error.service';
 import { SesionResponse } from '../../../../../models/auth/auth.model';
+import { PermisoPool } from '../../../../../models/permisopool/permiso-pool.model';
 import { Pool } from '../../../../../models/pool/pool.model';
 import { Proceso } from '../../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../../services/auth/auth.service';
-import { PoolService } from '../../../../../services/pool.service';
-import { ProcesoService } from '../../../../../services/proceso.service';
+import { PermisoPoolService } from '../../../../../services/permisoPool/permiso-pool.service';
+import { PoolService } from '../../../../../services/pool/pool.service';
+import { ProcesoService } from '../../../../../services/proceso/proceso.service';
 import { PoolFormComponent } from './pool-form.component';
 
 describe('PoolFormComponent', () => {
@@ -48,6 +50,19 @@ describe('PoolFormComponent', () => {
   let actualizacion: { id: number; request: unknown; usuarioId: number } | null;
   let navegacion: unknown[] | null;
 
+  function permisoSesion(): PermisoPool {
+    const rol = sesion?.rolUsuario ?? 'LECTURA';
+    return {
+      id: null,
+      empresaId: 5,
+      rolUsuario: rol,
+      puedeCrear: rol !== 'LECTURA',
+      puedeEditar: rol !== 'LECTURA',
+      puedeEliminar: rol === 'ADMIN',
+      configurado: false,
+    };
+  }
+
   beforeEach(async () => {
     sesion = sesionEditor;
     routeParams = { procesoId: '10', poolId: null };
@@ -74,6 +89,7 @@ describe('PoolFormComponent', () => {
           },
         },
         { provide: ProcesoService, useValue: { buscarPorId: () => of(procesoConsultado) } },
+        { provide: PermisoPoolService, useValue: { consultar: () => of([permisoSesion()]) } },
         {
           provide: PoolService,
           useValue: {
@@ -128,12 +144,12 @@ describe('PoolFormComponent', () => {
     });
   });
 
-  it('impide el acceso al rol LECTURA', () => {
+  it('impide el acceso cuando el rol no tiene el permiso configurado', () => {
     sesion = { ...sesionEditor, rolUsuario: 'LECTURA' };
     const fixture = TestBed.createComponent(PoolFormComponent);
     fixture.detectChanges();
 
-    expect(navegacion).toEqual(['/procesos']);
+    expect(navegacion).toEqual(['/procesos', 10, 'pools']);
     expect(creacion).toBeNull();
   });
 

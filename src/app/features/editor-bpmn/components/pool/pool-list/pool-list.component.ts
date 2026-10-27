@@ -4,11 +4,12 @@ import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../../core/services/api-error.service';
 import { SesionResponse } from '../../../../../models/auth/auth.model';
+import { PermisoPool } from '../../../../../models/permisopool/permiso-pool.model';
 import { Pool } from '../../../../../models/pool/pool.model';
 import { AutenticacionService } from '../../../../../services/auth/auth.service';
-import { PoolService } from '../../../../../services/pool.service';
-import { ProcesoService } from '../../../../../services/proceso.service';
-import { puedeAdministrarProceso, puedeCrearOEditarProceso } from '../../../../procesos/proceso-permisos';
+import { PermisoPoolService } from '../../../../../services/permisoPool/permiso-pool.service';
+import { PoolService } from '../../../../../services/pool/pool.service';
+import { ProcesoService } from '../../../../../services/proceso/proceso.service';
 
 @Component({
   selector: 'app-pool-list',
@@ -19,6 +20,7 @@ import { puedeAdministrarProceso, puedeCrearOEditarProceso } from '../../../../p
 export class PoolListComponent implements OnInit {
   private readonly poolService = inject(PoolService);
   private readonly procesoService = inject(ProcesoService);
+  private readonly permisoPoolService = inject(PermisoPoolService);
   private readonly autenticacionService = inject(AutenticacionService);
   private readonly apiErrorService = inject(ApiErrorService);
   private readonly route = inject(ActivatedRoute);
@@ -26,23 +28,20 @@ export class PoolListComponent implements OnInit {
 
   procesoId: number | null = null;
   procesoSoloLectura = true;
+  permisoActual: PermisoPool | null = null;
   pools: Pool[] = [];
   cargando = false;
   eliminandoId: number | null = null;
   error = '';
 
   get puedeCrearOEditar(): boolean {
-    const sesion = this.autenticacionService.sesion();
-    return sesion !== null
-      && puedeCrearOEditarProceso(sesion.rolUsuario)
+    return this.permisoActual !== null
+      && (this.permisoActual.puedeCrear || this.permisoActual.puedeEditar)
       && !this.procesoSoloLectura;
   }
 
   get puedeEliminar(): boolean {
-    const sesion = this.autenticacionService.sesion();
-    return sesion !== null
-      && puedeAdministrarProceso(sesion.rolUsuario)
-      && !this.procesoSoloLectura;
+    return this.permisoActual?.puedeEliminar === true && !this.procesoSoloLectura;
   }
 
   ngOnInit(): void {
@@ -57,8 +56,20 @@ export class PoolListComponent implements OnInit {
     }
 
     this.procesoId = procesoId;
+    this.cargarPermiso(sesion);
     this.cargarProceso(procesoId, sesion);
     this.cargarPools(procesoId);
+  }
+
+  private cargarPermiso(sesion: SesionResponse): void {
+    this.permisoPoolService.consultar(sesion.empresaId).subscribe({
+      next: (permisos) => {
+        this.permisoActual = permisos.find(
+          (permiso) => permiso.rolUsuario === sesion.rolUsuario,
+        ) ?? null;
+      },
+      error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),
+    });
   }
 
   eliminar(pool: Pool): void {

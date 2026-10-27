@@ -2,10 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { environment } from '../../environments/environment';
-import { ActualizarPoolRequest } from '../models/pool/actualizar-pool-request.model';
-import { CrearPoolRequest } from '../models/pool/crear-pool-request.model';
-import { Pool } from '../models/pool/pool.model';
+import { environment } from '../../../environments/environment';
+import { ActualizarPoolRequest } from '../../models/pool/actualizar-pool-request.model';
+import { CrearPoolRequest } from '../../models/pool/crear-pool-request.model';
+import { Pool } from '../../models/pool/pool.model';
 import { PoolService } from './pool.service';
 
 describe('PoolService', () => {

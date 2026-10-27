@@ -34,7 +34,7 @@
             </div>
             <p>{{ pool.cajaNegra ? 'Caja negra: no muestra flujo interno' : 'Flujo interno visible' }}</p>
             <footer>
-              @if (puedeCrearOEditar) {
+              @if (permisoActual?.puedeEditar && !procesoSoloLectura) {
                 <a class="btn btn--secundario"
                    [routerLink]="['/procesos', procesoId, 'pools', pool.id, 'editar']">
                   Editar
