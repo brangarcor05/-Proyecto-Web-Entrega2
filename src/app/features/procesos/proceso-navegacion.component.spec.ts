@@ -12,6 +12,7 @@ import { ProcesoListComponent } from './pages/proceso-list/proceso-list.componen
 import { ProcesoDetailComponent } from './pages/proceso-detail/proceso-detail.component';
 import { ProcesoFormComponent } from './pages/proceso-form/proceso-form.component';
 import { ProcesoHistoryComponent } from './pages/proceso-history/proceso-history.component';
+import { ProcesoShareComponent } from './pages/proceso-share/proceso-share.component';
 
 describe('Navegacion de procesos hacia el diagrama', () => {
   const proceso: Proceso = {
@@ -39,6 +40,7 @@ describe('Navegacion de procesos hacia el diagrama', () => {
           { path: 'procesos', component: ProcesoListComponent },
           { path: 'procesos/:id/editar', component: ProcesoFormComponent },
           { path: 'procesos/:id/historial', component: ProcesoHistoryComponent },
+          { path: 'procesos/:id/compartir', component: ProcesoShareComponent },
           { path: 'procesos/:id', component: ProcesoDetailComponent },
         ]),
         {
@@ -133,5 +135,42 @@ describe('Navegacion de procesos hacia el diagrama', () => {
     expect(harness.routeNativeElement?.textContent).not.toContain(
       'Cargando información del proceso',
     );
+  });
+
+  it('muestra el proceso y las empresas al compartir sin requerir otra navegacion', async () => {
+    await harness.navigateByUrl('/procesos/42/compartir');
+    http.expectOne('/api/empresas').flush([
+      {
+        id: 23,
+        nombre: 'Empresa',
+        rut: '900000001',
+        razonSocial: 'Empresa actual',
+        email: 'actual@example.com',
+        estado: 'ACTIVO',
+        fechaRegistro: '2026-10-27T10:00:00',
+        adminUsuarioId: 17,
+      },
+      {
+        id: 24,
+        nombre: 'Empresa invitada',
+        rut: '900000002',
+        razonSocial: 'Empresa invitada',
+        email: 'invitada@example.com',
+        estado: 'ACTIVO',
+        fechaRegistro: '2026-10-27T10:00:00',
+        adminUsuarioId: 18,
+      },
+    ]);
+    http.expectOne('/api/procesos/42?empresaId=23').flush({
+      ...proceso,
+      compartido: true,
+      empresasCompartidasIds: [24],
+    });
+    await harness.fixture.whenStable();
+
+    expect(harness.routeNativeElement?.textContent).toContain('Proceso seleccionado');
+    expect(harness.routeNativeElement?.textContent).toContain('Empresa invitada');
+    expect(harness.routeNativeElement?.textContent).not.toContain('Cargando proceso');
+    expect(harness.routeNativeElement?.textContent).not.toContain('Cargando empresas');
   });
 });
