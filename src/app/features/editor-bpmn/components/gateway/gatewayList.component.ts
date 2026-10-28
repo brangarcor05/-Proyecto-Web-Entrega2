@@ -23,7 +23,6 @@ export class GatewayListComponent implements OnInit {
     procesoId!: number;
 
     ngOnInit(): void {
-        // Captura dinámica del parámetro procesoId desde la ruta activa
         this.route.paramMap.subscribe(params => {
             const idParam = params.get('procesoId');
             if (idParam) {
@@ -41,7 +40,6 @@ export class GatewayListComponent implements OnInit {
                 this.status.set('success');
             },
             error: (err: HttpErrorResponse) => {
-                // Se maneja de forma segura el mensaje de error tipando err como HttpErrorResponse
                 const errorMsg = err.error && typeof err.error === 'object' && 'message' in err.error
                     ? (err.error as any).message
                     : 'No fue posible cargar los gateways.';

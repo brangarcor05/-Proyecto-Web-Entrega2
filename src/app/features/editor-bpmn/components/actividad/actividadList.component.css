@@ -1,28 +1,114 @@
-.actividad-container {
-    padding: 20px;
+.contenedor-vista {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 24px;
+    background-color: #f9fafb;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     font-family: Arial, sans-serif;
 }
 
-.actividad-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
+.cabecera-seccion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 12px;
 }
 
-.actividad-table th,
-.actividad-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
+.cabecera-seccion h2 {
+    color: #111827;
+    font-size: 1.75rem;
+    margin: 0;
+}
+
+.lista-elementos {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sin-registros {
+    text-align: center;
+    color: #6b7280;
+    font-style: italic;
+    padding: 20px;
+}
+
+.tarjeta-elemento {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 16px 20px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tarjeta-elemento:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.info h3 {
+    margin: 0 0 6px 0;
+    color: #1f2937;
+    font-size: 1.2rem;
+}
+
+.info p {
+    margin: 4px 0;
+    color: #4b5563;
+    font-size: 0.95rem;
+}
+
+.acciones {
+    display: flex;
+    gap: 8px;
+}
+
+.boton {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+
+.boton:hover {
+    opacity: 0.9;
+}
+
+.boton--primario {
+    background-color: #2563eb;
+    color: white;
+}
+
+.boton--secundario {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+
+.boton--peligro {
+    background-color: #dc2626;
+    color: white;
+}
+
+.footer-acciones {
+    margin-top: 24px;
     text-align: left;
 }
 
-.actividad-table th {
-    background-color: #f4f4f4;
-}
-
-.error-message {
-    color: #d9534f;
-    background-color: #f9d6d5;
-    padding: 10px;
-    border-radius: 4px;
+.boton--regresar {
+    background-color: #4b5563;
+    color: white;
 }

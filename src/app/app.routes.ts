@@ -141,6 +141,14 @@ export const routes: Routes = [
     loadComponent: () => import('./features/editor-bpmn/components/actividad/actividadList.component').then(m => m.ActividadListComponent)
   },
   {
+    path: 'procesos/:procesoId/actividades/nuevo',
+    loadComponent: () => import('./features/editor-bpmn/components/actividad/actividadForm.component').then(m => m.ActividadFormComponent)
+  },
+  {
+    path: 'procesos/:procesoId/actividades/:id/editar',
+    loadComponent: () => import('./features/editor-bpmn/components/actividad/actividadForm.component').then(m => m.ActividadFormComponent)
+  },
+  {
     path: 'procesos/:procesoId/mensajes-envio',
     loadComponent: () => import('./features/editor-bpmn/components/mensajeEnvio/mensajeEnvioList.component').then(m => m.MensajeEnvioListComponent)
   },

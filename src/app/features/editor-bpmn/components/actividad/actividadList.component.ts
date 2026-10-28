@@ -1,51 +1,50 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ActividadService } from '../../../../services/actividad/actividad.service';
 import { Actividad } from '../../../../models/bpmn/actividad/actividad.model';
 
 @Component({
     selector: 'app-actividad-list',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, RouterLink],
     templateUrl: './actividadList.component.html',
     styleUrl: './actividadList.component.css'
 })
 export class ActividadListComponent implements OnInit {
     private actividadService = inject(ActividadService);
     private route = inject(ActivatedRoute);
-
-    actividades = signal<Actividad[]>([]);
-    status = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
-    errorMessage = signal<string>('');
+    private router = inject(Router);
 
     procesoId!: number;
+    actividades = signal<Actividad[]>([]);
 
     ngOnInit(): void {
-        this.route.paramMap.subscribe(params => {
-            const idParam = params.get('procesoId');
-            if (idParam) {
-                this.procesoId = +idParam;
-                this.cargarActividades();
-            }
-        });
+        this.procesoId = +this.route.snapshot.paramMap.get('procesoId')!;
+        this.cargarActividades();
     }
 
     cargarActividades(): void {
-        this.status.set('loading');
         this.actividadService.listarPorProceso(this.procesoId).subscribe({
-            next: (data: Actividad[]) => {
-                this.actividades.set(data);
-                this.status.set('success');
-            },
-            error: (err: HttpErrorResponse) => {
-                const errorMsg = err.error && typeof err.error === 'object' && 'message' in err.error
-                    ? (err.error as any).message
-                    : 'No fue posible cargar las actividades.';
-                this.errorMessage.set(errorMsg);
-                this.status.set('error');
-            }
+            next: (data) => this.actividades.set(data),
+            error: (err) => console.error('Error al cargar actividades', err)
         });
+    }
+
+    eliminar(id: number): void {
+        if (confirm('¿Estás seguro de eliminar esta actividad?')) {
+            this.actividadService.eliminar(id).subscribe({
+                next: () => this.cargarActividades(), // Recargamos la lista
+                error: (err) => console.error('Error al eliminar', err)
+            });
+        }
+    }
+
+    irANueva(): void {
+        this.router.navigate(['/procesos', this.procesoId, 'actividades', 'nuevo']);
+    }
+
+    irAEditar(id: number): void {
+        this.router.navigate(['/procesos', this.procesoId, 'actividades', id, 'editar']);
     }
 }

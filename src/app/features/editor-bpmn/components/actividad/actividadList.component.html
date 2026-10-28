@@ -1,42 +1,37 @@
-<div class="actividad-container">
-    <h2>Actividades del Proceso {{ procesoId }}</h2>
+<div class="contenedor-vista">
+    <header class="cabecera-seccion">
+        <h2>Gestión de Actividades</h2>
+        <button class="boton boton--primario" (click)="irANueva()">
+            + Nueva Actividad
+        </button>
+    </header>
 
-    @if (status() === 'loading') {
-    <p>Cargando actividades...</p>
-    }
+    <div class="lista-elementos">
+        @if (actividades().length === 0) {
+        <p class="sin-registros">No hay actividades registradas para este proceso.</p>
+        } @else {
+        @for (actividad of actividades(); track actividad.id) {
+        <div class="tarjeta-elemento">
+            <div class="info">
+                <h3>{{ actividad.nombre }}</h3>
+                <p><strong>Tipo:</strong> {{ actividad.tipo || 'N/A' }}</p>
+                <p>{{ actividad.descripcion }}</p>
+            </div>
 
-    @if (status() === 'error') {
-    <div class="error-message">
-        <p>{{ errorMessage() }}</p>
+            <div class="acciones">
+                <button class="boton boton--secundario" (click)="irAEditar(actividad.id)">
+                    Editar
+                </button>
+                <button class="boton boton--peligro" (click)="eliminar(actividad.id)">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+        }
+        }
     </div>
-    }
 
-    @if (status() === 'success') {
-    @if (actividades().length === 0) {
-    <p>No hay actividades registradas para este proceso.</p>
-    } @else {
-    <table class="actividad-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Tipo</th>
-                <th>Lane ID</th>
-                <th>Activo</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (actividad of actividades(); track actividad.id) {
-            <tr>
-                <td>{{ actividad.id }}</td>
-                <td>{{ actividad.nombre }}</td>
-                <td>{{ actividad.tipo }}</td>
-                <td>{{ actividad.laneId }}</td>
-                <td>{{ actividad.activo ? 'Sí' : 'No' }}</td>
-            </tr>
-            }
-        </tbody>
-    </table>
-    }
-    }
+    <div class="footer-acciones">
+        <a class="boton boton--regresar" [routerLink]="['/procesos', procesoId]">Volver al Proceso</a>
+    </div>
 </div>

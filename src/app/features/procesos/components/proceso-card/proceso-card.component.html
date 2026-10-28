@@ -16,11 +16,6 @@
 
   <footer class="tarjeta__acciones">
     <a class="boton boton--secundario" [routerLink]="['/procesos', proceso.id]">Ver detalle</a>
-    
-    <a class="boton boton--secundario" [routerLink]="['/procesos', proceso.id, 'actividades']">Actividades</a>
-    <a class="boton boton--secundario" [routerLink]="['/procesos', proceso.id, 'gateways']">Gateways</a>
-    <a class="boton boton--secundario" [routerLink]="['/procesos', proceso.id, 'mensajes-envio']">Msg Envío</a>
-    <a class="boton boton--secundario" [routerLink]="['/procesos', proceso.id, 'mensajes-recepcion']">Msg Recepción</a>
 
     @if (!proceso.soloLectura && puedeEditar) {
       <a class="boton boton--secundario" [routerLink]="['/procesos', proceso.id, 'editar']">
