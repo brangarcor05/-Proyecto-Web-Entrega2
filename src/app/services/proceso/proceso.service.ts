@@ -87,4 +87,20 @@ export class ProcesoService {
     const params = new HttpParams().set('usuarioId', usuarioId);
     return this.http.delete<void>(`${this.apiUrl}/${id}`, { params });
   }
+
+  obtenerDiagrama(procesoId: number, empresaId: number): Observable<string> {
+  const params = new HttpParams().set('empresaId', empresaId.toString());
+  return this.http.get(`/api/procesos/${procesoId}/diagrama`, {
+    params,
+    responseType: 'text', // Importante porque el backend devuelve texto plano
+  });
+}
+
+guardarDiagrama(procesoId: number, xml: string, usuarioId: number): Observable<void> {
+  const params = new HttpParams().set('usuarioId', usuarioId.toString());
+  return this.http.put<void>(`/api/procesos/${procesoId}/diagrama`, xml, {
+    params,
+    headers: { 'Content-Type': 'text/plain' } // Enviamos texto plano
+  });
+}
 }

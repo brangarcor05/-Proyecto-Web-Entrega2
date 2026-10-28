@@ -156,6 +156,10 @@ h3 {
   cursor: not-allowed;
 }
 
+.bpmn-icon-task, .bpmn-icon-gateway, .bpmn-icon-event {
+  display: block !important;
+}
+
 /* Mensajes */
 .mensaje {
   padding: 0.9rem 1rem;

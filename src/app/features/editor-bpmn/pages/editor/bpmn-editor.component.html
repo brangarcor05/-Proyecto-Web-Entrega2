@@ -1,0 +1,20 @@
+<div class="editor-container">
+  <div class="toolbar">
+    <button class="btn" (click)="guardar()" [disabled]="guardando">
+      {{ guardando ? 'Guardando...' : 'Guardar' }}
+    </button>
+    <button class="btn" (click)="deshacer()">Deshacer</button>
+    <button class="btn" (click)="rehacer()">Rehacer</button>
+    <button class="btn" (click)="zoomIn()">+</button>
+    <button class="btn" (click)="zoomOut()">-</button>
+    <a class="btn" [routerLink]="['/procesos', procesoId]">Volver</a>
+    <span class="mensaje" *ngIf="mensaje">{{ mensaje }}</span>
+  </div>
+
+  <div class="main-content">
+    <!-- Aquí bpmn-js dibuja el canvas -->
+    <div #canvasContainer class="canvas"></div>
+    <!-- Aquí bpmn-js dibuja el panel de propiedades -->
+    <div #propertiesContainer class="properties-panel"></div>
+  </div>
+</div>
