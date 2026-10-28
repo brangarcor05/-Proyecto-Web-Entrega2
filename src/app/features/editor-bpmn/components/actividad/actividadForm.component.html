@@ -3,26 +3,44 @@
 
     <form [formGroup]="formulario" (ngSubmit)="guardar()">
         <label>
-            Nombre:
-            <input type="text" formControlName="nombre" placeholder="Nombre de la actividad" />
+            Nombre de la Actividad (*):
+            <input type="text" formControlName="nombre" placeholder="Ej. Revisar Solicitud" />
         </label>
         @if (formulario.get('nombre')?.invalid && formulario.get('nombre')?.touched) {
-        <span class="error">El nombre es obligatorio (mínimo 3 caracteres).</span>
+        <span class="error">El nombre es obligatorio y debe tener al menos 3 caracteres.</span>
         }
 
         <label>
-            Lane ID:
-            <input type="number" formControlName="laneId" placeholder="ID del carril" />
+            Pool (*):
+            <select formControlName="poolId">
+                <option [ngValue]="null">-- Selecciona un Pool --</option>
+                @for (pool of pools(); track pool.id) {
+                <option [value]="pool.id">{{ pool.nombre }}</option>
+                }
+            </select>
         </label>
 
         <label>
-            Tipo:
-            <input type="text" formControlName="tipo" placeholder="Tipo de actividad" />
+            Lane:
+            <select formControlName="laneId">
+                <option [ngValue]="null">-- Selecciona un Lane --</option>
+                @for (lane of lanes(); track lane.id) {
+                <option [value]="lane.id">{{ lane.rolProcesoNombre }}</option>
+                }
+            </select>
+        </label>
+        @if (formulario.get('laneId')?.invalid && formulario.get('laneId')?.touched) {
+        <span class="error">Debes seleccionar un Lane de la lista.</span>
+        }
+
+        <label>
+            Tipo de Actividad:
+            <input type="text" formControlName="tipo" placeholder="Ej. Tarea de usuario" />
         </label>
 
         <label>
             Descripción:
-            <textarea formControlName="descripcion" placeholder="Descripción opcional"></textarea>
+            <textarea formControlName="descripcion" placeholder="Detalles de la actividad..."></textarea>
         </label>
 
         <div class="acciones">

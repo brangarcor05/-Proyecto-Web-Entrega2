@@ -1,40 +1,36 @@
-<div class="gateway-container">
-    <h2>Gateways del Proceso {{ procesoId }}</h2>
+<div class="contenedor-vista">
+    <header class="cabecera-seccion">
+        <h2>Gestión de Gateways</h2>
+        <button class="boton boton--primario" (click)="irANuevo()">
+            + Nuevo Gateway
+        </button>
+    </header>
 
-    @if (status() === 'loading') {
-    <p>Cargando gateways...</p>
-    }
+    <div class="lista-elementos">
+        @if (gateways().length === 0) {
+        <p class="sin-registros">No hay gateways registrados para este proceso.</p>
+        } @else {
+        @for (gateway of gateways(); track gateway.id) {
+        <div class="tarjeta-elemento">
+            <div class="info">
+                <h3>{{ gateway.nombre || 'Gateway sin nombre' }}</h3>
+                <p><strong>Tipo:</strong> {{ gateway.tipo }}</p>
+            </div>
 
-    @if (status() === 'error') {
-    <div class="error-message">
-        <p>{{ errorMessage() }}</p>
+            <div class="acciones">
+                <button class="boton boton--secundario" (click)="irAEditar(gateway.id)">
+                    Editar
+                </button>
+                <button class="boton boton--peligro" (click)="eliminar(gateway.id)">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+        }
+        }
     </div>
-    }
 
-    @if (status() === 'success') {
-    @if (gateways().length === 0) {
-    <p>No hay gateways registrados para este proceso.</p>
-    } @else {
-    <table class="gateway-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Tipo</th>
-                <th>Activo</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (gateway of gateways(); track gateway.id) {
-            <tr>
-                <td>{{ gateway.id }}</td>
-                <td>{{ gateway.nombre }}</td>
-                <td>{{ gateway.tipo }}</td>
-                <td>{{ gateway.activo ? 'Sí' : 'No' }}</td>
-            </tr>
-            }
-        </tbody>
-    </table>
-    }
-    }
+    <div class="footer-acciones">
+        <a class="boton boton--regresar" [routerLink]="['/procesos', procesoId]">Volver al Proceso</a>
+    </div>
 </div>

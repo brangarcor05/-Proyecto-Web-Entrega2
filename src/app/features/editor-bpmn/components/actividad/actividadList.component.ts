@@ -34,7 +34,7 @@ export class ActividadListComponent implements OnInit {
     eliminar(id: number): void {
         if (confirm('¿Estás seguro de eliminar esta actividad?')) {
             this.actividadService.eliminar(id).subscribe({
-                next: () => this.cargarActividades(), // Recargamos la lista
+                next: () => this.cargarActividades(),
                 error: (err) => console.error('Error al eliminar', err)
             });
         }

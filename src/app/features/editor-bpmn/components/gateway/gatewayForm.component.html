@@ -3,35 +3,44 @@
 
     <form [formGroup]="formulario" (ngSubmit)="guardar()">
         <label>
-            Nombre del Gateway:
-            <input type="text" formControlName="nombre" placeholder="Ej. ¿Aprobado?" />
+            Nombre del Gateway (*):
+            <input type="text" formControlName="nombre" placeholder="Ej. Decisión de validación" />
         </label>
+        @if (formulario.get('nombre')?.invalid && formulario.get('nombre')?.touched) {
+        <span class="error">El nombre es obligatorio y debe tener al menos 3 caracteres.</span>
+        }
 
         <label>
             Tipo de Gateway (*):
             <select formControlName="tipo">
-                <option value="">-- Selecciona un tipo --</option>
-                <option value="EXCLUSIVE">Exclusivo (XOR)</option>
-                <option value="PARALLEL">Paralelo (AND)</option>
-                <option value="INCLUSIVE">Inclusivo (OR)</option>
+                @for (tipo of tiposGateway; track tipo) {
+                <option [value]="tipo">{{ tipo }}</option>
+                }
             </select>
         </label>
-        @if (formulario.get('tipo')?.invalid && formulario.get('tipo')?.touched) {
-        <span class="error">El tipo de gateway es obligatorio (@NotNull).</span>
-        }
 
         <label>
-            Lane ID (*):
-            <input type="number" formControlName="laneId" placeholder="ID del carril" />
+            Pool (*):
+            <select formControlName="poolId">
+                <option [ngValue]="null">-- Selecciona un Pool --</option>
+                @for (pool of pools(); track pool.id) {
+                <option [value]="pool.id">{{ pool.nombre }}</option>
+                }
+            </select>
+        </label>
+
+        <label>
+            Lane    (*):
+            <select formControlName="laneId">
+                <option [ngValue]="null">-- Selecciona un Lane --</option>
+                @for (lane of lanes(); track lane.id) {
+                <option [value]="lane.id">{{ lane.rolProcesoNombre }}</option>
+                }
+            </select>
         </label>
         @if (formulario.get('laneId')?.invalid && formulario.get('laneId')?.touched) {
-        <span class="error">El Lane ID es obligatorio.</span>
+        <span class="error">Debes seleccionar un Lane de la lista.</span>
         }
-
-        <label>
-            Pool ID (Opcional):
-            <input type="number" formControlName="poolId" placeholder="ID del pool" />
-        </label>
 
         <div class="acciones">
             <button type="submit" [disabled]="formulario.invalid">Guardar</button>

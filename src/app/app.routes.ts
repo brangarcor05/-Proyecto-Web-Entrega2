@@ -131,7 +131,14 @@ export const routes: Routes = [
     loadComponent: () => import('./features/roles-proceso/pages/rol-proceso-form/rol-proceso-form.component')
       .then(m => m.RolProcesoFormComponent)
   },
-  { path: '**', component: NotFoundComponent },
+  {
+    path: 'procesos/:procesoId/gateways/nuevo',
+    loadComponent: () => import('./features/editor-bpmn/components/gateway/gatewayForm.component').then(m => m.GatewayFormComponent)
+  },
+  {
+    path: 'procesos/:procesoId/gateways/:id/editar',
+    loadComponent: () => import('./features/editor-bpmn/components/gateway/gatewayForm.component').then(m => m.GatewayFormComponent)
+  },
   {
     path: 'procesos/:procesoId/gateways',
     loadComponent: () => import('./features/editor-bpmn/components/gateway/gatewayList.component').then(m => m.GatewayListComponent)
@@ -148,12 +155,5 @@ export const routes: Routes = [
     path: 'procesos/:procesoId/actividades/:id/editar',
     loadComponent: () => import('./features/editor-bpmn/components/actividad/actividadForm.component').then(m => m.ActividadFormComponent)
   },
-  {
-    path: 'procesos/:procesoId/mensajes-envio',
-    loadComponent: () => import('./features/editor-bpmn/components/mensajeEnvio/mensajeEnvioList.component').then(m => m.MensajeEnvioListComponent)
-  },
-  {
-    path: 'procesos/:procesoId/mensajes-recepcion',
-    loadComponent: () => import('./features/editor-bpmn/components/mensajeRecepcion/mensajeRecepcionList.component').then(m => m.MensajeRecepcionListComponent)
-  }
+  { path: '**', component: NotFoundComponent }
 ];

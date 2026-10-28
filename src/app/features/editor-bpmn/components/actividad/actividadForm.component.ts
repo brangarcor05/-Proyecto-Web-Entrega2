@@ -2,7 +2,13 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpParams } from '@angular/common/http';
 import { ActividadService } from '../../../../services/actividad/actividad.service';
+import { LaneService } from '../../../../services/lane/lane.service';
+import { Lane } from '../../../../models/bpmn/lane/lane.model';
+import { PoolService } from '../../../../services/pool/pool.service';
+import { Pool } from '../../../../models/pool/pool.model';
+import { AutenticacionService } from '../../../../services/auth/auth.service';
 
 @Component({
     selector: 'app-actividad-form',
@@ -14,6 +20,9 @@ import { ActividadService } from '../../../../services/actividad/actividad.servi
 export class ActividadFormComponent implements OnInit {
     private fb = inject(FormBuilder);
     private actividadService = inject(ActividadService);
+    private poolService = inject(PoolService);
+    private laneService = inject(LaneService);
+    private autenticacionService = inject(AutenticacionService);
     private route = inject(ActivatedRoute);
     private router = inject(Router);
 
@@ -21,10 +30,13 @@ export class ActividadFormComponent implements OnInit {
     actividadId?: number;
     isEditMode = false;
 
+    pools = signal<Pool[]>([]);
+    lanes = signal<Lane[]>([]);
+
     formulario: FormGroup = this.fb.group({
         nombre: ['', [Validators.required, Validators.minLength(3)]],
+        poolId: [null, [Validators.required]],
         laneId: [null, [Validators.required]],
-        poolId: [null],
         tipo: [''],
         descripcion: ['']
     });
@@ -33,6 +45,17 @@ export class ActividadFormComponent implements OnInit {
         this.procesoId = +this.route.snapshot.paramMap.get('procesoId')!;
         const idParam = this.route.snapshot.paramMap.get('id');
 
+        this.cargarPools();
+
+        this.formulario.get('poolId')?.valueChanges.subscribe((poolIdValue) => {
+            if (poolIdValue) {
+                this.cargarLanesPorPool(+poolIdValue);
+            } else {
+                this.lanes.set([]);
+                this.formulario.get('laneId')?.setValue(null);
+            }
+        });
+
         if (idParam) {
             this.isEditMode = true;
             this.actividadId = +idParam;
@@ -40,10 +63,27 @@ export class ActividadFormComponent implements OnInit {
         }
     }
 
+    cargarPools(): void {
+        this.poolService.listarPorProceso(this.procesoId).subscribe({
+            next: (data: Pool[]) => this.pools.set(data),
+            error: (err) => console.error('Error al cargar pools', err)
+        });
+    }
+
+    cargarLanesPorPool(poolId: number): void {
+        this.laneService.listarPorPool(poolId).subscribe({
+            next: (data: Lane[]) => this.lanes.set(data),
+            error: (err) => console.error('Error al cargar lanes', err)
+        });
+    }
+
     cargarActividad(id: number): void {
         this.actividadService.obtenerPorId(id).subscribe({
             next: (data) => {
                 this.formulario.patchValue(data);
+                if (data.poolId) {
+                    this.cargarLanesPorPool(data.poolId);
+                }
             },
             error: (err) => console.error('Error al cargar la actividad', err)
         });
@@ -55,9 +95,21 @@ export class ActividadFormComponent implements OnInit {
             return;
         }
 
+        const sesion = this.autenticacionService.sesion();
+        if (!sesion) {
+            console.error('No hay una sesión activa.');
+            return;
+        }
+
+        const rawValues = this.formulario.getRawValue();
+
         const formData = {
-            ...this.formulario.value,
-            procesoId: this.procesoId
+            nombre: rawValues.nombre,
+            tipo: rawValues.tipo,
+            descripcion: rawValues.descripcion,
+            procesoId: Number(this.procesoId),
+            poolId: Number(rawValues.poolId),
+            laneId: Number(rawValues.laneId)
         };
 
         if (this.isEditMode && this.actividadId) {
