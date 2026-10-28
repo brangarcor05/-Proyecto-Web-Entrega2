@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
@@ -22,6 +22,7 @@ export class RolProcesoListComponent implements OnInit {
   private readonly apiErrorService = inject(ApiErrorService);
   readonly autenticacionService = inject(AutenticacionService);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   pagina: PageResponse<RolProceso> | null = null;
   cargando = false;
@@ -82,9 +83,13 @@ export class RolProcesoListComponent implements OnInit {
 
     this.eliminandoId = rol.id;
     this.limpiarError();
+    this.cdr.markForCheck();
     this.rolProcesoService
       .eliminar(rol.id, sesion.usuarioId)
-      .pipe(finalize(() => (this.eliminandoId = null)))
+      .pipe(finalize(() => {
+        this.eliminandoId = null;
+        this.cdr.markForCheck();
+      }))
       .subscribe({
         next: () => this.consultar(this.pagina?.number ?? 0),
         error: (error: unknown) => this.manejarError(error),
@@ -99,6 +104,7 @@ export class RolProcesoListComponent implements OnInit {
 
     this.cargando = true;
     this.limpiarError();
+    this.cdr.markForCheck();
 
     const parametros: ConsultarRolesProcesoParams = {
       empresaId: sesion.empresaId,
@@ -110,9 +116,15 @@ export class RolProcesoListComponent implements OnInit {
 
     this.rolProcesoService
       .consultar(parametros)
-      .pipe(finalize(() => (this.cargando = false)))
+      .pipe(finalize(() => {
+        this.cargando = false;
+        this.cdr.markForCheck();
+      }))
       .subscribe({
-        next: (pagina) => (this.pagina = pagina),
+        next: (pagina) => {
+          this.pagina = pagina;
+          this.cdr.markForCheck();
+        },
         error: (error: unknown) => {
           this.pagina = null;
           this.manejarError(error);
@@ -123,6 +135,7 @@ export class RolProcesoListComponent implements OnInit {
   private manejarError(error: unknown): void {
     this.error = this.apiErrorService.obtenerMensaje(error);
     this.camposInvalidos = this.apiErrorService.obtenerCamposInvalidos(error);
+    this.cdr.markForCheck();
   }
 
   private limpiarError(): void {

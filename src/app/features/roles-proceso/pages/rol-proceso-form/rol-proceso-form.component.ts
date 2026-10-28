@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -25,6 +25,7 @@ export class RolProcesoFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly autenticacionService = inject(AutenticacionService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   cargando = false;
   guardando = false;
@@ -89,6 +90,7 @@ export class RolProcesoFormComponent implements OnInit {
 
     this.guardando = true;
     this.limpiarError();
+    this.cdr.markForCheck();
     const valor = this.formulario.getRawValue();
     const id = this.rolId;
 
@@ -96,7 +98,10 @@ export class RolProcesoFormComponent implements OnInit {
       ? this.rolProcesoService.crear(this.construirCreacion(valor, sesion.empresaId), sesion.usuarioId)
       : this.rolProcesoService.actualizar(id, this.construirActualizacion(valor), sesion.usuarioId);
 
-    operacion.pipe(finalize(() => (this.guardando = false))).subscribe({
+    operacion.pipe(finalize(() => {
+      this.guardando = false;
+      this.cdr.markForCheck();
+    })).subscribe({
       next: () => void this.router.navigate(['/roles-proceso']),
       error: (error: unknown) => this.manejarError(error),
     });
@@ -115,11 +120,18 @@ export class RolProcesoFormComponent implements OnInit {
 
     this.cargando = true;
     this.limpiarError();
+    this.cdr.markForCheck();
     this.rolProcesoService
       .buscarPorId(id, sesion.empresaId)
-      .pipe(finalize(() => (this.cargando = false)))
+      .pipe(finalize(() => {
+        this.cargando = false;
+        this.cdr.markForCheck();
+      }))
       .subscribe({
-        next: (rol) => this.formulario.patchValue(rol),
+        next: (rol) => {
+          this.formulario.patchValue(rol);
+          this.cdr.markForCheck();
+        },
         error: (error: unknown) => this.manejarError(error),
       });
   }
@@ -145,6 +157,7 @@ export class RolProcesoFormComponent implements OnInit {
   private manejarError(error: unknown): void {
     this.error = this.apiErrorService.obtenerMensaje(error);
     this.camposInvalidos = this.apiErrorService.obtenerCamposInvalidos(error);
+    this.cdr.markForCheck();
   }
 
   private limpiarError(): void {
