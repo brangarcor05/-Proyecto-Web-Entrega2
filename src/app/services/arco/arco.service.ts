@@ -7,6 +7,7 @@ import { ActualizarArcoRequest } from '../../models/arco/actualizar-arco-request
 import { ArcoEliminado } from '../../models/arco/arco-eliminado.model';
 import { Arco } from '../../models/arco/arco.model';
 import { CrearArcoRequest } from '../../models/arco/crear-arco-request.model';
+import { SincronizarArcoRequest } from '../../models/arco/sincronizar-arco-request.model';
 
 @Injectable({ providedIn: 'root' })
 export class ArcoService {
@@ -30,6 +31,17 @@ export class ArcoService {
   actualizar(id: number, request: ActualizarArcoRequest, usuarioId: number): Observable<Arco> {
     const params = new HttpParams().set('usuarioId', usuarioId);
     return this.http.put<Arco>(`${this.apiUrl}/${id}`, request, { params });
+  }
+
+  sincronizar(
+    procesoId: number,
+    arcos: SincronizarArcoRequest[],
+    usuarioId: number,
+  ): Observable<Arco[]> {
+    const params = new HttpParams()
+      .set('procesoId', procesoId)
+      .set('usuarioId', usuarioId);
+    return this.http.put<Arco[]>(`${this.apiUrl}/sincronizar`, arcos, { params });
   }
 
   eliminar(id: number, usuarioId: number): Observable<ArcoEliminado> {

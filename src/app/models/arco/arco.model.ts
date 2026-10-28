@@ -7,5 +7,6 @@ export interface Arco {
   destinoNombre: string;
   etiqueta: string | null;
   condicion: string | null;
+  canvasId: string | null;
   activo: boolean;
 }
