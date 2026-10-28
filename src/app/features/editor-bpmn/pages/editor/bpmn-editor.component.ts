@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild,
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import BpmnModeler from 'bpmn-js/lib/Modeler';
+import BpmnViewer from 'bpmn-js/lib/NavigatedViewer';
 import Canvas from 'diagram-js/lib/core/Canvas';
 import CommandStack from 'diagram-js/lib/command/CommandStack';
 import {
@@ -12,12 +13,15 @@ import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { SesionResponse } from '../../../../models/auth/auth.model';
+import { Proceso } from '../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso/proceso.service';
+import { puedeCrearOEditarProceso } from '../../../procesos/proceso-permisos';
+import { ArcoPanelComponent } from '../../components/arco/arco-panel.component';
 
 @Component({
   selector: 'app-bpmn-editor',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ArcoPanelComponent],
   templateUrl: './bpmn-editor.component.html',
   styleUrl: './bpmn-editor.component.css',
 })
@@ -32,10 +36,18 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
 
-  private modeler!: BpmnModeler;
+  private editor: BpmnModeler | BpmnViewer | null = null;
   procesoId: number | null = null;
+  proceso: Proceso | null = null;
+  cargando = false;
   guardando = false;
   mensaje = '';
+  error = '';
+  soloLectura = true;
+
+  get puedeEditar(): boolean {
+    return !this.soloLectura;
+  }
 
   ngOnInit(): void {
     const sesion = this.obtenerSesion();
@@ -47,9 +59,45 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
       return;
     }
     this.procesoId = id;
+    this.cargarProceso(id, sesion);
+  }
 
-    // 1. Inicializar el Modeler de BPMN
-    this.modeler = new BpmnModeler({
+  private cargarProceso(procesoId: number, sesion: SesionResponse): void {
+    this.cargando = true;
+    this.error = '';
+    this.procesoService.buscarPorId(procesoId, sesion.empresaId)
+      .pipe(finalize(() => {
+        this.cargando = false;
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: (proceso) => {
+          this.proceso = proceso;
+          this.soloLectura = proceso.soloLectura
+            || !puedeCrearOEditarProceso(sesion.rolUsuario);
+          this.inicializarEditor();
+          this.cargarDiagrama(procesoId, sesion.empresaId);
+        },
+        error: (error: unknown) => {
+          this.error = this.apiErrorService.obtenerMensaje(error);
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  private inicializarEditor(): void {
+    if (this.editor) {
+      this.editor.destroy();
+    }
+
+    if (this.soloLectura) {
+      this.editor = new BpmnViewer({
+        container: this.canvasContainer.nativeElement,
+      });
+      return;
+    }
+
+    this.editor = new BpmnModeler({
       container: this.canvasContainer.nativeElement,
       propertiesPanel: {
         parent: this.propertiesContainer.nativeElement,
@@ -59,46 +107,49 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
         BpmnPropertiesProviderModule,
       ],
     });
-
-    // 2. Cargar el XML del backend
-    this.cargarDiagrama(id, sesion.empresaId);
   }
 
-    private cargarDiagrama(procesoId: number, empresaId: number): void {
+  private cargarDiagrama(procesoId: number, empresaId: number): void {
+    if (!this.editor) return;
+
     this.procesoService.obtenerDiagrama(procesoId, empresaId).subscribe({
       next: (xml) => {
-        // Verificamos si el XML del backend es válido (tiene la parte visual)
         const esValido = xml && xml.includes('<bpmndi:BPMNDiagram');
         const xmlACargar = esValido ? xml : this.xmlVacio();
 
         if (!esValido) {
-          console.warn('El XML del backend está incompleto. Cargando diagrama vacío.');
+          this.mensaje = 'El proceso todavía no tiene un diagrama guardado.';
         }
 
-        this.modeler.importXML(xmlACargar).then(() => {
+        this.editor?.importXML(xmlACargar).then(() => {
+          this.ajustarVista();
           this.cdr.markForCheck();
-        }).catch((err) => {
-          console.error('Error al importar XML', err);
-          // Si falla incluso el vacío, mostramos el error
-          this.apiErrorService.obtenerMensaje(err);
+        }).catch((error: unknown) => {
+          this.error = this.apiErrorService.obtenerMensaje(error);
+          this.cdr.markForCheck();
         });
       },
-      error: (err) => {
-        console.warn('No se pudo obtener el XML del backend. Cargando vacío.');
-        this.modeler.importXML(this.xmlVacio());
+      error: () => {
+        this.mensaje = 'El proceso todavía no tiene un diagrama guardado.';
+        this.editor?.importXML(this.xmlVacio()).then(() => {
+          this.ajustarVista();
+          this.cdr.markForCheck();
+        });
       },
     });
   }
 
   guardar(): void {
     const sesion = this.obtenerSesion();
-    if (!sesion || !this.procesoId) return;
+    if (!sesion || !this.procesoId || !this.puedeEditar || !(this.editor instanceof BpmnModeler)) {
+      return;
+    }
 
     this.guardando = true;
     this.mensaje = '';
     this.cdr.markForCheck();
 
-    this.modeler.saveXML({ format: true }).then(({ xml }) => {
+    this.editor.saveXML({ format: true }).then(({ xml }: { xml?: string }) => {
       if (!xml) return;
 
       this.procesoService.guardarDiagrama(this.procesoId!, xml, sesion.usuarioId)
@@ -112,37 +163,52 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
             this.cdr.markForCheck();
           },
           error: (err) => {
-            this.apiErrorService.obtenerMensaje(err);
+            this.error = this.apiErrorService.obtenerMensaje(err);
             this.cdr.markForCheck();
           },
         });
+    }).catch((error: unknown) => {
+      this.guardando = false;
+      this.error = this.apiErrorService.obtenerMensaje(error);
+      this.cdr.markForCheck();
     });
   }
 
   deshacer(): void {
-    const commandStack = this.modeler.get('commandStack') as CommandStack;
+    if (!this.puedeEditar || !(this.editor instanceof BpmnModeler)) return;
+    const commandStack = this.editor.get('commandStack') as CommandStack;
     commandStack.undo();
   }
 
   rehacer(): void {
-    const commandStack = this.modeler.get('commandStack') as CommandStack;
+    if (!this.puedeEditar || !(this.editor instanceof BpmnModeler)) return;
+    const commandStack = this.editor.get('commandStack') as CommandStack;
     commandStack.redo();
   }
 
-    zoomIn(): void {
-    const canvas = this.modeler.get('canvas') as Canvas;
-    const currentZoom = canvas.zoom(); // Obtiene el nivel actual (ej: 1)
-    canvas.zoom(currentZoom + 0.1);    // Aumenta un 10%
+  zoomIn(): void {
+    if (!this.editor) return;
+    const canvas = this.editor.get('canvas') as Canvas;
+    const currentZoom = canvas.zoom();
+    canvas.zoom(currentZoom + 0.1);
   }
 
   zoomOut(): void {
-    const canvas = this.modeler.get('canvas') as Canvas;
+    if (!this.editor) return;
+    const canvas = this.editor.get('canvas') as Canvas;
     const currentZoom = canvas.zoom();
-    canvas.zoom(currentZoom - 0.1);    // Disminuye un 10%
+    canvas.zoom(Math.max(currentZoom - 0.1, 0.2));
   }
 
   ngOnDestroy(): void {
-    if (this.modeler) this.modeler.destroy();
+    this.editor?.destroy();
+    this.editor = null;
+  }
+
+  private ajustarVista(): void {
+    if (!this.editor) return;
+    const canvas = this.editor.get('canvas') as Canvas;
+    canvas.zoom('fit-viewport');
   }
 
   private obtenerSesion(): SesionResponse | null {

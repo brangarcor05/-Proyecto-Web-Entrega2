@@ -189,4 +189,27 @@ describe('ProcesoService', () => {
     request.flush(null, { status: 204, statusText: 'No Content' });
     expect(completed).toBe(true);
   });
+
+  it('consulta el XML BPMN de un proceso como texto', () => {
+    const xml = '<bpmn:definitions />';
+
+    service.obtenerDiagrama(1, 2).subscribe((resultado) => expect(resultado).toBe(xml));
+
+    const request = httpTesting.expectOne(`${apiUrl}/1/diagrama?empresaId=2`);
+    expect(request.request.method).toBe('GET');
+    expect(request.request.responseType).toBe('text');
+    request.flush(xml);
+  });
+
+  it('guarda el XML BPMN con el usuario de la sesión', () => {
+    const xml = '<bpmn:definitions />';
+
+    service.guardarDiagrama(1, xml, 5).subscribe();
+
+    const request = httpTesting.expectOne(`${apiUrl}/1/diagrama?usuarioId=5`);
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toBe(xml);
+    expect(request.request.headers.get('Content-Type')).toBe('text/plain');
+    request.flush(null);
+  });
 });

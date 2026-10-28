@@ -1,0 +1,31 @@
+<section class="panel-arcos" aria-labelledby="titulo-arcos">
+  <header>
+    <div>
+      <p class="etiqueta">Flujos de secuencia</p>
+      <h2 id="titulo-arcos">Arcos</h2>
+    </div>
+    <button type="button" (click)="recargar()" [disabled]="cargando()">Actualizar</button>
+  </header>
+
+  @if (cargando()) {
+    <p class="estado">Cargando conexiones…</p>
+  } @else if (error()) {
+    <p class="estado estado--error" role="alert">{{ error() }}</p>
+  } @else if (arcos().length === 0) {
+    <p class="estado">El proceso todavía no tiene conexiones registradas.</p>
+  } @else {
+    <ul>
+      @for (arco of arcos(); track arco.id) {
+        <li>
+          <strong>{{ arco.origenNombre }} → {{ arco.destinoNombre }}</strong>
+          @if (arco.etiqueta) {
+            <span>{{ arco.etiqueta }}</span>
+          }
+          @if (arco.condicion) {
+            <small>Condición: {{ arco.condicion }}</small>
+          }
+        </li>
+      }
+    </ul>
+  }
+</section>

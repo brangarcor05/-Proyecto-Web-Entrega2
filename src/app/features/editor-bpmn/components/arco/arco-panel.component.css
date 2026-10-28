@@ -1,0 +1,68 @@
+.panel-arcos {
+  padding: 1rem;
+  border-top: 1px solid #d1d5db;
+  background: #fff;
+}
+
+header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+h2,
+.etiqueta {
+  margin: 0;
+}
+
+.etiqueta {
+  color: #4f46e5;
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+button {
+  padding: .35rem .6rem;
+  border: 1px solid #c7d2fe;
+  border-radius: 4px;
+  background: #eef2ff;
+  color: #3730a3;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: .6;
+}
+
+ul {
+  display: grid;
+  gap: .65rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+li {
+  display: grid;
+  gap: .2rem;
+  padding: .7rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #f9fafb;
+}
+
+li span,
+li small {
+  color: #4b5563;
+}
+
+.estado {
+  color: #4b5563;
+}
+
+.estado--error {
+  color: #b91c1c;
+}
