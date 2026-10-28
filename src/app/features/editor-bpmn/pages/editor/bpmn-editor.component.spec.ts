@@ -17,6 +17,25 @@ import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso/proceso.service';
 import { BpmnEditorComponent } from './bpmn-editor.component';
 
+interface EditorBpmnSimulado {
+  destroy(): void;
+  importXML?(xml: string): Promise<void>;
+  get?(servicio: string): unknown;
+}
+
+interface BpmnEditorComponentePrueba {
+  editor: EditorBpmnSimulado | null;
+  inicializarEditor(): void;
+  cargarDiagrama(procesoId: number, empresaId: number): void;
+  actualizarArcosDiagrama(): void;
+}
+
+function accederMetodosPrivados(
+  componente: BpmnEditorComponent,
+): BpmnEditorComponentePrueba {
+  return componente as unknown as BpmnEditorComponentePrueba;
+}
+
 describe('BpmnEditorComponent', () => {
   const sesionAdmin: SesionResponse = {
     usuarioId: 1,
@@ -94,9 +113,10 @@ describe('BpmnEditorComponent', () => {
   function crearComponente(simularCargaDiagrama = true): BpmnEditorComponent {
     const fixture = TestBed.createComponent(BpmnEditorComponent);
     const componente = fixture.componentInstance;
-    vi.spyOn(componente as any, 'inicializarEditor').mockImplementation(() => undefined);
+    const componentePrueba = accederMetodosPrivados(componente);
+    vi.spyOn(componentePrueba, 'inicializarEditor').mockImplementation(() => undefined);
     if (simularCargaDiagrama) {
-      vi.spyOn(componente as any, 'cargarDiagrama').mockImplementation(() => undefined);
+      vi.spyOn(componentePrueba, 'cargarDiagrama').mockImplementation(() => undefined);
     }
     fixture.detectChanges();
     return componente;
@@ -156,7 +176,8 @@ describe('BpmnEditorComponent', () => {
 
   it('traduce los flujos de secuencia del lienzo para el panel de Arcos', () => {
     const componente = crearComponente();
-    (componente as any).editor = {
+    const componentePrueba = accederMetodosPrivados(componente);
+    componentePrueba.editor = {
       destroy: () => undefined,
       get: () => ({
         getAll: () => [{
@@ -169,7 +190,7 @@ describe('BpmnEditorComponent', () => {
       }),
     };
 
-    (componente as any).actualizarArcosDiagrama();
+    componentePrueba.actualizarArcosDiagrama();
 
     expect(componente.arcosDiagrama()).toEqual([{
       id: 'Flow_1',
@@ -184,7 +205,8 @@ describe('BpmnEditorComponent', () => {
 
   it('reconoce un flujo por el tipo semántico entregado por bpmn-js', () => {
     const componente = crearComponente();
-    (componente as any).editor = {
+    const componentePrueba = accederMetodosPrivados(componente);
+    componentePrueba.editor = {
       destroy: () => undefined,
       get: () => ({
         getAll: () => [{
@@ -196,7 +218,7 @@ describe('BpmnEditorComponent', () => {
       }),
     };
 
-    (componente as any).actualizarArcosDiagrama();
+    componentePrueba.actualizarArcosDiagrama();
 
     expect(componente.arcosDiagrama()).toHaveLength(1);
     expect(componente.arcosDiagrama()[0].id).toBe('Flow_semantico');
@@ -204,11 +226,12 @@ describe('BpmnEditorComponent', () => {
 
   it('crea un diagrama vacío solamente cuando el backend responde 404', () => {
     const componente = crearComponente(false);
+    const componentePrueba = accederMetodosPrivados(componente);
     const importarXml = vi.fn().mockResolvedValue(undefined);
-    (componente as any).editor = { importXML: importarXml, destroy: () => undefined };
+    componentePrueba.editor = { importXML: importarXml, destroy: () => undefined };
     errorDiagrama = new HttpErrorResponse({ status: 404 });
 
-    (componente as any).cargarDiagrama(9, 4);
+    componentePrueba.cargarDiagrama(9, 4);
 
     expect(importarXml).toHaveBeenCalledOnce();
     expect(componente.mensaje).toBe('El proceso todavía no tiene un diagrama guardado.');
@@ -217,11 +240,12 @@ describe('BpmnEditorComponent', () => {
 
   it('presenta el error y conserva el editor cuando falla la carga con un estado distinto de 404', () => {
     const componente = crearComponente(false);
+    const componentePrueba = accederMetodosPrivados(componente);
     const importarXml = vi.fn().mockResolvedValue(undefined);
-    (componente as any).editor = { importXML: importarXml, destroy: () => undefined };
+    componentePrueba.editor = { importXML: importarXml, destroy: () => undefined };
     errorDiagrama = new HttpErrorResponse({ status: 500 });
 
-    (componente as any).cargarDiagrama(9, 4);
+    componentePrueba.cargarDiagrama(9, 4);
 
     expect(importarXml).not.toHaveBeenCalled();
     expect(componente.mensaje).toBe('');
@@ -230,6 +254,7 @@ describe('BpmnEditorComponent', () => {
 
   it('deshace y habilita rehacer según el historial real de bpmn-js', () => {
     const componente = crearComponente();
+    const componentePrueba = accederMetodosPrivados(componente);
     const undo = vi.fn();
     const historial = {
       canUndo: () => true,
@@ -237,7 +262,7 @@ describe('BpmnEditorComponent', () => {
       undo,
       redo: vi.fn(),
     };
-    (componente as any).editor = {
+    componentePrueba.editor = {
       destroy: () => undefined,
       get: () => historial,
     };
@@ -251,6 +276,7 @@ describe('BpmnEditorComponent', () => {
 
   it('rehace una acción solamente cuando existe en el historial', () => {
     const componente = crearComponente();
+    const componentePrueba = accederMetodosPrivados(componente);
     const redo = vi.fn();
     let hayAccionRehacible = true;
     const historial = {
@@ -262,7 +288,7 @@ describe('BpmnEditorComponent', () => {
         hayAccionRehacible = false;
       },
     };
-    (componente as any).editor = {
+    componentePrueba.editor = {
       destroy: () => undefined,
       get: () => historial,
     };
@@ -276,8 +302,9 @@ describe('BpmnEditorComponent', () => {
 
   it('elimina la selección utilizando la acción oficial de bpmn-js', () => {
     const componente = crearComponente();
+    const componentePrueba = accederMetodosPrivados(componente);
     const trigger = vi.fn();
-    (componente as any).editor = {
+    componentePrueba.editor = {
       destroy: () => undefined,
       get: () => ({ trigger }),
     };
