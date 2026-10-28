@@ -10,5 +10,6 @@ export interface Proceso {
   estado: EstadoProceso;
   activo: boolean;
   compartido: boolean;
+  empresasCompartidasIds?: number[];
   soloLectura: boolean;
 }

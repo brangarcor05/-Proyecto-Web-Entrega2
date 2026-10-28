@@ -12,5 +12,7 @@ import { EstadoProcesoComponent } from '../estado-proceso/estado-proceso.compone
 })
 export class ProcesoCardComponent {
   @Input({ required: true }) proceso!: Proceso;
+  @Input() puedeEditar = false;
+  @Input() puedeEliminar = false;
   @Output() eliminar = new EventEmitter<Proceso>();
 }

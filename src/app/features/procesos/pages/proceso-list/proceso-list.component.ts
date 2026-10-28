@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
@@ -8,9 +8,13 @@ import { ConsultarProcesosParams } from '../../../../models/proceso/consultar-pr
 import { SesionResponse } from '../../../../models/auth/auth.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
-import { ProcesoService } from '../../../../services/proceso.service';
-import { FiltrosProceso, ProcesoFilterComponent } from '../../components/proceso-filter/proceso-filter.component';
+import { ProcesoService } from '../../../../services/proceso/proceso.service';
+import {
+  FiltrosProceso,
+  ProcesoFilterComponent,
+} from '../../components/proceso-filter/proceso-filter.component';
 import { ProcesoCardComponent } from '../../components/proceso-card/proceso-card.component';
+import { puedeAdministrarProceso, puedeCrearOEditarProceso } from '../../proceso-permisos';
 
 @Component({
   selector: 'app-proceso-list',
@@ -20,6 +24,7 @@ import { ProcesoCardComponent } from '../../components/proceso-card/proceso-card
 })
 export class ProcesoListComponent implements OnInit {
   private readonly procesoService = inject(ProcesoService);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly apiErrorService = inject(ApiErrorService);
   readonly autenticacionService = inject(AutenticacionService);
   private readonly router = inject(Router);
@@ -32,6 +37,16 @@ export class ProcesoListComponent implements OnInit {
 
   get entradasCamposInvalidos(): [string, string][] {
     return Object.entries(this.camposInvalidos);
+  }
+
+  get puedeCrearOEditar(): boolean {
+    const sesion = this.autenticacionService.sesion();
+    return sesion !== null && puedeCrearOEditarProceso(sesion.rolUsuario);
+  }
+
+  get puedeEliminar(): boolean {
+    const sesion = this.autenticacionService.sesion();
+    return sesion !== null && puedeAdministrarProceso(sesion.rolUsuario);
   }
 
   private filtros: FiltrosProceso = {
@@ -66,7 +81,7 @@ export class ProcesoListComponent implements OnInit {
 
   solicitarEliminacion(proceso: Proceso): void {
     const sesion = this.obtenerSesion();
-    if (!sesion) {
+    if (!sesion || !puedeAdministrarProceso(sesion.rolUsuario) || proceso.soloLectura) {
       return;
     }
 
@@ -106,7 +121,12 @@ export class ProcesoListComponent implements OnInit {
 
     this.procesoService
       .consultar(parametros)
-      .pipe(finalize(() => (this.cargando = false)))
+      .pipe(
+        finalize(() => {
+          this.cargando = false;
+          this.cdr.markForCheck();
+        }),
+      )
       .subscribe({
         next: (pagina) => (this.pagina = pagina),
         error: (error: unknown) => {

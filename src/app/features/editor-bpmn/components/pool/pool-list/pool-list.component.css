@@ -1,0 +1,13 @@
+.pagina-pools { max-width: 1050px; margin: 0 auto; padding: 2rem; }
+.volver { font-weight: 700; }
+header { display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem; margin: 1.5rem 0; }
+header h1, header p { margin: 0; }
+.sobrelinea { color: var(--primary); font-size: .8rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1rem; }
+.tarjeta-pool { padding: 1.25rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card); box-shadow: var(--shadow); }
+.tarjeta-pool__titulo { display: flex; justify-content: space-between; gap: 1rem; }
+.tarjeta-pool h2 { margin: 0; font-size: 1.2rem; }
+.tarjeta-pool span { height: fit-content; padding: .2rem .55rem; border-radius: 999px; background: var(--primary-soft); color: var(--primary); font-size: .75rem; font-weight: 700; }
+.tarjeta-pool p { margin: .8rem 0 1rem; color: var(--text-dim); }
+footer { display: flex; gap: .6rem; flex-wrap: wrap; }
+@media (max-width: 680px) { .pagina-pools { padding: 1rem; } header { flex-direction: column; } }

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
@@ -6,8 +6,9 @@ import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { SesionResponse } from '../../../../models/auth/auth.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
-import { ProcesoService } from '../../../../services/proceso.service';
+import { ProcesoService } from '../../../../services/proceso/proceso.service';
 import { EstadoProcesoComponent } from '../../components/estado-proceso/estado-proceso.component';
+import { puedeAdministrarProceso, puedeCrearOEditarProceso } from '../../proceso-permisos';
 
 @Component({
   selector: 'app-proceso-detail',
@@ -17,6 +18,7 @@ import { EstadoProcesoComponent } from '../../components/estado-proceso/estado-p
 })
 export class ProcesoDetailComponent implements OnInit {
   private readonly procesoService = inject(ProcesoService);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly apiErrorService = inject(ApiErrorService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -26,6 +28,16 @@ export class ProcesoDetailComponent implements OnInit {
   cargando = false;
   eliminando = false;
   error = '';
+
+  get puedeEditar(): boolean {
+    const sesion = this.autenticacionService.sesion();
+    return sesion !== null && puedeCrearOEditarProceso(sesion.rolUsuario);
+  }
+
+  get puedeAdministrar(): boolean {
+    const sesion = this.autenticacionService.sesion();
+    return sesion !== null && puedeAdministrarProceso(sesion.rolUsuario);
+  }
 
   ngOnInit(): void {
     if (!this.obtenerSesion()) {
@@ -45,7 +57,7 @@ export class ProcesoDetailComponent implements OnInit {
     }
 
     const proceso = this.proceso;
-    if (!proceso || proceso.soloLectura) {
+    if (!proceso || proceso.soloLectura || !puedeAdministrarProceso(sesion.rolUsuario)) {
       return;
     }
 
@@ -74,7 +86,12 @@ export class ProcesoDetailComponent implements OnInit {
     this.error = '';
     this.procesoService
       .buscarPorId(id, sesion.empresaId)
-      .pipe(finalize(() => (this.cargando = false)))
+      .pipe(
+        finalize(() => {
+          this.cargando = false;
+          this.cdr.markForCheck();
+        }),
+      )
       .subscribe({
         next: (proceso) => (this.proceso = proceso),
         error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),

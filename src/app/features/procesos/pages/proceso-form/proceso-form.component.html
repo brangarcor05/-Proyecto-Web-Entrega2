@@ -5,13 +5,13 @@
     <h1>{{ esEdicion ? 'Editar proceso' : 'Crear proceso' }}</h1>
   </header>
 
-  @if (cargando) {
+  @if (cargando()) {
     <p class="mensaje">Cargando información del proceso…</p>
   }
 
-  @if (error) {
+  @if (error()) {
     <section class="mensaje mensaje--error" role="alert">
-      <p>{{ error }}</p>
+      <p>{{ error() }}</p>
       @if (entradasCamposInvalidos.length > 0) {
         <ul>
           @for (campo of entradasCamposInvalidos; track campo[0]) {
@@ -22,7 +22,7 @@
     </section>
   }
 
-  @if (!cargando) {
+  @if (!cargando()) {
     <form [formGroup]="formulario" (ngSubmit)="guardar()">
       <label>
         Nombre
@@ -60,8 +60,8 @@
       }
 
       <div class="acciones">
-        <button type="submit" [disabled]="guardando || formulario.disabled">
-          {{ guardando ? 'Guardando…' : esEdicion ? 'Actualizar proceso' : 'Crear proceso' }}
+        <button type="submit" [disabled]="guardando() || formulario.disabled">
+          {{ guardando() ? 'Guardando…' : esEdicion ? 'Actualizar proceso' : 'Crear proceso' }}
         </button>
         <a routerLink="/procesos">Cancelar</a>
       </div>

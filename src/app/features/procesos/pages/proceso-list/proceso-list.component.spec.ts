@@ -7,7 +7,7 @@ import { PageResponse } from '../../../../models/common/page-response.model';
 import { ConsultarProcesosParams } from '../../../../models/proceso/consultar-procesos-params.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
-import { ProcesoService } from '../../../../services/proceso.service';
+import { ProcesoService } from '../../../../services/proceso/proceso.service';
 import { Router } from '@angular/router';
 import { ProcesoListComponent } from './proceso-list.component';
 
@@ -95,5 +95,28 @@ describe('ProcesoListComponent', () => {
 
     expect(parametrosConsultados).toBeNull();
     expect(navegacion).toEqual(['/login']);
+  });
+
+  it('permite crear y editar a un usuario EDITOR, pero no eliminar', () => {
+    const fixture = TestBed.createComponent(ProcesoListComponent);
+
+    expect(fixture.componentInstance.puedeCrearOEditar).toBe(true);
+    expect(fixture.componentInstance.puedeEliminar).toBe(false);
+  });
+
+  it('deja al usuario LECTURA únicamente consultar procesos', () => {
+    sesion = { ...sesionActiva, rolUsuario: 'LECTURA' };
+    const fixture = TestBed.createComponent(ProcesoListComponent);
+
+    expect(fixture.componentInstance.puedeCrearOEditar).toBe(false);
+    expect(fixture.componentInstance.puedeEliminar).toBe(false);
+  });
+
+  it('permite al administrador crear, editar y eliminar procesos', () => {
+    sesion = { ...sesionActiva, rolUsuario: 'ADMIN' };
+    const fixture = TestBed.createComponent(ProcesoListComponent);
+
+    expect(fixture.componentInstance.puedeCrearOEditar).toBe(true);
+    expect(fixture.componentInstance.puedeEliminar).toBe(true);
   });
 });

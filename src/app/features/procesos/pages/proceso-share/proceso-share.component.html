@@ -1,21 +1,21 @@
 <main class="compartir">
-  <a class="volver" [routerLink]="['/procesos', proceso?.id]">← Volver al proceso</a>
+  <a class="volver" [routerLink]="['/procesos', proceso()?.id]">← Volver al proceso</a>
   <header>
     <h1>Compartir proceso</h1>
-    @if (proceso; as actual) {
+    @if (proceso(); as actual) {
       <span>{{ actual.nombre }}</span>
     }
   </header>
 
-  @if (cargando) {
+  @if (cargando()) {
     <p class="mensaje">Cargando proceso…</p>
   }
 
-  @if (error) {
-    <p class="mensaje mensaje--error" role="alert">{{ error }}</p>
+  @if (error()) {
+    <p class="mensaje mensaje--error" role="alert">{{ error() }}</p>
   }
 
-  @if (!cargando && proceso) {
+  @if (!cargando() && proceso(); as actual) {
     <form [formGroup]="formulario" (ngSubmit)="guardar()">
       <label class="casilla">
         <input type="checkbox" formControlName="compartido" />
@@ -23,25 +23,33 @@
       </label>
 
       @if (formulario.controls.compartido.value) {
-        <label>
-          Identificadores de empresas invitadas
-          <input type="text" formControlName="empresasIds" placeholder="Ej. 2, 3, 5" />
-          <small>Sepáralos con comas. Las empresas invitadas tendrán acceso de solo lectura.</small>
-          @if (formulario.controls.empresasIds.invalid && formulario.controls.empresasIds.touched) {
-            <small class="error-campo">Ingresa identificadores numéricos separados por comas.</small>
+        <fieldset class="empresas" [disabled]="guardando() || cargandoEmpresas()">
+          <legend>Empresas invitadas</legend>
+          @if (cargandoEmpresas()) {
+            <p>Cargando empresas…</p>
+          } @else if (empresas().length === 0) {
+            <p>No hay otras empresas activas disponibles.</p>
+          } @else {
+            @for (empresa of empresas(); track empresa.id) {
+              <label class="empresa-opcion">
+                <input
+                  type="checkbox"
+                  [checked]="formulario.controls.empresasIds.value.includes(empresa.id)"
+                  (change)="cambiarEmpresa(empresa.id, $any($event.target).checked)"
+                />
+                <span>{{ empresa.nombre }} <small>{{ empresa.rut }}</small></span>
+              </label>
+            }
           }
-        </label>
+          <small>Las empresas seleccionadas tendrán acceso de solo lectura.</small>
+        </fieldset>
       }
 
-      <p class="nota">
-        Esta entrada por identificadores es temporal hasta integrar el servicio de empresas del equipo.
-      </p>
-
       <div class="acciones">
-        <button type="submit" [disabled]="guardando || formulario.disabled">
-          {{ guardando ? 'Guardando…' : 'Guardar compartición' }}
+        <button type="submit" [disabled]="guardando() || formulario.disabled">
+          {{ guardando() ? 'Guardando…' : 'Guardar compartición' }}
         </button>
-        <a [routerLink]="['/procesos', proceso.id]">Cancelar</a>
+        <a [routerLink]="['/procesos', actual.id]">Cancelar</a>
       </div>
     </form>
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -9,7 +9,8 @@ import { ActualizarProcesoRequest } from '../../../../models/proceso/actualizar-
 import { CrearProcesoRequest } from '../../../../models/proceso/crear-proceso-request.model';
 import { EstadoProceso } from '../../../../models/proceso/estado-proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
-import { ProcesoService } from '../../../../services/proceso.service';
+import { ProcesoService } from '../../../../services/proceso/proceso.service';
+import { puedeCrearOEditarProceso } from '../../proceso-permisos';
 
 @Component({
   selector: 'app-proceso-form',
@@ -24,14 +25,14 @@ export class ProcesoFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly autenticacionService = inject(AutenticacionService);
 
-  cargando = false;
-  guardando = false;
-  error = '';
-  camposInvalidos: Record<string, string> = {};
+  readonly cargando = signal(false);
+  readonly guardando = signal(false);
+  readonly error = signal('');
+  readonly camposInvalidos = signal<Record<string, string>>({});
   procesoId: number | null = null;
 
   get entradasCamposInvalidos(): [string, string][] {
-    return Object.entries(this.camposInvalidos);
+    return Object.entries(this.camposInvalidos());
   }
 
   get esEdicion(): boolean {
@@ -58,7 +59,12 @@ export class ProcesoFormComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    if (!this.obtenerSesion()) {
+    const sesion = this.obtenerSesion();
+    if (!sesion) {
+      return;
+    }
+    if (!puedeCrearOEditarProceso(sesion.rolUsuario)) {
+      void this.router.navigate(['/procesos']);
       return;
     }
 
@@ -69,7 +75,7 @@ export class ProcesoFormComponent implements OnInit {
 
     const id = Number(idTexto);
     if (!Number.isInteger(id) || id <= 0) {
-      this.error = 'El identificador del proceso no es válido.';
+      this.error.set('El identificador del proceso no es válido.');
       return;
     }
 
@@ -79,7 +85,7 @@ export class ProcesoFormComponent implements OnInit {
 
   guardar(): void {
     const sesion = this.obtenerSesion();
-    if (!sesion) {
+    if (!sesion || !puedeCrearOEditarProceso(sesion.rolUsuario)) {
       return;
     }
 
@@ -88,7 +94,7 @@ export class ProcesoFormComponent implements OnInit {
       return;
     }
 
-    this.guardando = true;
+    this.guardando.set(true);
     this.limpiarError();
     const valor = this.formulario.getRawValue();
     const id = this.procesoId;
@@ -97,7 +103,7 @@ export class ProcesoFormComponent implements OnInit {
       ? this.procesoService.crear(this.construirCreacion(valor, sesion.empresaId), sesion.usuarioId)
       : this.procesoService.actualizar(id, this.construirActualizacion(valor), sesion.usuarioId);
 
-    operacion.pipe(finalize(() => (this.guardando = false))).subscribe({
+    operacion.pipe(finalize(() => this.guardando.set(false))).subscribe({
       next: (proceso) => void this.router.navigate(['/procesos', proceso.id]),
       error: (error: unknown) => this.manejarError(error),
     });
@@ -114,15 +120,15 @@ export class ProcesoFormComponent implements OnInit {
       return;
     }
 
-    this.cargando = true;
+    this.cargando.set(true);
     this.limpiarError();
     this.procesoService
       .buscarPorId(id, sesion.empresaId)
-      .pipe(finalize(() => (this.cargando = false)))
+      .pipe(finalize(() => this.cargando.set(false)))
       .subscribe({
         next: (proceso) => {
           if (proceso.soloLectura) {
-            this.error = 'Este proceso fue compartido en modo de solo lectura y no puede editarse.';
+            this.error.set('Este proceso fue compartido en modo de solo lectura y no puede editarse.');
             this.formulario.disable();
             return;
           }
@@ -151,13 +157,13 @@ export class ProcesoFormComponent implements OnInit {
   }
 
   private manejarError(error: unknown): void {
-    this.error = this.apiErrorService.obtenerMensaje(error);
-    this.camposInvalidos = this.apiErrorService.obtenerCamposInvalidos(error);
+    this.error.set(this.apiErrorService.obtenerMensaje(error));
+    this.camposInvalidos.set(this.apiErrorService.obtenerCamposInvalidos(error));
   }
 
   private limpiarError(): void {
-    this.error = '';
-    this.camposInvalidos = {};
+    this.error.set('');
+    this.camposInvalidos.set({});
   }
 
   private obtenerSesion(): SesionResponse | null {

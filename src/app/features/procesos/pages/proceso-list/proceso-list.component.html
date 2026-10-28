@@ -5,7 +5,9 @@
       <h1>Procesos de {{ autenticacionService.sesion()?.empresaNombre }}</h1>
       <p>Consulta, filtra y administra los procesos propios y los compartidos contigo.</p>
     </div>
-    <a class="boton-primario" routerLink="/procesos/nuevo">Crear proceso</a>
+    @if (puedeCrearOEditar) {
+      <a class="boton-primario" routerLink="/procesos/nuevo">Crear proceso</a>
+    }
   </header>
 
   <app-proceso-filter (buscar)="aplicarFiltros($event)" />
@@ -33,6 +35,8 @@
         @for (proceso of resultado.content; track proceso.id) {
           <app-proceso-card
             [proceso]="proceso"
+            [puedeEditar]="puedeCrearOEditar"
+            [puedeEliminar]="puedeEliminar"
             (eliminar)="solicitarEliminacion($event)"
           />
         }
