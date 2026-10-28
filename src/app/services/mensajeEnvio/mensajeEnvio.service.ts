@@ -8,7 +8,7 @@ import { MensajeEnvio, NewMensajeEnvio } from '../../models/bpmn/mensajeEnvio/me
 })
 export class MensajeEnvioService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/eventos-mensajes-envio';
+    private apiUrl = '/api/eventos-mensaje-envio';
 
     listarPorProceso(procesoId: number): Observable<MensajeEnvio[]> {
         return this.http.get<MensajeEnvio[]>(`${this.apiUrl}/proceso/${procesoId}`);

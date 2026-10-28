@@ -1,42 +1,50 @@
-<div class="mensaje-envio-container">
-    <h2>Mensajes de Envío del Proceso {{ procesoId }}</h2>
+<div class="contenedor-vista">
+    <header class="cabecera-seccion">
+        <h2>Gestión de Mensajes de Envío</h2>
+        <button class="boton boton--primario" (click)="irANuevo()">
+            + Nuevo Mensaje Envío
+        </button>
+    </header>
 
     @if (status() === 'loading') {
-    <p>Cargando mensajes de envío...</p>
+        <p>Cargando mensajes de envío...</p>
     }
 
     @if (status() === 'error') {
-    <div class="error-message">
-        <p>{{ errorMessage() }}</p>
-    </div>
+        <div class="error-message">
+            <p>{{ errorMessage() }}</p>
+        </div>
     }
 
     @if (status() === 'success') {
-    @if (mensajesEnvio().length === 0) {
-    <p>No hay mensajes de envío registrados para este proceso.</p>
-    } @else {
-    <table class="mensaje-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre Mensaje</th>
-                <th>Clave Correlación</th>
-                <th>Pool Destino</th>
-                <th>Activo</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (msg of mensajesEnvio(); track msg.id) {
-            <tr>
-                <td>{{ msg.id }}</td>
-                <td>{{ msg.nombreMensaje }}</td>
-                <td>{{ msg.claveCorrelacion || 'N/A' }}</td>
-                <td>{{ msg.nombrePoolDestino || msg.poolDestinoId }}</td>
-                <td>{{ msg.activo ? 'Sí' : 'No' }}</td>
-            </tr>
+        <div class="lista-elementos">
+            @if (mensajesEnvio().length === 0) {
+                <p class="sin-registros">No hay mensajes de envío registrados para este proceso.</p>
+            } @else {
+                @for (msg of mensajesEnvio(); track msg.id) {
+                    <div class="tarjeta-elemento">
+                        <div class="info">
+                            <h3>{{ msg.nombreMensaje }}</h3>
+                            <p><strong>Clave Correlación:</strong> {{ msg.claveCorrelacion || 'N/A' }}</p>
+                            <p><strong>Pool Destino:</strong> {{ msg.nombrePoolDestino || msg.poolDestinoId }}</p>
+                            <p><strong>Activo:</strong> {{ msg.activo ? 'Sí' : 'No' }}</p>
+                        </div>
+
+                        <div class="acciones">
+                            <button class="boton boton--secundario" (click)="irAEditar(msg.id)">
+                                Editar
+                            </button>
+                            <button class="boton boton--peligro" (click)="eliminar(msg.id)">
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                }
             }
-        </tbody>
-    </table>
+        </div>
     }
-    }
+
+    <div class="footer-acciones">
+        <a class="boton boton--regresar" [routerLink]="['/procesos', procesoId]">Volver al Proceso</a>
+    </div>
 </div>
