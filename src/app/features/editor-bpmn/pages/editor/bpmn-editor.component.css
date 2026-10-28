@@ -1,0 +1,99 @@
+.editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden; /* Evita scrolls raros */
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #f3f4f6;
+  border-bottom: 1px solid #d1d5db;
+  z-index: 10; /* Asegura que la toolbar esté arriba */
+}
+
+.btn {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  color: black;
+  font-size: 14px;
+}
+
+.btn:hover {
+  background-color: #e5e7eb;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mensaje {
+  margin-left: auto;
+  color: #10b981;
+  font-weight: bold;
+}
+
+.solo-lectura {
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-weight: 700;
+}
+
+.estado {
+  margin: 1rem;
+  padding: 1rem;
+  border-radius: 6px;
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.estado--error {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.main-content--oculto {
+  visibility: hidden;
+}
+
+/* AQUÍ ESTÁ LA MAGIA PARA LA PALETA */
+.canvas {
+  flex: 1;
+  position: relative; /* bpmn-js necesita esto para posicionar la paleta */
+  height: 100%;
+  width: 100%;
+}
+
+.inspector {
+  width: 320px;
+  border-left: 1px solid #d1d5db;
+  overflow-y: auto;
+  background: white;
+  z-index: 5;
+}
+
+.properties-panel {
+  min-height: 0;
+}
+
+.properties-panel--oculto {
+  display: none;
+}

@@ -15,4 +15,5 @@ export interface NotificacionExterna {
   posicionX: number | null;
   posicionY: number | null;
   activo: boolean;
+  canvasId?: string | null;
 }

@@ -41,6 +41,7 @@
       <footer>
         <a [routerLink]="['/procesos', actual.id, 'pools']">Pools</a>
         <a [routerLink]="['/procesos', actual.id, 'eventos']">Eventos</a>
+        <a [routerLink]="['/procesos', actual.id, 'editor']">Abrir Editor BPMN</a>
         <a [routerLink]="['/procesos', actual.id, 'notificaciones']">Notificaciones externas</a>
         @if (!actual.soloLectura) {
           <a [routerLink]="['/procesos', actual.id, 'historial']">Historial</a>

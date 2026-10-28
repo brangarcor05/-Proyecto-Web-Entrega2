@@ -9,14 +9,37 @@ export class AutenticacionService {
   private http = inject(HttpClient);
   private url = `${environment.apiUrl}/auth`;
   
-  sesion = signal<SesionResponse | null>(null);
+  
+  sesion = signal<SesionResponse | null>(this.obtenerSesionDeStorage());
 
   login(request: LoginRequest): Observable<SesionResponse> {
     return this.http.post<SesionResponse>(`${this.url}/login`, request)
-      .pipe(tap(sesion => this.sesion.set(sesion)));
+      .pipe(
+        tap(sesion => {
+          this.sesion.set(sesion);
+          
+          localStorage.setItem('sesion', JSON.stringify(sesion));
+        })
+      );
   }
 
   logout(): void {
     this.sesion.set(null);
+    
+    localStorage.removeItem('sesion');
+  }
+
+  
+  private obtenerSesionDeStorage(): SesionResponse | null {
+    const sesionGuardada = localStorage.getItem('sesion');
+    if (!sesionGuardada) return null;
+    
+    try {
+      return JSON.parse(sesionGuardada) as SesionResponse;
+    } catch (e) {
+      
+      localStorage.removeItem('sesion');
+      return null; 
+    }
   }
 }

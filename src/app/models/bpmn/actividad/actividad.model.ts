@@ -8,7 +8,10 @@ export interface Actividad {
     posicionX?: number;
     posicionY?: number;
     activo: boolean;
+    canvasId?: string | null;
     descripcion?: string;
+
+
 }
 
 export type CreateActividadRequest = Omit<Actividad, 'id' | 'activo'>;

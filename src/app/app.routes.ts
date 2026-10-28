@@ -49,6 +49,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'procesos/:procesoId/editor',
+    loadComponent: () =>
+      import('./features/editor-bpmn/pages/editor/bpmn-editor.component').then(
+        (m) => m.BpmnEditorComponent,
+      ),
+  },
+  {
     path: 'procesos/:procesoId/eventos/:id/editar',
     loadComponent: () =>
       import('./features/eventos/components/evento-form/evento-form.component').then(
@@ -63,12 +70,17 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'procesos/:procesoId/eventos',
-    loadComponent: () =>
-      import('./features/eventos/pages/evento-list/evento-list.component').then(
-        (m) => m.EventoListComponent,
-      ),
-  },
+  path: 'procesos/:procesoId/eventos',
+  loadComponent: () => import('./features/eventos/pages/evento-list/evento-list.component').then(m => m.EventoListComponent),
+},
+{
+  path: 'procesos/:procesoId/eventos/nuevo',
+  loadComponent: () => import('./features/eventos/components/evento-form/evento-form.component').then(m => m.EventoFormComponent),
+},
+{
+  path: 'procesos/:procesoId/eventos/:id/editar',
+  loadComponent: () => import('./features/eventos/components/evento-form/evento-form.component').then(m => m.EventoFormComponent),
+},
   {
     path: 'procesos/:procesoId/notificaciones/nuevo',
     loadComponent: () =>
@@ -104,6 +116,21 @@ export const routes: Routes = [
   { path: 'procesos/:procesoId/pools/:poolId/editar', component: PoolFormComponent },
   { path: 'procesos/:procesoId/pools', component: PoolListComponent },
   { path: 'procesos/:id', component: ProcesoDetailComponent },
+  {
+    path: 'roles-proceso',
+    loadComponent: () => import('./features/roles-proceso/pages/rol-proceso-list/rol-proceso-list.component')
+      .then(m => m.RolProcesoListComponent)
+  },
+  {
+    path: 'roles-proceso/nuevo',
+    loadComponent: () => import('./features/roles-proceso/pages/rol-proceso-form/rol-proceso-form.component')
+      .then(m => m.RolProcesoFormComponent)
+  },
+  {
+    path: 'roles-proceso/:id/editar',
+    loadComponent: () => import('./features/roles-proceso/pages/rol-proceso-form/rol-proceso-form.component')
+      .then(m => m.RolProcesoFormComponent)
+  },
   { path: '**', component: NotFoundComponent },
   {
     path: 'procesos/:procesoId/gateways',

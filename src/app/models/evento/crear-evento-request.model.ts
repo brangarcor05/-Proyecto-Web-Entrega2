@@ -7,4 +7,5 @@ export interface CrearEventoRequest {
   tipo: TipoEvento;
   posicionX?: number | null;
   posicionY?: number | null;
+  canvasId?: string | null;
 }

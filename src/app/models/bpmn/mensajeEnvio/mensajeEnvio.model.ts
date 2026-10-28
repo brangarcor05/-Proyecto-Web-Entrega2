@@ -10,6 +10,7 @@ export interface MensajeEnvio {
     posicionX?: number;
     posicionY?: number;
     activo: boolean;
+    canvasId?: string | null;
 }
 
 export type NewMensajeEnvio = Omit<MensajeEnvio, 'id' | 'activo' | 'nombrePoolDestino'>;
