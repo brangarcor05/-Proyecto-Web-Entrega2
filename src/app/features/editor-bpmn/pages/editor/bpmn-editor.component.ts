@@ -298,9 +298,9 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     const elementRegistry = this.modeler.get('elementRegistry') as any;
     const elementos = elementRegistry.getAll();
     
-    // Filtramos solo los eventos de BPMN
-    const eventosCanvas = elementos.filter((el: any) => 
-      el.type === 'bpmn:StartEvent' || el.type === 'bpmn:EndEvent'
+    // 2. Filtramos solo los eventos (StartEvent y EndEvent)
+    const eventosCanvas = elementos.filter(
+      (el: ElementoBpmn) => el.type === 'bpmn:StartEvent' || el.type === 'bpmn:EndEvent'
     );
 
     if (eventosCanvas.length === 0) {
