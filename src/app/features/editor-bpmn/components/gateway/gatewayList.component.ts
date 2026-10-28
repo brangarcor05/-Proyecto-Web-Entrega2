@@ -41,8 +41,9 @@ export class GatewayListComponent implements OnInit {
                 this.status.set('success');
             },
             error: (err: HttpErrorResponse) => {
-                const errorMsg = err.error && typeof err.error === 'object' && 'message' in err.error
-                    ? (err.error as any).message
+                const errorBody = err.error as { message?: string } | null;
+                const errorMsg = errorBody && typeof errorBody === 'object' && 'message' in errorBody && typeof errorBody.message === 'string'
+                    ? errorBody.message
                     : 'No fue posible cargar los gateways.';
                 this.errorMessage.set(errorMsg);
                 this.status.set('error');
@@ -54,7 +55,7 @@ export class GatewayListComponent implements OnInit {
         if (confirm('¿Estás seguro de eliminar este gateway?')) {
             this.gatewayService.eliminar(id).subscribe({
                 next: () => this.cargarGateways(),
-                error: (err) => console.error('Error al eliminar gateway', err)
+                error: (err: HttpErrorResponse) => console.error('Error al eliminar gateway', err)
             });
         }
     }
