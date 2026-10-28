@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -25,6 +25,7 @@ export class PoolFormComponent implements OnInit {
   private readonly apiErrorService = inject(ApiErrorService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef); // <-- Inyectado
 
   procesoId: number | null = null;
   poolId: number | null = null;
@@ -95,17 +96,24 @@ export class PoolFormComponent implements OnInit {
     this.guardando = true;
     this.error = '';
     this.camposInvalidos = {};
-    operacion.pipe(finalize(() => (this.guardando = false))).subscribe({
+    this.cdr.markForCheck(); // <-- Actualizamos vista al empezar a guardar
+
+    operacion.pipe(finalize(() => {
+      this.guardando = false;
+      this.cdr.markForCheck(); // <-- Actualizamos vista al terminar
+    })).subscribe({
       next: () => void this.router.navigate(['/procesos', this.procesoId, 'pools']),
       error: (error: unknown) => {
         this.error = this.apiErrorService.obtenerMensaje(error);
         this.camposInvalidos = this.apiErrorService.obtenerCamposInvalidos(error);
+        this.cdr.markForCheck();
       },
     });
   }
 
   private validarPermiso(sesion: SesionResponse): void {
     this.cargando = true;
+    this.cdr.markForCheck();
     this.permisoPoolService.consultar(sesion.empresaId).subscribe({
       next: (permisos) => {
         this.permisoActual = permisos.find(
@@ -119,10 +127,12 @@ export class PoolFormComponent implements OnInit {
           return;
         }
         this.validarProcesoEditable(this.procesoId!, sesion);
+        this.cdr.markForCheck();
       },
       error: (error: unknown) => {
         this.cargando = false;
         this.error = this.apiErrorService.obtenerMensaje(error);
+        this.cdr.markForCheck();
       },
     });
   }
@@ -144,27 +154,37 @@ export class PoolFormComponent implements OnInit {
           return;
         }
         this.cargando = false;
+        this.cdr.markForCheck();
       },
       error: (error: unknown) => {
         this.cargando = false;
         this.error = this.apiErrorService.obtenerMensaje(error);
+        this.cdr.markForCheck();
       },
     });
   }
 
   private cargarPool(poolId: number): void {
     this.poolService.buscarPorId(poolId)
-      .pipe(finalize(() => (this.cargando = false)))
+      .pipe(finalize(() => {
+        this.cargando = false;
+        this.cdr.markForCheck();
+      }))
       .subscribe({
         next: (pool) => {
           if (pool.procesoId !== this.procesoId) {
             this.error = 'El pool no pertenece al proceso indicado.';
             this.formulario.disable();
+            this.cdr.markForCheck();
             return;
           }
           this.formulario.patchValue({ nombre: pool.nombre, cajaNegra: pool.cajaNegra });
+          this.cdr.markForCheck();
         },
-        error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),
+        error: (error: unknown) => {
+          this.error = this.apiErrorService.obtenerMensaje(error);
+          this.cdr.markForCheck();
+        },
       });
   }
 

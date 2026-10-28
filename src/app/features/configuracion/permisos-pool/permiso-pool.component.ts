@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
@@ -21,6 +21,7 @@ export class PermisoPoolComponent implements OnInit {
   private readonly autenticacionService = inject(AutenticacionService);
   private readonly apiErrorService = inject(ApiErrorService);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef); // <-- Inyectado
 
   permisos: PermisoPool[] = [];
   cargando = false;
@@ -40,17 +41,29 @@ export class PermisoPoolComponent implements OnInit {
     }
 
     this.cargando = true;
+    this.cdr.markForCheck(); // <-- Forzamos actualización al iniciar
+
     this.permisoPoolService.consultar(sesion.empresaId)
-      .pipe(finalize(() => (this.cargando = false)))
+      .pipe(finalize(() => {
+        this.cargando = false;
+        this.cdr.markForCheck(); // <-- Forzamos actualización al terminar
+      }))
       .subscribe({
-        next: (permisos) => (this.permisos = permisos),
-        error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),
+        next: (permisos) => {
+          this.permisos = permisos;
+          this.cdr.markForCheck();
+        },
+        error: (error: unknown) => {
+          this.error = this.apiErrorService.obtenerMensaje(error);
+          this.cdr.markForCheck();
+        },
       });
   }
 
   actualizarValor(permiso: PermisoPool, campo: CampoPermiso, valor: boolean): void {
     permiso[campo] = valor;
     this.mensaje = '';
+    this.cdr.markForCheck(); // <-- Actualizamos vista al cambiar un checkbox
   }
 
   guardar(permiso: PermisoPool): void {
@@ -69,16 +82,25 @@ export class PermisoPoolComponent implements OnInit {
     this.guardandoRol = permiso.rolUsuario;
     this.error = '';
     this.mensaje = '';
+    this.cdr.markForCheck(); // <-- Actualizamos al empezar a guardar
+
     this.permisoPoolService.configurar(request, sesion.usuarioId)
-      .pipe(finalize(() => (this.guardandoRol = null)))
+      .pipe(finalize(() => {
+        this.guardandoRol = null;
+        this.cdr.markForCheck(); // <-- Actualizamos al terminar de guardar
+      }))
       .subscribe({
         next: (actualizado) => {
           this.permisos = this.permisos.map((actual) =>
             actual.rolUsuario === actualizado.rolUsuario ? actualizado : actual,
           );
           this.mensaje = `Permisos de ${actualizado.rolUsuario} actualizados correctamente.`;
+          this.cdr.markForCheck();
         },
-        error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),
+        error: (error: unknown) => {
+          this.error = this.apiErrorService.obtenerMensaje(error);
+          this.cdr.markForCheck();
+        },
       });
   }
 }

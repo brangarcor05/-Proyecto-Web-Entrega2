@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
@@ -25,6 +25,7 @@ export class PoolListComponent implements OnInit {
   private readonly apiErrorService = inject(ApiErrorService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef); // <-- Inyectado
 
   procesoId: number | null = null;
   procesoSoloLectura = true;
@@ -67,8 +68,12 @@ export class PoolListComponent implements OnInit {
         this.permisoActual = permisos.find(
           (permiso) => permiso.rolUsuario === sesion.rolUsuario,
         ) ?? null;
+        this.cdr.markForCheck(); // <-- Actualizamos vista
       },
-      error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),
+      error: (error: unknown) => {
+        this.error = this.apiErrorService.obtenerMensaje(error);
+        this.cdr.markForCheck();
+      },
     });
   }
 
@@ -85,27 +90,52 @@ export class PoolListComponent implements OnInit {
     this.eliminandoId = pool.id;
     this.error = '';
     this.poolService.eliminar(pool.id, sesion.usuarioId)
-      .pipe(finalize(() => (this.eliminandoId = null)))
+      .pipe(finalize(() => {
+        this.eliminandoId = null;
+        this.cdr.markForCheck();
+      }))
       .subscribe({
-        next: () => (this.pools = this.pools.filter((actual) => actual.id !== pool.id)),
-        error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),
+        next: () => {
+          this.pools = this.pools.filter((actual) => actual.id !== pool.id);
+          this.cdr.markForCheck();
+        },
+        error: (error: unknown) => {
+          this.error = this.apiErrorService.obtenerMensaje(error);
+          this.cdr.markForCheck();
+        },
       });
   }
 
   private cargarProceso(procesoId: number, sesion: SesionResponse): void {
     this.procesoService.buscarPorId(procesoId, sesion.empresaId).subscribe({
-      next: (proceso) => (this.procesoSoloLectura = proceso.soloLectura),
-      error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),
+      next: (proceso) => {
+        this.procesoSoloLectura = proceso.soloLectura;
+        this.cdr.markForCheck();
+      },
+      error: (error: unknown) => {
+        this.error = this.apiErrorService.obtenerMensaje(error);
+        this.cdr.markForCheck();
+      },
     });
   }
 
   private cargarPools(procesoId: number): void {
     this.cargando = true;
+    this.cdr.markForCheck(); // <-- Forzamos actualización al iniciar
     this.poolService.listarPorProceso(procesoId)
-      .pipe(finalize(() => (this.cargando = false)))
+      .pipe(finalize(() => {
+        this.cargando = false;
+        this.cdr.markForCheck(); // <-- Forzamos actualización al terminar
+      }))
       .subscribe({
-        next: (pools) => (this.pools = pools),
-        error: (error: unknown) => (this.error = this.apiErrorService.obtenerMensaje(error)),
+        next: (pools) => {
+          this.pools = pools;
+          this.cdr.markForCheck();
+        },
+        error: (error: unknown) => {
+          this.error = this.apiErrorService.obtenerMensaje(error);
+          this.cdr.markForCheck();
+        },
       });
   }
 
