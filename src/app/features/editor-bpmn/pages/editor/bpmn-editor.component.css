@@ -42,11 +42,36 @@
   font-weight: bold;
 }
 
+.solo-lectura {
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-weight: 700;
+}
+
+.estado {
+  margin: 1rem;
+  padding: 1rem;
+  border-radius: 6px;
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.estado--error {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
 .main-content {
   display: flex;
   flex: 1;
   position: relative;
   overflow: hidden;
+}
+
+.main-content--oculto {
+  visibility: hidden;
 }
 
 /* AQUÍ ESTÁ LA MAGIA PARA LA PALETA */
@@ -57,10 +82,18 @@
   width: 100%;
 }
 
-.properties-panel {
+.inspector {
   width: 320px;
   border-left: 1px solid #d1d5db;
   overflow-y: auto;
   background: white;
   z-index: 5;
+}
+
+.properties-panel {
+  min-height: 0;
+}
+
+.properties-panel--oculto {
+  display: none;
 }

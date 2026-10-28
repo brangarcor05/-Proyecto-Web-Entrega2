@@ -1,20 +1,42 @@
 <div class="editor-container">
   <div class="toolbar">
-    <button class="btn" (click)="guardar()" [disabled]="guardando">
-      {{ guardando ? 'Guardando...' : 'Guardar' }}
-    </button>
-    <button class="btn" (click)="deshacer()">Deshacer</button>
-    <button class="btn" (click)="rehacer()">Rehacer</button>
-    <button class="btn" (click)="zoomIn()">+</button>
-    <button class="btn" (click)="zoomOut()">-</button>
+    @if (puedeEditar) {
+      <button type="button" class="btn" (click)="guardar()" [disabled]="guardando || cargando">
+        {{ guardando ? 'Guardando...' : 'Guardar' }}
+      </button>
+      <button type="button" class="btn" (click)="deshacer()" [disabled]="!puedeDeshacer()">
+        Deshacer
+      </button>
+      <button type="button" class="btn" (click)="rehacer()" [disabled]="!puedeRehacer()">
+        Rehacer
+      </button>
+      <button type="button" class="btn" (click)="eliminarSeleccion()">
+        Eliminar
+      </button>
+    } @else {
+      <span class="solo-lectura">Modo de solo lectura</span>
+    }
+    <button type="button" class="btn" (click)="zoomIn()">+</button>
+    <button type="button" class="btn" (click)="zoomOut()">-</button>
     <a class="btn" [routerLink]="['/procesos', procesoId]">Volver</a>
     <span class="mensaje" *ngIf="mensaje">{{ mensaje }}</span>
   </div>
 
-  <div class="main-content">
-    <!-- Aquí bpmn-js dibuja el canvas -->
+  @if (cargando) {
+    <p class="estado">Cargando información del proceso…</p>
+  }
+
+  @if (error) {
+    <p class="estado estado--error" role="alert">{{ error }}</p>
+  }
+
+  <div class="main-content" [class.main-content--oculto]="cargando || error">
     <div #canvasContainer class="canvas"></div>
-    <!-- Aquí bpmn-js dibuja el panel de propiedades -->
-    <div #propertiesContainer class="properties-panel"></div>
+    <aside class="inspector">
+      <div #propertiesContainer class="properties-panel" [class.properties-panel--oculto]="soloLectura"></div>
+      @if (procesoId) {
+        <app-arco-panel [procesoId]="procesoId" [arcosDiagrama]="arcosDiagrama()" />
+      }
+    </aside>
   </div>
 </div>
