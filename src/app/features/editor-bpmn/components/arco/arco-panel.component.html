@@ -7,15 +7,35 @@
     <button type="button" (click)="recargar()" [disabled]="cargando()">Actualizar</button>
   </header>
 
+  <h3>Conexiones del lienzo</h3>
+  @if (arcosDiagrama.length === 0) {
+    <p class="estado">El lienzo todavía no tiene flujos de secuencia.</p>
+  } @else {
+    <ul>
+      @for (arco of arcosDiagrama; track arco.id) {
+        <li>
+          <strong>{{ arco.origenNombre }} → {{ arco.destinoNombre }}</strong>
+          @if (arco.etiqueta) {
+            <span>{{ arco.etiqueta }}</span>
+          }
+          @if (arco.condicion) {
+            <small>Condición: {{ arco.condicion }}</small>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  <h3>Registros estructurados</h3>
   @if (cargando()) {
     <p class="estado">Cargando conexiones…</p>
   } @else if (error()) {
     <p class="estado estado--error" role="alert">{{ error() }}</p>
-  } @else if (arcos().length === 0) {
-    <p class="estado">El proceso todavía no tiene conexiones registradas.</p>
+  } @else if (arcosPersistidos().length === 0) {
+    <p class="estado">No existen Arcos asociados a nodos estructurados del backend.</p>
   } @else {
     <ul>
-      @for (arco of arcos(); track arco.id) {
+      @for (arco of arcosPersistidos(); track arco.id) {
         <li>
           <strong>{{ arco.origenNombre }} → {{ arco.destinoNombre }}</strong>
           @if (arco.etiqueta) {

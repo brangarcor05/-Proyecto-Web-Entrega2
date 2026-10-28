@@ -51,7 +51,7 @@ describe('ArcoPanelComponent', () => {
     fixture.detectChanges();
 
     expect(procesoConsultado).toBe(9);
-    expect(fixture.componentInstance.arcos()).toEqual([arco]);
+    expect(fixture.componentInstance.arcosPersistidos()).toEqual([arco]);
     expect(fixture.nativeElement.textContent).toContain('Validar solicitud');
     expect(fixture.nativeElement.textContent).toContain('Aprobar solicitud');
   });
@@ -62,7 +62,7 @@ describe('ArcoPanelComponent', () => {
     fixture.componentRef.setInput('procesoId', 9);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('todavía no tiene conexiones');
+    expect(fixture.nativeElement.textContent).toContain('No existen Arcos asociados');
   });
 
   it('conserva un mensaje comprensible cuando la consulta falla', () => {
@@ -72,6 +72,25 @@ describe('ArcoPanelComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.error()).toBe('No fue posible cargar los arcos.');
-    expect(fixture.componentInstance.arcos()).toEqual([]);
+    expect(fixture.componentInstance.arcosPersistidos()).toEqual([]);
+  });
+
+  it('presenta inmediatamente los flujos existentes en el lienzo', () => {
+    const fixture = TestBed.createComponent(ArcoPanelComponent);
+    fixture.componentRef.setInput('procesoId', 9);
+    fixture.componentRef.setInput('arcosDiagrama', [{
+      id: 'Flow_1',
+      origenId: 'Start_1',
+      origenNombre: 'Inicio',
+      destinoId: 'Task_1',
+      destinoNombre: 'Revisar solicitud',
+      etiqueta: 'Continuar',
+      condicion: null,
+    }]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Inicio');
+    expect(fixture.nativeElement.textContent).toContain('Revisar solicitud');
+    expect(fixture.nativeElement.textContent).toContain('Continuar');
   });
 });

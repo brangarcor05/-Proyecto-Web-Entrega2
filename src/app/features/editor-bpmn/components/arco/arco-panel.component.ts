@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, SimpleChanges, inject, signal } from '@ang
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { Arco } from '../../../../models/arco/arco.model';
+import { ArcoDiagrama } from '../../../../models/arco/arco-diagrama.model';
 import { ArcoService } from '../../../../services/arco/arco.service';
 
 @Component({
@@ -14,8 +15,9 @@ export class ArcoPanelComponent implements OnChanges {
   private readonly apiErrorService = inject(ApiErrorService);
 
   @Input({ required: true }) procesoId!: number;
+  @Input() arcosDiagrama: ArcoDiagrama[] = [];
 
-  readonly arcos = signal<Arco[]>([]);
+  readonly arcosPersistidos = signal<Arco[]>([]);
   readonly cargando = signal(false);
   readonly error = signal('');
 
@@ -34,11 +36,11 @@ export class ArcoPanelComponent implements OnChanges {
     this.error.set('');
     this.arcoService.listarPorProceso(this.procesoId).subscribe({
       next: (arcos) => {
-        this.arcos.set(arcos);
+        this.arcosPersistidos.set(arcos);
         this.cargando.set(false);
       },
       error: (error: unknown) => {
-        this.arcos.set([]);
+        this.arcosPersistidos.set([]);
         this.error.set(this.apiErrorService.obtenerMensaje(error));
         this.cargando.set(false);
       },

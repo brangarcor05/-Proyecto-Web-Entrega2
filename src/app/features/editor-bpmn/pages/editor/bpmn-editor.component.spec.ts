@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
@@ -44,6 +45,8 @@ describe('BpmnEditorComponent', () => {
   let errorProceso: unknown | null;
   let navegacion: unknown[] | null;
   let busqueda: { id: number; empresaId: number } | null;
+  let diagramaRespuesta: string;
+  let errorDiagrama: unknown | null;
 
   beforeEach(async () => {
     sesion = sesionAdmin;
@@ -52,6 +55,8 @@ describe('BpmnEditorComponent', () => {
     errorProceso = null;
     navegacion = null;
     busqueda = null;
+    diagramaRespuesta = '<bpmndi:BPMNDiagram />';
+    errorDiagrama = null;
 
     await TestBed.configureTestingModule({
       imports: [BpmnEditorComponent],
@@ -74,6 +79,9 @@ describe('BpmnEditorComponent', () => {
               busqueda = { id, empresaId };
               return errorProceso ? throwError(() => errorProceso) : of(procesoRespuesta);
             },
+            obtenerDiagrama: () => errorDiagrama
+              ? throwError(() => errorDiagrama)
+              : of(diagramaRespuesta),
           },
         },
         { provide: ApiErrorService, useValue: { obtenerMensaje: () => 'No fue posible cargar el proceso.' } },
@@ -83,11 +91,13 @@ describe('BpmnEditorComponent', () => {
       .compileComponents();
   });
 
-  function crearComponente(): BpmnEditorComponent {
+  function crearComponente(simularCargaDiagrama = true): BpmnEditorComponent {
     const fixture = TestBed.createComponent(BpmnEditorComponent);
     const componente = fixture.componentInstance;
     vi.spyOn(componente as any, 'inicializarEditor').mockImplementation(() => undefined);
-    vi.spyOn(componente as any, 'cargarDiagrama').mockImplementation(() => undefined);
+    if (simularCargaDiagrama) {
+      vi.spyOn(componente as any, 'cargarDiagrama').mockImplementation(() => undefined);
+    }
     fixture.detectChanges();
     return componente;
   }
@@ -96,7 +106,6 @@ describe('BpmnEditorComponent', () => {
     const componente = crearComponente();
 
     expect(busqueda).toEqual({ id: 9, empresaId: 4 });
-    expect(componente.proceso).toEqual(proceso);
     expect(componente.puedeEditar).toBe(true);
   });
 
@@ -143,5 +152,138 @@ describe('BpmnEditorComponent', () => {
 
     expect(componente.error).toBe('No fue posible cargar el proceso.');
     expect(componente.cargando).toBe(false);
+  });
+
+  it('traduce los flujos de secuencia del lienzo para el panel de Arcos', () => {
+    const componente = crearComponente();
+    (componente as any).editor = {
+      destroy: () => undefined,
+      get: () => ({
+        getAll: () => [{
+          id: 'Flow_1',
+          type: 'bpmn:SequenceFlow',
+          source: { id: 'Start_1', type: 'bpmn:StartEvent', businessObject: { name: 'Inicio' } },
+          target: { id: 'Task_1', type: 'bpmn:Task', businessObject: { name: 'Revisar' } },
+          businessObject: { name: 'Continuar' },
+        }],
+      }),
+    };
+
+    (componente as any).actualizarArcosDiagrama();
+
+    expect(componente.arcosDiagrama()).toEqual([{
+      id: 'Flow_1',
+      origenId: 'Start_1',
+      origenNombre: 'Inicio',
+      destinoId: 'Task_1',
+      destinoNombre: 'Revisar',
+      etiqueta: 'Continuar',
+      condicion: null,
+    }]);
+  });
+
+  it('reconoce un flujo por el tipo semántico entregado por bpmn-js', () => {
+    const componente = crearComponente();
+    (componente as any).editor = {
+      destroy: () => undefined,
+      get: () => ({
+        getAll: () => [{
+          id: 'Flow_semantico',
+          source: { id: 'Start_1', businessObject: { name: 'Inicio' } },
+          target: { id: 'Task_1', businessObject: { name: 'Revisar' } },
+          businessObject: { $type: 'bpmn:SequenceFlow' },
+        }],
+      }),
+    };
+
+    (componente as any).actualizarArcosDiagrama();
+
+    expect(componente.arcosDiagrama()).toHaveLength(1);
+    expect(componente.arcosDiagrama()[0].id).toBe('Flow_semantico');
+  });
+
+  it('crea un diagrama vacío solamente cuando el backend responde 404', () => {
+    const componente = crearComponente(false);
+    const importarXml = vi.fn().mockResolvedValue(undefined);
+    (componente as any).editor = { importXML: importarXml, destroy: () => undefined };
+    errorDiagrama = new HttpErrorResponse({ status: 404 });
+
+    (componente as any).cargarDiagrama(9, 4);
+
+    expect(importarXml).toHaveBeenCalledOnce();
+    expect(componente.mensaje).toBe('El proceso todavía no tiene un diagrama guardado.');
+    expect(componente.error).toBe('');
+  });
+
+  it('presenta el error y conserva el editor cuando falla la carga con un estado distinto de 404', () => {
+    const componente = crearComponente(false);
+    const importarXml = vi.fn().mockResolvedValue(undefined);
+    (componente as any).editor = { importXML: importarXml, destroy: () => undefined };
+    errorDiagrama = new HttpErrorResponse({ status: 500 });
+
+    (componente as any).cargarDiagrama(9, 4);
+
+    expect(importarXml).not.toHaveBeenCalled();
+    expect(componente.mensaje).toBe('');
+    expect(componente.error).toBe('No fue posible cargar el proceso.');
+  });
+
+  it('deshace y habilita rehacer según el historial real de bpmn-js', () => {
+    const componente = crearComponente();
+    const undo = vi.fn();
+    const historial = {
+      canUndo: () => true,
+      canRedo: () => true,
+      undo,
+      redo: vi.fn(),
+    };
+    (componente as any).editor = {
+      destroy: () => undefined,
+      get: () => historial,
+    };
+
+    componente.deshacer();
+
+    expect(undo).toHaveBeenCalledOnce();
+    expect(componente.puedeDeshacer()).toBe(true);
+    expect(componente.puedeRehacer()).toBe(true);
+  });
+
+  it('rehace una acción solamente cuando existe en el historial', () => {
+    const componente = crearComponente();
+    const redo = vi.fn();
+    let hayAccionRehacible = true;
+    const historial = {
+      canUndo: () => false,
+      canRedo: () => hayAccionRehacible,
+      undo: vi.fn(),
+      redo: () => {
+        redo();
+        hayAccionRehacible = false;
+      },
+    };
+    (componente as any).editor = {
+      destroy: () => undefined,
+      get: () => historial,
+    };
+
+    componente.rehacer();
+    componente.rehacer();
+
+    expect(redo).toHaveBeenCalledOnce();
+    expect(componente.puedeRehacer()).toBe(false);
+  });
+
+  it('elimina la selección utilizando la acción oficial de bpmn-js', () => {
+    const componente = crearComponente();
+    const trigger = vi.fn();
+    (componente as any).editor = {
+      destroy: () => undefined,
+      get: () => ({ trigger }),
+    };
+
+    componente.eliminarSeleccion();
+
+    expect(trigger).toHaveBeenCalledWith('removeSelection');
   });
 });

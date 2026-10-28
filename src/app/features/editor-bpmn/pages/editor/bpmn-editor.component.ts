@@ -1,10 +1,10 @@
-import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import BpmnModeler from 'bpmn-js/lib/Modeler';
 import BpmnViewer from 'bpmn-js/lib/NavigatedViewer';
 import Canvas from 'diagram-js/lib/core/Canvas';
-import CommandStack from 'diagram-js/lib/command/CommandStack';
 import {
   BpmnPropertiesPanelModule,
   BpmnPropertiesProviderModule,
@@ -13,7 +13,7 @@ import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { SesionResponse } from '../../../../models/auth/auth.model';
-import { Proceso } from '../../../../models/proceso/proceso.model';
+import { ArcoDiagrama } from '../../../../models/arco/arco-diagrama.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso/proceso.service';
 import { puedeCrearOEditarProceso } from '../../../procesos/proceso-permisos';
@@ -37,13 +37,20 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
 
   private editor: BpmnModeler | BpmnViewer | null = null;
+  private eventBus: EventBusBpmn | null = null;
+  private readonly alCambiarDiagrama = () => {
+    this.actualizarArcosDiagrama();
+    this.actualizarEstadoHistorial();
+  };
   procesoId: number | null = null;
-  proceso: Proceso | null = null;
   cargando = false;
   guardando = false;
   mensaje = '';
   error = '';
   soloLectura = true;
+  readonly arcosDiagrama = signal<ArcoDiagrama[]>([]);
+  readonly puedeDeshacer = signal(false);
+  readonly puedeRehacer = signal(false);
 
   get puedeEditar(): boolean {
     return !this.soloLectura;
@@ -72,7 +79,6 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
       }))
       .subscribe({
         next: (proceso) => {
-          this.proceso = proceso;
           this.soloLectura = proceso.soloLectura
             || !puedeCrearOEditarProceso(sesion.rolUsuario);
           this.inicializarEditor();
@@ -107,6 +113,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
         BpmnPropertiesProviderModule,
       ],
     });
+    this.suscribirCambiosDiagrama();
   }
 
   private cargarDiagrama(procesoId: number, empresaId: number): void {
@@ -121,20 +128,17 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
           this.mensaje = 'El proceso todavía no tiene un diagrama guardado.';
         }
 
-        this.editor?.importXML(xmlACargar).then(() => {
-          this.ajustarVista();
-          this.cdr.markForCheck();
-        }).catch((error: unknown) => {
-          this.error = this.apiErrorService.obtenerMensaje(error);
-          this.cdr.markForCheck();
-        });
+        this.importarXml(xmlACargar);
       },
-      error: () => {
-        this.mensaje = 'El proceso todavía no tiene un diagrama guardado.';
-        this.editor?.importXML(this.xmlVacio()).then(() => {
-          this.ajustarVista();
-          this.cdr.markForCheck();
-        });
+      error: (error: unknown) => {
+        if (error instanceof HttpErrorResponse && error.status === 404) {
+          this.mensaje = 'El proceso todavía no tiene un diagrama guardado.';
+          this.importarXml(this.xmlVacio());
+          return;
+        }
+
+        this.error = this.apiErrorService.obtenerMensaje(error);
+        this.cdr.markForCheck();
       },
     });
   }
@@ -150,7 +154,12 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
 
     this.editor.saveXML({ format: true }).then(({ xml }: { xml?: string }) => {
-      if (!xml) return;
+      if (!xml) {
+        this.guardando = false;
+        this.error = 'No fue posible generar el XML del diagrama.';
+        this.cdr.markForCheck();
+        return;
+      }
 
       this.procesoService.guardarDiagrama(this.procesoId!, xml, sesion.usuarioId)
         .pipe(finalize(() => {
@@ -175,15 +184,25 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
   }
 
   deshacer(): void {
-    if (!this.puedeEditar || !(this.editor instanceof BpmnModeler)) return;
-    const commandStack = this.editor.get('commandStack') as CommandStack;
+    if (!this.puedeEditar || !this.editor) return;
+    const commandStack = this.editor.get('commandStack') as HistorialComandos;
+    if (!commandStack.canUndo()) return;
     commandStack.undo();
+    this.actualizarEstadoHistorial();
   }
 
   rehacer(): void {
-    if (!this.puedeEditar || !(this.editor instanceof BpmnModeler)) return;
-    const commandStack = this.editor.get('commandStack') as CommandStack;
+    if (!this.puedeEditar || !this.editor) return;
+    const commandStack = this.editor.get('commandStack') as HistorialComandos;
+    if (!commandStack.canRedo()) return;
     commandStack.redo();
+    this.actualizarEstadoHistorial();
+  }
+
+  eliminarSeleccion(): void {
+    if (!this.puedeEditar || !this.editor) return;
+    const editorActions = this.editor.get('editorActions') as AccionesEditorBpmn;
+    editorActions.trigger('removeSelection');
   }
 
   zoomIn(): void {
@@ -201,6 +220,8 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.eventBus?.off('commandStack.changed', this.alCambiarDiagrama);
+    this.eventBus = null;
     this.editor?.destroy();
     this.editor = null;
   }
@@ -209,6 +230,60 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     if (!this.editor) return;
     const canvas = this.editor.get('canvas') as Canvas;
     canvas.zoom('fit-viewport');
+  }
+
+  private importarXml(xml: string): void {
+    this.editor?.importXML(xml).then(() => {
+      this.ajustarVista();
+      this.actualizarArcosDiagrama();
+      this.cdr.markForCheck();
+    }).catch((error: unknown) => {
+      this.error = this.apiErrorService.obtenerMensaje(error);
+      this.cdr.markForCheck();
+    });
+  }
+
+  private suscribirCambiosDiagrama(): void {
+    if (!(this.editor instanceof BpmnModeler)) return;
+    this.eventBus = this.editor.get('eventBus') as EventBusBpmn;
+    this.eventBus.on('commandStack.changed', this.alCambiarDiagrama);
+    this.actualizarEstadoHistorial();
+  }
+
+  private actualizarEstadoHistorial(): void {
+    if (!this.editor || !this.puedeEditar) {
+      this.puedeDeshacer.set(false);
+      this.puedeRehacer.set(false);
+      return;
+    }
+
+    const commandStack = this.editor.get('commandStack') as HistorialComandos;
+    this.puedeDeshacer.set(commandStack.canUndo());
+    this.puedeRehacer.set(commandStack.canRedo());
+    this.cdr.markForCheck();
+  }
+
+  private actualizarArcosDiagrama(): void {
+    if (!this.editor) return;
+    const registro = this.editor.get('elementRegistry') as ElementRegistryBpmn;
+    const arcos = registro.getAll()
+      .filter((elemento) => elemento.type === 'bpmn:SequenceFlow'
+        || elemento.businessObject?.$type === 'bpmn:SequenceFlow')
+      .map((elemento): ArcoDiagrama => ({
+        id: elemento.id,
+        origenId: elemento.source?.id ?? '',
+        origenNombre: this.obtenerNombreElemento(elemento.source),
+        destinoId: elemento.target?.id ?? '',
+        destinoNombre: this.obtenerNombreElemento(elemento.target),
+        etiqueta: elemento.businessObject?.name ?? null,
+        condicion: elemento.businessObject?.conditionExpression?.body ?? null,
+      }));
+    this.arcosDiagrama.set(arcos);
+    this.cdr.markForCheck();
+  }
+
+  private obtenerNombreElemento(elemento?: ElementoBpmn): string {
+    return elemento?.businessObject?.name || elemento?.id || 'Elemento sin nombre';
   }
 
   private obtenerSesion(): SesionResponse | null {
@@ -237,4 +312,36 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>`;
   }
+}
+
+interface EventBusBpmn {
+  on(evento: string, callback: (evento: never) => void): void;
+  off(evento: string, callback: (evento: never) => void): void;
+}
+
+interface AccionesEditorBpmn {
+  trigger(accion: 'removeSelection'): void;
+}
+
+interface HistorialComandos {
+  canUndo(): boolean;
+  canRedo(): boolean;
+  undo(): void;
+  redo(): void;
+}
+
+interface ElementRegistryBpmn {
+  getAll(): ElementoBpmn[];
+}
+
+interface ElementoBpmn {
+  id: string;
+  type: string;
+  source?: ElementoBpmn;
+  target?: ElementoBpmn;
+  businessObject?: {
+    $type?: string;
+    name?: string;
+    conditionExpression?: { body?: string };
+  };
 }

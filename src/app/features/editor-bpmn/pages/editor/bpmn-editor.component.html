@@ -1,16 +1,23 @@
 <div class="editor-container">
   <div class="toolbar">
     @if (puedeEditar) {
-      <button class="btn" (click)="guardar()" [disabled]="guardando || cargando">
+      <button type="button" class="btn" (click)="guardar()" [disabled]="guardando || cargando">
         {{ guardando ? 'Guardando...' : 'Guardar' }}
       </button>
-      <button class="btn" (click)="deshacer()">Deshacer</button>
-      <button class="btn" (click)="rehacer()">Rehacer</button>
+      <button type="button" class="btn" (click)="deshacer()" [disabled]="!puedeDeshacer()">
+        Deshacer
+      </button>
+      <button type="button" class="btn" (click)="rehacer()" [disabled]="!puedeRehacer()">
+        Rehacer
+      </button>
+      <button type="button" class="btn" (click)="eliminarSeleccion()">
+        Eliminar
+      </button>
     } @else {
       <span class="solo-lectura">Modo de solo lectura</span>
     }
-    <button class="btn" (click)="zoomIn()">+</button>
-    <button class="btn" (click)="zoomOut()">-</button>
+    <button type="button" class="btn" (click)="zoomIn()">+</button>
+    <button type="button" class="btn" (click)="zoomOut()">-</button>
     <a class="btn" [routerLink]="['/procesos', procesoId]">Volver</a>
     <span class="mensaje" *ngIf="mensaje">{{ mensaje }}</span>
   </div>
@@ -28,7 +35,7 @@
     <aside class="inspector">
       <div #propertiesContainer class="properties-panel" [class.properties-panel--oculto]="soloLectura"></div>
       @if (procesoId) {
-        <app-arco-panel [procesoId]="procesoId" />
+        <app-arco-panel [procesoId]="procesoId" [arcosDiagrama]="arcosDiagrama()" />
       }
     </aside>
   </div>

@@ -47,12 +47,13 @@ export const routes: Routes = [
       import('./features/eventos/components/evento-form/evento-form.component').then(
         (m) => m.EventoFormComponent,
       ),
-  },{
+  },
+  {
     path: 'procesos/:procesoId/editor',
     loadComponent: () =>
-    import('./features/editor-bpmn/pages/editor/bpmn-editor.component').then(
-      (m) => m.BpmnEditorComponent,
-    ),
+      import('./features/editor-bpmn/pages/editor/bpmn-editor.component').then(
+        (m) => m.BpmnEditorComponent,
+      ),
   },
   {
     path: 'procesos/:procesoId/eventos/:id/editar',

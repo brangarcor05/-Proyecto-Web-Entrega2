@@ -16,6 +16,11 @@ h2,
   margin: 0;
 }
 
+h3 {
+  margin: 1rem 0 .5rem;
+  font-size: .9rem;
+}
+
 .etiqueta {
   color: #4f46e5;
   font-size: .75rem;
