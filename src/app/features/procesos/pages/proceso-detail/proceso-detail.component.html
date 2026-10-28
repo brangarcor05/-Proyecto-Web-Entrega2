@@ -46,6 +46,7 @@
       <a class="boton boton--secundario" [routerLink]="['/procesos', proceso.id, 'actividades']">Actividades</a>
       <a class="boton boton--secundario" [routerLink]="['/procesos', proceso.id, 'gateways']">Gateways</a>
       <a class="boton boton--secundario" [routerLink]="['/procesos', proceso.id, 'mensajes-envio']">Mensajes de Envío</a>
+      <a class="boton boton--secundario" [routerLink]="['/procesos', proceso.id, 'mensajes-recepcion']">Mensajes de Recepción</a>
       @if (!actual.soloLectura) {
       <a [routerLink]="['/procesos', actual.id, 'historial']">Historial</a>
       @if (puedeEditar) {

@@ -167,5 +167,17 @@ export const routes: Routes = [
     path: 'procesos/:procesoId/mensajes-envio',
     loadComponent: () => import('./features/editor-bpmn/components/mensajeEnvio/mensajeEnvioList.component').then(m => m.MensajeEnvioListComponent)
   },
+  {
+    path: 'procesos/:procesoId/mensajes-recepcion/nuevo',
+    loadComponent: () => import('./features/editor-bpmn/components/mensajeRecepcion/mensajeRecepcionForm.component').then(m => m.MensajeRecepcionFormComponent)
+  },
+  {
+    path: 'procesos/:procesoId/mensajes-recepcion/:id/editar',
+    loadComponent: () => import('./features/editor-bpmn/components/mensajeRecepcion/mensajeRecepcionForm.component').then(m => m.MensajeRecepcionFormComponent)
+  },
+  {
+    path: 'procesos/:procesoId/mensajes-recepcion',
+    loadComponent: () => import('./features/editor-bpmn/components/mensajeRecepcion/mensajeRecepcionList.component').then(m => m.MensajeRecepcionListComponent)
+  },
   { path: '**', component: NotFoundComponent }
 ];

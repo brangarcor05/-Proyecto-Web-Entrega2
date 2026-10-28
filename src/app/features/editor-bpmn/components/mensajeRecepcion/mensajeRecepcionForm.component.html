@@ -1,0 +1,65 @@
+<div class="form-container">
+    <h2>{{ isEditMode ? 'Editar Mensaje de Recepción' : 'Nuevo Mensaje de Recepción' }}</h2>
+
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
+        <label>
+            Nombre del Mensaje (*):
+            <input type="text" formControlName="nombreMensaje" placeholder="Ej. Recibir Confirmación" />
+        </label>
+        @if (formulario.get('nombreMensaje')?.invalid && formulario.get('nombreMensaje')?.touched) {
+        <span class="error">El nombre es obligatorio y debe tener al menos 3 caracteres.</span>
+        }
+
+        <label>
+            Variante (*):
+            <select formControlName="variante">
+                @for (v of variantes; track v) {
+                <option [value]="v">{{ v }}</option>
+                }
+            </select>
+        </label>
+
+        <label>
+            Pool:
+            <select formControlName="poolId">
+                <option [ngValue]="null">-- Selecciona un Pool --</option>
+                @for (pool of pools(); track pool.id) {
+                <option [value]="pool.id">{{ pool.nombre }}</option>
+                }
+            </select>
+        </label>
+
+        <label>
+            Lane (*):
+            <select formControlName="laneId">
+                <option [ngValue]="null">-- Selecciona un Lane --</option>
+                @for (lane of lanes(); track lane.id) {
+                <option [value]="lane.id">{{ lane.rolProcesoNombre }}</option>
+                }
+            </select>
+        </label>
+        @if (formulario.get('laneId')?.invalid && formulario.get('laneId')?.touched) {
+        <span class="error">Debes seleccionar un Lane.</span>
+        }
+
+        <label>
+            Datos Esperados:
+            <input type="text" formControlName="datosEsperados" placeholder="Ej. JSON con token" />
+        </label>
+
+        <label>
+            Clave de Correlación:
+            <input type="text" formControlName="claveCorrelacion" placeholder="Ej. pedido-id" />
+        </label>
+
+        <label class="checkbox-label">
+            <input type="checkbox" formControlName="origenExterno" />
+            ¿Es de Origen Externo?
+        </label>
+
+        <div class="acciones">
+            <button type="submit" [disabled]="formulario.invalid">Guardar</button>
+            <button type="button" (click)="volverAlListado()">Cancelar</button>
+        </div>
+    </form>
+</div>
