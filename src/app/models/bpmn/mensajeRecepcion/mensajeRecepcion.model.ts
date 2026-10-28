@@ -13,6 +13,7 @@ export interface MensajeRecepcion {
     posicionX?: number;
     posicionY?: number;
     activo: boolean;
+    canvasId?: string | null;
 }
 
 export type NewMensajeRecepcion = Omit<MensajeRecepcion, 'id' | 'activo' | 'poolId'>;

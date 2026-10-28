@@ -9,4 +9,5 @@ export interface Evento {
   posicionX: number | null;
   posicionY: number | null;
   activo: boolean;
+  canvasId?: string | null;
 }

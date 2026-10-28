@@ -69,12 +69,17 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'procesos/:procesoId/eventos',
-    loadComponent: () =>
-      import('./features/eventos/pages/evento-list/evento-list.component').then(
-        (m) => m.EventoListComponent,
-      ),
-  },
+  path: 'procesos/:procesoId/eventos',
+  loadComponent: () => import('./features/eventos/pages/evento-list/evento-list.component').then(m => m.EventoListComponent),
+},
+{
+  path: 'procesos/:procesoId/eventos/nuevo',
+  loadComponent: () => import('./features/eventos/components/evento-form/evento-form.component').then(m => m.EventoFormComponent),
+},
+{
+  path: 'procesos/:procesoId/eventos/:id/editar',
+  loadComponent: () => import('./features/eventos/components/evento-form/evento-form.component').then(m => m.EventoFormComponent),
+},
   {
     path: 'procesos/:procesoId/notificaciones/nuevo',
     loadComponent: () =>

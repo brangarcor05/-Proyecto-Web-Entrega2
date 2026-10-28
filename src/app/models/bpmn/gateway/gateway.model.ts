@@ -10,6 +10,7 @@ export interface Gateway {
     posicionX?: number;
     posicionY?: number;
     activo: boolean;
+    canvasId?: string | null;
 }
 
 export type NewGateway = Omit<Gateway, 'id' | 'activo'>;

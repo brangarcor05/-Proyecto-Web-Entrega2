@@ -7,6 +7,7 @@ export interface Actividad {
     posicionX?: number;
     posicionY?: number;
     activo: boolean;
+    canvasId?: string | null;
 }
 
 export type NewActividad = Omit<Actividad, 'id' | 'activo'>;

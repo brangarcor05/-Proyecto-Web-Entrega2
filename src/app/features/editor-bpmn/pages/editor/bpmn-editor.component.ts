@@ -14,6 +14,8 @@ import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { SesionResponse } from '../../../../models/auth/auth.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso/proceso.service';
+import { EventoService } from '../../../../services/evento/evento.service';
+import { PoolService } from '../../../../services/pool/pool.service';
 
 @Component({
   selector: 'app-bpmn-editor',
@@ -31,6 +33,8 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly eventoService = inject(EventoService);
+  private readonly poolService = inject(PoolService);
 
   private modeler!: BpmnModeler;
   procesoId: number | null = null;
@@ -90,28 +94,27 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     });
   }
 
-  guardar(): void {
+    guardar(): void {
     const sesion = this.obtenerSesion();
     if (!sesion || !this.procesoId) return;
 
     this.guardando = true;
-    this.mensaje = '';
+    this.mensaje = 'Guardando diagrama...';
     this.cdr.markForCheck();
 
     this.modeler.saveXML({ format: true }).then(({ xml }) => {
       if (!xml) return;
 
+      // 1. Guardamos el XML en el backend
       this.procesoService.guardarDiagrama(this.procesoId!, xml, sesion.usuarioId)
-        .pipe(finalize(() => {
-          this.guardando = false;
-          this.cdr.markForCheck();
-        }))
         .subscribe({
           next: () => {
-            this.mensaje = 'Diagrama guardado correctamente.';
-            this.cdr.markForCheck();
+            // 2. Sincronizamos los eventos del canvas con la base de datos
+            this.sincronizarEventos(sesion);
           },
           error: (err) => {
+            this.guardando = false;
+            this.mensaje = '';
             this.apiErrorService.obtenerMensaje(err);
             this.cdr.markForCheck();
           },
@@ -149,6 +152,86 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     const sesion = this.autenticacionService.sesion();
     if (!sesion) this.router.navigate(['/login']);
     return sesion;
+  }
+    private sincronizarEventos(sesion: SesionResponse): void {
+    const elementRegistry = this.modeler.get('elementRegistry') as any;
+    const elementos = elementRegistry.getAll();
+    
+    // Filtramos solo los eventos de BPMN
+    const eventosCanvas = elementos.filter((el: any) => 
+      el.type === 'bpmn:StartEvent' || el.type === 'bpmn:EndEvent'
+    );
+
+    if (eventosCanvas.length === 0) {
+      this.finalizarGuardado();
+      return;
+    }
+
+    // Obtenemos los pools del proceso para asignar el pool propietario
+    this.poolService.listarPorProceso(this.procesoId!).subscribe({
+      next: (pools) => {
+        const poolPropietario = pools.find(p => p.esPropietario);
+        if (!poolPropietario) {
+          this.finalizarGuardado();
+          return;
+        }
+
+        let pendientes = eventosCanvas.length;
+
+        eventosCanvas.forEach((eventoCanvas: any) => {
+          const canvasId = eventoCanvas.id;
+          const nombre = eventoCanvas.businessObject.name || 
+            (eventoCanvas.type === 'bpmn:StartEvent' ? 'Inicio' : 'Fin');
+          const tipo = eventoCanvas.type === 'bpmn:StartEvent' ? 'INICIO' : 'FIN';
+
+          // Verificamos si ya existe en la BD
+          this.eventoService.listarPorProceso(this.procesoId!).subscribe({
+            next: (eventosBD) => {
+              const existe = eventosBD.find(e => e.canvasId === canvasId);
+              
+              if (!existe) {
+                const request = {
+                  procesoId: this.procesoId!,
+                  poolId: poolPropietario.id,
+                  nombre: nombre,
+                  tipo: tipo as 'INICIO' | 'FIN',
+                  canvasId: canvasId,
+                };
+                this.eventoService.crear(request, sesion.usuarioId).subscribe({
+                  next: () => {
+                    pendientes--;
+                    if (pendientes === 0) this.finalizarGuardado();
+                  },
+                  error: (err) => {
+                    console.error('Error al crear evento', err);
+                    pendientes--;
+                    if (pendientes === 0) this.finalizarGuardado();
+                  }
+                });
+              } else {
+                pendientes--;
+                if (pendientes === 0) this.finalizarGuardado();
+              }
+            },
+            error: () => {
+              pendientes--;
+              if (pendientes === 0) this.finalizarGuardado();
+            }
+          });
+        });
+      },
+      error: (err) => {
+        this.guardando = false;
+        this.apiErrorService.obtenerMensaje(err);
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  private finalizarGuardado(): void {
+    this.guardando = false;
+    this.mensaje = 'Diagrama y eventos guardados correctamente.';
+    this.cdr.markForCheck();
   }
 
   private xmlVacio(): string {

@@ -11,4 +11,5 @@ export interface ActualizarNotificacionExternaRequest {
   campos?: CampoDato[] | null;
   posicionX?: number | null;
   posicionY?: number | null;
+  canvasId?: string | null;
 }
