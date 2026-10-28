@@ -294,8 +294,14 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     if (!sesion) this.router.navigate(['/login']);
     return sesion;
   }
-    private sincronizarEventos(sesion: SesionResponse): void {
-    const elementRegistry = this.modeler.get('elementRegistry') as any;
+      private sincronizarEventos(sesion: SesionResponse): void {
+    if (!this.editor) {
+      this.finalizarGuardado();
+      return;
+    }
+
+    // 1. Obtenemos el registro de elementos con el tipo correcto
+    const elementRegistry = this.editor.get('elementRegistry') as ElementRegistryBpmn;
     const elementos = elementRegistry.getAll();
     
     // 2. Filtramos solo los eventos (StartEvent y EndEvent)
@@ -308,7 +314,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Obtenemos los pools del proceso para asignar el pool propietario
+    // 3. Obtenemos los pools del proceso
     this.poolService.listarPorProceso(this.procesoId!).subscribe({
       next: (pools) => {
         const poolPropietario = pools.find(p => p.esPropietario);
@@ -319,13 +325,14 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
 
         let pendientes = eventosCanvas.length;
 
-        eventosCanvas.forEach((eventoCanvas: any) => {
+        eventosCanvas.forEach((eventoCanvas: ElementoBpmn) => {
           const canvasId = eventoCanvas.id;
-          const nombre = eventoCanvas.businessObject.name || 
+          
+          const nombre = eventoCanvas.businessObject?.name || 
             (eventoCanvas.type === 'bpmn:StartEvent' ? 'Inicio' : 'Fin');
           const tipo = eventoCanvas.type === 'bpmn:StartEvent' ? 'INICIO' : 'FIN';
 
-          // Verificamos si ya existe en la BD
+          
           this.eventoService.listarPorProceso(this.procesoId!).subscribe({
             next: (eventosBD) => {
               const existe = eventosBD.find(e => e.canvasId === canvasId);
@@ -343,7 +350,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
                     pendientes--;
                     if (pendientes === 0) this.finalizarGuardado();
                   },
-                  error: (err) => {
+                  error: (err: unknown) => {
                     console.error('Error al crear evento', err);
                     pendientes--;
                     if (pendientes === 0) this.finalizarGuardado();
@@ -354,14 +361,15 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
                 if (pendientes === 0) this.finalizarGuardado();
               }
             },
-            error: () => {
+            error: (err: unknown) => {
+              console.error('Error al listar eventos', err);
               pendientes--;
               if (pendientes === 0) this.finalizarGuardado();
             }
           });
         });
       },
-      error: (err) => {
+      error: (err: unknown) => {
         this.guardando = false;
         this.apiErrorService.obtenerMensaje(err);
         this.cdr.markForCheck();
