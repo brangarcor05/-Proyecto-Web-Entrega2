@@ -1,0 +1,84 @@
+.pagina {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.pagina__encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.pagina__sobrelinea {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.25rem;
+}
+
+.campo--buscar {
+  max-width: 320px;
+}
+
+.tabla-roles {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.tabla-roles th,
+.tabla-roles td {
+  text-align: left;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.tabla-roles th {
+  background: var(--bg-soft);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+}
+
+.tabla-roles tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tabla-roles__acciones {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.etiqueta {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.etiqueta--suave {
+  background: var(--bg-soft);
+  color: var(--text-dim);
+}
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+}

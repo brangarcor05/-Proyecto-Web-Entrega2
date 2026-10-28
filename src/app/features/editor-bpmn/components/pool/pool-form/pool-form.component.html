@@ -45,5 +45,13 @@
         <a class="btn btn--secundario" [routerLink]="['/procesos', procesoId, 'pools']">Cancelar</a>
       </div>
     </form>
+
+    @if (poolId !== null && formulario.controls.cajaNegra.value) {
+      <p class="mensaje">Un pool caja negra no puede tener lanes.</p>
+    }
+
+    @if (muestraLanes) {
+      <app-lane-list [poolId]="poolId!" />
+    }
   }
 </main>
