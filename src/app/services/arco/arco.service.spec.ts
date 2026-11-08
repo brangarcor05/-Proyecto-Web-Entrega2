@@ -7,6 +7,7 @@ import { ActualizarArcoRequest } from '../../models/arco/actualizar-arco-request
 import { ArcoEliminado } from '../../models/arco/arco-eliminado.model';
 import { Arco } from '../../models/arco/arco.model';
 import { CrearArcoRequest } from '../../models/arco/crear-arco-request.model';
+import { SincronizarArcoRequest } from '../../models/arco/sincronizar-arco-request.model';
 import { ArcoService } from './arco.service';
 
 describe('ArcoService', () => {
@@ -20,6 +21,7 @@ describe('ArcoService', () => {
     destinoNombre: 'Aprobar solicitud',
     etiqueta: 'Aprobada',
     condicion: null,
+    canvasId: 'Flow_1',
     activo: true,
   };
 
@@ -93,6 +95,23 @@ describe('ArcoService', () => {
     const request = httpTesting.expectOne(`${apiUrl}/7?usuarioId=4`);
     expect(request.request.method).toBe('DELETE');
     request.flush(respuesta);
+  });
+
+  it('sincroniza los flujos visuales de un proceso', () => {
+    const body: SincronizarArcoRequest[] = [{
+      canvasId: 'Flow_1',
+      origenCanvasId: 'StartEvent_1',
+      destinoCanvasId: 'Activity_1',
+      etiqueta: 'Continuar',
+      condicion: null,
+    }];
+
+    service.sincronizar(3, body, 4).subscribe((resultado) => expect(resultado).toEqual([arco]));
+
+    const request = httpTesting.expectOne(`${apiUrl}/sincronizar?procesoId=3&usuarioId=4`);
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual(body);
+    request.flush([arco]);
   });
 
   it('propaga las validaciones de negocio del backend', () => {

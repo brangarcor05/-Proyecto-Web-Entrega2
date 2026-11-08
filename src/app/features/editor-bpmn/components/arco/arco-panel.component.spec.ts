@@ -16,6 +16,7 @@ describe('ArcoPanelComponent', () => {
     destinoNombre: 'Aprobar solicitud',
     etiqueta: 'Aprobada',
     condicion: null,
+    canvasId: 'Flow_1',
     activo: true,
   };
 

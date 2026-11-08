@@ -14,6 +14,12 @@ import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { SesionResponse } from '../../../../models/auth/auth.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
+import { ArcoService } from '../../../../services/arco/arco.service';
+import { ActividadService } from '../../../../services/actividad/actividad.service';
+import { EventoService } from '../../../../services/evento/evento.service';
+import { GatewayService } from '../../../../services/gateway/gateway.service';
+import { LaneService } from '../../../../services/lane/lane.service';
+import { PoolService } from '../../../../services/pool/pool.service';
 import { ProcesoService } from '../../../../services/proceso/proceso.service';
 import { BpmnEditorComponent } from './bpmn-editor.component';
 
@@ -28,6 +34,9 @@ interface BpmnEditorComponentePrueba {
   inicializarEditor(): void;
   cargarDiagrama(procesoId: number, empresaId: number): void;
   actualizarArcosDiagrama(): void;
+  sincronizarGateways(sesion: SesionResponse): void;
+  sincronizarActividades(sesion: SesionResponse): void;
+  sincronizarArcos(sesion: SesionResponse): void;
 }
 
 function accederMetodosPrivados(
@@ -66,6 +75,15 @@ describe('BpmnEditorComponent', () => {
   let busqueda: { id: number; empresaId: number } | null;
   let diagramaRespuesta: string;
   let errorDiagrama: unknown | null;
+  let arcosSincronizados: unknown[] | null;
+  let sincronizacion: { procesoId: number; usuarioId: number } | null;
+  let errorSincronizacion: unknown | null;
+  let poolsRespuesta: Array<{ id: number; esPropietario: boolean }>;
+  let lanesRespuesta: Array<{ id: number; activo: boolean }>;
+  let gatewaysRespuesta: Array<{ id: number; canvasId: string | null }>;
+  let actividadesRespuesta: Array<{ id: number; canvasId: string | null }>;
+  let gatewayCreado: unknown | null;
+  let actividadCreada: unknown | null;
 
   beforeEach(async () => {
     sesion = sesionAdmin;
@@ -76,6 +94,15 @@ describe('BpmnEditorComponent', () => {
     busqueda = null;
     diagramaRespuesta = '<bpmndi:BPMNDiagram />';
     errorDiagrama = null;
+    arcosSincronizados = null;
+    sincronizacion = null;
+    errorSincronizacion = null;
+    poolsRespuesta = [];
+    lanesRespuesta = [];
+    gatewaysRespuesta = [];
+    actividadesRespuesta = [];
+    gatewayCreado = null;
+    actividadCreada = null;
 
     await TestBed.configureTestingModule({
       imports: [BpmnEditorComponent],
@@ -102,6 +129,52 @@ describe('BpmnEditorComponent', () => {
               ? throwError(() => errorDiagrama)
               : of(diagramaRespuesta),
           },
+        },
+        {
+          provide: ArcoService,
+          useValue: {
+            sincronizar: (procesoId: number, arcos: unknown[], usuarioId: number) => {
+              sincronizacion = { procesoId, usuarioId };
+              arcosSincronizados = arcos;
+              return errorSincronizacion
+                ? throwError(() => errorSincronizacion)
+                : of([]);
+            },
+          },
+        },
+        {
+          provide: EventoService,
+          useValue: { listarPorProceso: () => of([]), crear: () => of({}) },
+        },
+        {
+          provide: PoolService,
+          useValue: { listarPorProceso: () => of(poolsRespuesta) },
+        },
+        {
+          provide: GatewayService,
+          useValue: {
+            listarPorProceso: () => of(gatewaysRespuesta),
+            crear: (request: unknown) => {
+              gatewayCreado = request;
+              return of({});
+            },
+            actualizar: () => of({}),
+          },
+        },
+        {
+          provide: ActividadService,
+          useValue: {
+            listarPorProceso: () => of(actividadesRespuesta),
+            crear: (request: unknown) => {
+              actividadCreada = request;
+              return of({});
+            },
+            actualizar: () => of({}),
+          },
+        },
+        {
+          provide: LaneService,
+          useValue: { listarPorPool: () => of(lanesRespuesta) },
         },
         { provide: ApiErrorService, useValue: { obtenerMensaje: () => 'No fue posible cargar el proceso.' } },
       ],
@@ -312,5 +385,109 @@ describe('BpmnEditorComponent', () => {
     componente.eliminarSeleccion();
 
     expect(trigger).toHaveBeenCalledWith('removeSelection');
+  });
+
+  it('sincroniza un gateway nuevo antes de enviar los arcos', () => {
+    poolsRespuesta = [{ id: 12, esPropietario: true }];
+    const componente = crearComponente();
+    const componentePrueba = accederMetodosPrivados(componente);
+    componente.procesoId = 9;
+    componentePrueba.editor = {
+      destroy: () => undefined,
+      get: () => ({
+        getAll: () => [{
+          id: 'Gateway_1',
+          type: 'bpmn:ExclusiveGateway',
+          x: 250,
+          y: 180,
+          businessObject: { name: '¿Aprobado?' },
+        }],
+      }),
+    };
+
+    componentePrueba.sincronizarGateways(sesionAdmin);
+
+    expect(gatewayCreado).toEqual({
+      procesoId: 9,
+      poolId: 12,
+      nombre: '¿Aprobado?',
+      tipo: 'EXCLUSIVO',
+      posicionX: 250,
+      posicionY: 180,
+      canvasId: 'Gateway_1',
+    });
+    expect(sincronizacion).toEqual({ procesoId: 9, usuarioId: 1 });
+  });
+
+  it('sincroniza una actividad nueva usando una lane activa antes de los arcos', () => {
+    poolsRespuesta = [{ id: 12, esPropietario: true }];
+    lanesRespuesta = [{ id: 21, activo: true }];
+    const componente = crearComponente();
+    const componentePrueba = accederMetodosPrivados(componente);
+    componente.procesoId = 9;
+    componentePrueba.editor = {
+      destroy: () => undefined,
+      get: () => ({
+        getAll: () => [{
+          id: 'Activity_1',
+          type: 'bpmn:UserTask',
+          x: 320,
+          y: 190,
+          businessObject: { name: 'Revisar solicitud' },
+        }],
+      }),
+    };
+
+    componentePrueba.sincronizarActividades(sesionAdmin);
+
+    expect(actividadCreada).toEqual({
+      procesoId: 9,
+      poolId: 12,
+      laneId: 21,
+      nombre: 'Revisar solicitud',
+      tipo: 'USER',
+      posicionX: 320,
+      posicionY: 190,
+      canvasId: 'Activity_1',
+    });
+    expect(sincronizacion).toEqual({ procesoId: 9, usuarioId: 1 });
+  });
+
+  it('envía los SequenceFlow al backend usando sus canvasId', () => {
+    const componente = crearComponente();
+    componente.procesoId = 9;
+    componente.arcosDiagrama.set([{
+      id: 'Flow_1',
+      origenId: 'StartEvent_1',
+      origenNombre: 'Inicio',
+      destinoId: 'Activity_1',
+      destinoNombre: 'Revisar',
+      etiqueta: 'Continuar',
+      condicion: null,
+    }]);
+
+    accederMetodosPrivados(componente).sincronizarArcos(sesionAdmin);
+
+    expect(sincronizacion).toEqual({ procesoId: 9, usuarioId: 1 });
+    expect(arcosSincronizados).toEqual([{
+      canvasId: 'Flow_1',
+      origenCanvasId: 'StartEvent_1',
+      destinoCanvasId: 'Activity_1',
+      etiqueta: 'Continuar',
+      condicion: null,
+    }]);
+    expect(componente.mensaje).toBe('Diagrama, eventos y arcos guardados correctamente.');
+  });
+
+  it('muestra el error del backend cuando un nodo visual todavía no está sincronizado', () => {
+    errorSincronizacion = new Error('nodo faltante');
+    const componente = crearComponente();
+    componente.procesoId = 9;
+
+    accederMetodosPrivados(componente).sincronizarArcos(sesionAdmin);
+
+    expect(componente.error).toBe('No fue posible cargar el proceso.');
+    expect(componente.mensaje).toBe('');
+    expect(componente.guardando).toBe(false);
   });
 });

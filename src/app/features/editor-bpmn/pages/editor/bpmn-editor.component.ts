@@ -14,7 +14,12 @@ import { finalize } from 'rxjs';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { SesionResponse } from '../../../../models/auth/auth.model';
 import { ArcoDiagrama } from '../../../../models/arco/arco-diagrama.model';
+import { SincronizarArcoRequest } from '../../../../models/arco/sincronizar-arco-request.model';
+import { ArcoService } from '../../../../services/arco/arco.service';
+import { ActividadService } from '../../../../services/actividad/actividad.service';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
+import { GatewayService } from '../../../../services/gateway/gateway.service';
+import { LaneService } from '../../../../services/lane/lane.service';
 import { ProcesoService } from '../../../../services/proceso/proceso.service';
 import { EventoService } from '../../../../services/evento/evento.service';
 import { PoolService } from '../../../../services/pool/pool.service';
@@ -30,6 +35,7 @@ import { ArcoPanelComponent } from '../../components/arco/arco-panel.component';
 export class BpmnEditorComponent implements OnInit, OnDestroy {
   @ViewChild('canvasContainer', { static: true }) canvasContainer!: ElementRef;
   @ViewChild('propertiesContainer', { static: true }) propertiesContainer!: ElementRef;
+  @ViewChild(ArcoPanelComponent) arcoPanel?: ArcoPanelComponent;
 
   private readonly procesoService = inject(ProcesoService);
   private readonly autenticacionService = inject(AutenticacionService);
@@ -37,8 +43,12 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
-   private readonly eventoService = inject(EventoService);
-    private readonly poolService = inject(PoolService);
+  private readonly eventoService = inject(EventoService);
+  private readonly poolService = inject(PoolService);
+  private readonly arcoService = inject(ArcoService);
+  private readonly gatewayService = inject(GatewayService);
+  private readonly actividadService = inject(ActividadService);
+  private readonly laneService = inject(LaneService);
 
   private editor: BpmnModeler | BpmnViewer | null = null;
   private eventBus: EventBusBpmn | null = null;
@@ -294,9 +304,9 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     if (!sesion) this.router.navigate(['/login']);
     return sesion;
   }
-      private sincronizarEventos(sesion: SesionResponse): void {
+  private sincronizarEventos(sesion: SesionResponse): void {
     if (!this.editor) {
-      this.finalizarGuardado();
+      this.sincronizarGateways(sesion);
       return;
     }
 
@@ -310,7 +320,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     );
 
     if (eventosCanvas.length === 0) {
-      this.finalizarGuardado();
+      this.sincronizarGateways(sesion);
       return;
     }
 
@@ -319,7 +329,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
       next: (pools) => {
         const poolPropietario = pools.find(p => p.esPropietario);
         if (!poolPropietario) {
-          this.finalizarGuardado();
+          this.finalizarConError('El proceso no tiene un pool propietario para sincronizar sus nodos.');
           return;
         }
 
@@ -348,38 +358,211 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
                 this.eventoService.crear(request, sesion.usuarioId).subscribe({
                   next: () => {
                     pendientes--;
-                    if (pendientes === 0) this.finalizarGuardado();
+                    if (pendientes === 0) this.sincronizarGateways(sesion);
                   },
                   error: (err: unknown) => {
-                    console.error('Error al crear evento', err);
-                    pendientes--;
-                    if (pendientes === 0) this.finalizarGuardado();
+                    this.finalizarConError(this.apiErrorService.obtenerMensaje(err));
                   }
                 });
               } else {
                 pendientes--;
-                if (pendientes === 0) this.finalizarGuardado();
+                if (pendientes === 0) this.sincronizarGateways(sesion);
               }
             },
             error: (err: unknown) => {
-              console.error('Error al listar eventos', err);
-              pendientes--;
-              if (pendientes === 0) this.finalizarGuardado();
+              this.finalizarConError(this.apiErrorService.obtenerMensaje(err));
             }
           });
         });
       },
       error: (err: unknown) => {
-        this.guardando = false;
-        this.apiErrorService.obtenerMensaje(err);
-        this.cdr.markForCheck();
+        this.finalizarConError(this.apiErrorService.obtenerMensaje(err));
       }
+    });
+  }
+
+  private sincronizarGateways(sesion: SesionResponse): void {
+    if (!this.editor || !this.procesoId) {
+      this.finalizarConError('No fue posible identificar el proceso del diagrama.');
+      return;
+    }
+
+    const registro = this.editor.get('elementRegistry') as ElementRegistryBpmn;
+    const gatewaysCanvas = registro.getAll().filter((elemento) =>
+      ['bpmn:ExclusiveGateway', 'bpmn:ParallelGateway', 'bpmn:InclusiveGateway']
+        .includes(elemento.type),
+    );
+
+    if (gatewaysCanvas.length === 0) {
+      this.sincronizarActividades(sesion);
+      return;
+    }
+
+    this.poolService.listarPorProceso(this.procesoId).subscribe({
+      next: (pools) => {
+        const pool = pools.find((actual) => actual.esPropietario);
+        if (!pool) {
+          this.finalizarConError('El proceso no tiene un pool propietario para sincronizar sus gateways.');
+          return;
+        }
+
+        this.gatewayService.listarPorProceso(this.procesoId!).subscribe({
+          next: (guardados) => {
+            let pendientes = gatewaysCanvas.length;
+            gatewaysCanvas.forEach((elemento) => {
+              const existente = guardados.find((gateway) => gateway.canvasId === elemento.id);
+              const request = {
+                procesoId: this.procesoId!,
+                poolId: pool.id,
+                nombre: this.obtenerNombreElemento(elemento),
+                tipo: this.obtenerTipoGateway(elemento.type),
+                posicionX: elemento.x ?? 0,
+                posicionY: elemento.y ?? 0,
+                canvasId: elemento.id,
+              };
+              const operacion = existente
+                ? this.gatewayService.actualizar(existente.id, request)
+                : this.gatewayService.crear(request);
+              operacion.subscribe({
+                next: () => {
+                  pendientes--;
+                  if (pendientes === 0) this.sincronizarActividades(sesion);
+                },
+                error: (error: unknown) =>
+                  this.finalizarConError(this.apiErrorService.obtenerMensaje(error)),
+              });
+            });
+          },
+          error: (error: unknown) =>
+            this.finalizarConError(this.apiErrorService.obtenerMensaje(error)),
+        });
+      },
+      error: (error: unknown) =>
+        this.finalizarConError(this.apiErrorService.obtenerMensaje(error)),
+    });
+  }
+
+  private sincronizarActividades(sesion: SesionResponse): void {
+    if (!this.editor || !this.procesoId) {
+      this.finalizarConError('No fue posible identificar el proceso del diagrama.');
+      return;
+    }
+
+    const registro = this.editor.get('elementRegistry') as ElementRegistryBpmn;
+    const actividadesCanvas = registro.getAll().filter((elemento) =>
+      ['bpmn:Task', 'bpmn:UserTask', 'bpmn:ServiceTask', 'bpmn:ManualTask',
+        'bpmn:ScriptTask', 'bpmn:BusinessRuleTask', 'bpmn:SendTask', 'bpmn:ReceiveTask']
+        .includes(elemento.type),
+    );
+
+    if (actividadesCanvas.length === 0) {
+      this.sincronizarArcos(sesion);
+      return;
+    }
+
+    this.poolService.listarPorProceso(this.procesoId).subscribe({
+      next: (pools) => {
+        const pool = pools.find((actual) => actual.esPropietario);
+        if (!pool) {
+          this.finalizarConError('El proceso no tiene un pool propietario para sincronizar sus actividades.');
+          return;
+        }
+
+        this.laneService.listarPorPool(pool.id).subscribe({
+          next: (lanes) => {
+            const lane = lanes.find((actual) => actual.activo);
+            if (!lane) {
+              this.finalizarConError('El pool propietario necesita al menos una lane para sincronizar actividades.');
+              return;
+            }
+
+            this.actividadService.listarPorProceso(this.procesoId!).subscribe({
+              next: (guardadas) => {
+                let pendientes = actividadesCanvas.length;
+                actividadesCanvas.forEach((elemento) => {
+                  const existente = guardadas.find((actividad) => actividad.canvasId === elemento.id);
+                  const request = {
+                    procesoId: this.procesoId!,
+                    poolId: pool.id,
+                    laneId: lane.id,
+                    nombre: this.obtenerNombreElemento(elemento),
+                    tipo: this.obtenerTipoActividad(elemento.type),
+                    posicionX: elemento.x ?? 0,
+                    posicionY: elemento.y ?? 0,
+                    canvasId: elemento.id,
+                  };
+                  const operacion = existente
+                    ? this.actividadService.actualizar(existente.id, request)
+                    : this.actividadService.crear(request);
+                  operacion.subscribe({
+                    next: () => {
+                      pendientes--;
+                      if (pendientes === 0) this.sincronizarArcos(sesion);
+                    },
+                    error: (error: unknown) =>
+                      this.finalizarConError(this.apiErrorService.obtenerMensaje(error)),
+                  });
+                });
+              },
+              error: (error: unknown) =>
+                this.finalizarConError(this.apiErrorService.obtenerMensaje(error)),
+            });
+          },
+          error: (error: unknown) =>
+            this.finalizarConError(this.apiErrorService.obtenerMensaje(error)),
+        });
+      },
+      error: (error: unknown) =>
+        this.finalizarConError(this.apiErrorService.obtenerMensaje(error)),
+    });
+  }
+
+  private obtenerTipoGateway(tipoBpmn: string): 'EXCLUSIVO' | 'PARALELO' | 'INCLUSIVO' {
+    if (tipoBpmn === 'bpmn:ParallelGateway') return 'PARALELO';
+    if (tipoBpmn === 'bpmn:InclusiveGateway') return 'INCLUSIVO';
+    return 'EXCLUSIVO';
+  }
+
+  private obtenerTipoActividad(tipoBpmn: string): string {
+    return tipoBpmn.replace('bpmn:', '').replace('Task', '').toUpperCase() || 'TAREA';
+  }
+
+  private sincronizarArcos(sesion: SesionResponse): void {
+    if (!this.procesoId) {
+      this.finalizarConError('No fue posible identificar el proceso del diagrama.');
+      return;
+    }
+
+    const solicitudes: SincronizarArcoRequest[] = this.arcosDiagrama().map((arco) => ({
+      canvasId: arco.id,
+      origenCanvasId: arco.origenId,
+      destinoCanvasId: arco.destinoId,
+      etiqueta: arco.etiqueta,
+      condicion: arco.condicion,
+    }));
+
+    this.arcoService.sincronizar(this.procesoId, solicitudes, sesion.usuarioId).subscribe({
+      next: () => {
+        this.arcoPanel?.recargar();
+        this.finalizarGuardado();
+      },
+      error: (error: unknown) => {
+        this.finalizarConError(this.apiErrorService.obtenerMensaje(error));
+      },
     });
   }
 
   private finalizarGuardado(): void {
     this.guardando = false;
-    this.mensaje = 'Diagrama y eventos guardados correctamente.';
+    this.error = '';
+    this.mensaje = 'Diagrama, eventos y arcos guardados correctamente.';
+    this.cdr.markForCheck();
+  }
+
+  private finalizarConError(mensaje: string): void {
+    this.guardando = false;
+    this.mensaje = '';
+    this.error = mensaje;
     this.cdr.markForCheck();
   }
 
@@ -428,6 +611,8 @@ interface ElementRegistryBpmn {
 interface ElementoBpmn {
   id: string;
   type: string;
+  x?: number;
+  y?: number;
   source?: ElementoBpmn;
   target?: ElementoBpmn;
   businessObject?: {
