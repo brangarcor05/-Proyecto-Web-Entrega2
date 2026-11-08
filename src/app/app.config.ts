@@ -3,6 +3,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideRouter, withViewTransitions } from '@angular/router';
 
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
@@ -14,6 +15,6 @@ export const appConfig: ApplicationConfig = {
         skipInitialTransition: true, // no anima la primera carga
       })
     ),
-    provideHttpClient(withInterceptors([errorInterceptor])),
+   provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
   ],
 };

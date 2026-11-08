@@ -12,4 +12,5 @@ export interface SesionResponse {
   rolUsuario: RolUsuario;
   empresaId: number;
   empresaNombre: string;
+  token: string;
 }

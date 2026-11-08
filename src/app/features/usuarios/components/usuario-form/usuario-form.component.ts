@@ -42,8 +42,7 @@ export class UsuarioFormComponent implements OnInit {
     this.mensaje.set('');
     this.cargando.set(true);
 
-    const empresaId = this.auth.sesion()!.empresaId;
-    this.service.invitar(empresaId, this.form.getRawValue()).subscribe({
+    this.service.invitar(this.form.getRawValue()).subscribe({
       next: () => {
         this.cargando.set(false);
         this.router.navigate(['/usuarios']);

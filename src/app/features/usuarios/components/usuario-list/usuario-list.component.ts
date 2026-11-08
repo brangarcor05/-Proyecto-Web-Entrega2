@@ -33,7 +33,7 @@ export class UsuarioListComponent implements OnInit {
 
   load(): void {
     this.status.set('loading');
-    this.service.list(this.sesion()!.empresaId).subscribe({
+    this.service.list().subscribe({
       next: data => {
         this.usuarios.set(data);
         this.status.set('success');
