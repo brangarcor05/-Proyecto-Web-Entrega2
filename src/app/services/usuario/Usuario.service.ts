@@ -6,7 +6,7 @@ import { CambiarRolRequest, CrearUsuarioRequest, Usuario } from '../../models/us
 
 // Ya no se envía empresaId: el backend lo toma del token.
 @Injectable({ providedIn: 'root' })
-export class UsuarioService {
+export class usuarioService {
   private http = inject(HttpClient);
   private url = `${environment.apiUrl}/usuarios`;
 

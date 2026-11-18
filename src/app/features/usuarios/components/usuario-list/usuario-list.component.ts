@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { UsuarioService } from '../../../../services/usuario/Usuario.service';
+import { usuarioService } from '../../../../services/usuario/usuario.service';
 import { Usuario } from '../../../../models/usuario/usuario.model';
 import { mensajeDeError } from '../../../../shared/components/error-message/mensaje.error';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
@@ -13,7 +13,7 @@ import { CambioRol, TarjetaUsuarioComponent } from '../../../../shared/component
   styleUrls: ['../../pages/usuario-list/usuario-list.css']
 })
 export class UsuarioListComponent implements OnInit {
-  private service = inject(UsuarioService);
+  private service = inject(usuarioService);
   private auth = inject(AutenticacionService);
   private router = inject(Router);
 

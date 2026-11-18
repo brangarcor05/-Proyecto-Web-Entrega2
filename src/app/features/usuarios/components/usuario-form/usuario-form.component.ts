@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { UsuarioService } from '../../../../services/usuario/Usuario.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { usuarioService } from '../../../../services/usuario/usuario.service';
 import { RolUsuario } from '../../../../models/usuario/usuario.model';
 import { mensajeDeError } from '../../../../shared/components/error-message/mensaje.error';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
@@ -14,7 +15,7 @@ import { AutenticacionService } from '../../../../services/auth/auth.service';
 })
 export class UsuarioFormComponent implements OnInit {
   private fb = inject(FormBuilder);
-  private service = inject(UsuarioService);
+  private service = inject(usuarioService);
   private auth = inject(AutenticacionService);
   private router = inject(Router);
 
@@ -47,10 +48,10 @@ export class UsuarioFormComponent implements OnInit {
         this.cargando.set(false);
         this.router.navigate(['/usuarios']);
       },
-      error: err => {
+      error: (err: unknown) => {
         this.cargando.set(false);
         // 409: el correo ya está registrado
-        this.mensaje.set(mensajeDeError(err));
+            this.mensaje.set(mensajeDeError(err as HttpErrorResponse));
       }
     });
   }
