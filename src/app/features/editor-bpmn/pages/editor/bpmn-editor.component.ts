@@ -12,7 +12,7 @@ import {
 import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
-import { SesionResponse } from '../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../models/auth/auth.model';
 import { ArcoDiagrama } from '../../../../models/arco/arco-diagrama.model';
 import { SincronizarArcoRequest } from '../../../../models/arco/sincronizar-arco-request.model';
 import { ArcoService } from '../../../../services/arco/arco.service';
@@ -83,7 +83,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     this.cargarProceso(id, sesion);
   }
 
-  private cargarProceso(procesoId: number, sesion: SesionResponse): void {
+  private cargarProceso(procesoId: number, sesion: UsuarioSesion): void {
     this.cargando = true;
     this.error = '';
     this.procesoService.buscarPorId(procesoId, sesion.empresaId)
@@ -299,12 +299,12 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     return elemento?.businessObject?.name || elemento?.id || 'Elemento sin nombre';
   }
 
-  private obtenerSesion(): SesionResponse | null {
+  private obtenerSesion(): UsuarioSesion | null {
     const sesion = this.autenticacionService.sesion();
     if (!sesion) this.router.navigate(['/login']);
     return sesion;
   }
-  private sincronizarEventos(sesion: SesionResponse): void {
+  private sincronizarEventos(sesion: UsuarioSesion): void {
     if (!this.editor) {
       this.sincronizarGateways(sesion);
       return;
@@ -381,7 +381,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     });
   }
 
-  private sincronizarGateways(sesion: SesionResponse): void {
+  private sincronizarGateways(sesion: UsuarioSesion): void {
     if (!this.editor || !this.procesoId) {
       this.finalizarConError('No fue posible identificar el proceso del diagrama.');
       return;
@@ -442,7 +442,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     });
   }
 
-  private sincronizarActividades(sesion: SesionResponse): void {
+  private sincronizarActividades(sesion: UsuarioSesion): void {
     if (!this.editor || !this.procesoId) {
       this.finalizarConError('No fue posible identificar el proceso del diagrama.');
       return;
@@ -527,7 +527,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     return tipoBpmn.replace('bpmn:', '').replace('Task', '').toUpperCase() || 'TAREA';
   }
 
-  private sincronizarArcos(sesion: SesionResponse): void {
+  private sincronizarArcos(sesion: UsuarioSesion): void {
     if (!this.procesoId) {
       this.finalizarConError('No fue posible identificar el proceso del diagrama.');
       return;

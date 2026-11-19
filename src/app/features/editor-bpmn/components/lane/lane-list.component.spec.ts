@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
-import { SesionResponse } from '../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../models/auth/auth.model';
 import { Lane } from '../../../../models/bpmn/lane/lane.model';
 import { PermisoPool } from '../../../../models/permisopool/permiso-pool.model';
 import { RolProceso } from '../../../../models/bpmn/rolProceso/rolProceso.model';
@@ -14,7 +14,7 @@ import { RolProcesoService } from '../../../../services/rolProceso/rolProceso.se
 import { LaneListComponent } from './lane-list.component';
 
 describe('LaneListComponent', () => {
-  const sesionEditor: SesionResponse = {
+  const sesionEditor: UsuarioSesion = {
     usuarioId: 4,
     nombre: 'Editor',
     email: 'editor@example.com',
@@ -54,7 +54,7 @@ describe('LaneListComponent', () => {
     empty: false,
   };
 
-  let sesion: SesionResponse | null;
+  let sesion: UsuarioSesion | null;
   let permisosConfigurados: PermisoPool[];
   let creacion: { request: unknown; usuarioId: number } | null;
 

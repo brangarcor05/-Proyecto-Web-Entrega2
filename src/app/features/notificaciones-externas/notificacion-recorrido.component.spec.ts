@@ -4,7 +4,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { SesionResponse } from '../../models/auth/auth.model';
+import { UsuarioSesion } from '../../models/auth/auth.model';
 import { Proceso } from '../../models/proceso/proceso.model';
 import { NotificacionExterna } from '../../models/notificacionexterna/notificacion-externa.model';
 import { AutenticacionService } from '../../services/auth/auth.service';
@@ -16,7 +16,7 @@ import { NotificacionExternaFormComponent } from './components/notificacion-form
 class DestinoComponent {}
 
 describe('Recorrido de NotificacionExterna', () => {
-  const sesionInicial: SesionResponse = {
+  const sesionInicial: UsuarioSesion = {
     usuarioId: 17,
     empresaId: 23,
     nombre: 'Juliana',
@@ -51,7 +51,7 @@ describe('Recorrido de NotificacionExterna', () => {
     actividadManejoErrorId: 61,
     campos: [{ nombre: 'correo', tipoDato: 'String' }],
   };
-  const sesion = signal<SesionResponse | null>(null);
+  const sesion = signal<UsuarioSesion | null>(null);
   let http: HttpTestingController;
   let harness: RouterTestingHarness;
 

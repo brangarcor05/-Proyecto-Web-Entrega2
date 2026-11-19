@@ -3,7 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
-import { SesionResponse } from '../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../models/auth/auth.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso/proceso.service';
@@ -107,7 +107,7 @@ export class ProcesoDetailComponent implements OnInit {
     return id;
   }
 
-  private obtenerSesion(): SesionResponse | null {
+  private obtenerSesion(): UsuarioSesion | null {
     const sesion = this.autenticacionService.sesion();
     if (!sesion) {
       void this.router.navigate(['/login']);

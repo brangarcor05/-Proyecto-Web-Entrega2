@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { ApiErrorService } from '../../../core/services/api-error.service';
-import { SesionResponse } from '../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../models/auth/auth.model';
 import { ConfigurarPermisoPoolRequest } from '../../../models/permisopool/configurar-permiso-pool-request.model';
 import { PermisoPool } from '../../../models/permisopool/permiso-pool.model';
 import { AutenticacionService } from '../../../services/auth/auth.service';
@@ -11,7 +11,7 @@ import { PermisoPoolService } from '../../../services/permisoPool/permiso-pool.s
 import { PermisoPoolComponent } from './permiso-pool.component';
 
 describe('PermisoPoolComponent', () => {
-  const sesionAdmin: SesionResponse = {
+  const sesionAdmin: UsuarioSesion = {
     usuarioId: 1,
     nombre: 'Admin',
     email: 'admin@example.com',
@@ -29,7 +29,7 @@ describe('PermisoPoolComponent', () => {
     configurado: false,
   };
 
-  let sesion: SesionResponse | null;
+  let sesion: UsuarioSesion | null;
   let empresaConsultada: number | null;
   let configuracion: { request: ConfigurarPermisoPoolRequest; usuarioId: number } | null;
   let navegacion: unknown[] | null;

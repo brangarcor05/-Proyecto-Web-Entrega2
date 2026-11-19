@@ -3,14 +3,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
-import { SesionResponse } from '../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../models/auth/auth.model';
 import { Historial } from '../../../../models/proceso/historial.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso/proceso.service';
 import { ProcesoHistoryComponent } from './proceso-history.component';
 
 describe('ProcesoHistoryComponent', () => {
-  const sesionActiva: SesionResponse = {
+  const sesionActiva: UsuarioSesion = {
     usuarioId: 2,
     nombre: 'Usuario',
     email: 'usuario@example.com',
@@ -29,7 +29,7 @@ describe('ProcesoHistoryComponent', () => {
     usuarioNombre: 'Usuario',
   }];
 
-  let sesion: SesionResponse | null;
+  let sesion: UsuarioSesion | null;
   let routeId: string | null;
   let navegacion: unknown[] | null;
   let consulta: { id: number; empresaId: number } | null;

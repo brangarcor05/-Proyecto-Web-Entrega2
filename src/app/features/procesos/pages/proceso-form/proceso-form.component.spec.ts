@@ -3,14 +3,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
-import { SesionResponse } from '../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../models/auth/auth.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso/proceso.service';
 import { ProcesoFormComponent } from './proceso-form.component';
 
 describe('ProcesoFormComponent', () => {
-  const sesionEditor: SesionResponse = {
+  const sesionEditor: UsuarioSesion = {
     usuarioId: 17,
     nombre: 'Juan',
     email: 'juan@example.com',
@@ -32,7 +32,7 @@ describe('ProcesoFormComponent', () => {
     soloLectura: false,
   };
 
-  let sesion: SesionResponse | null;
+  let sesion: UsuarioSesion | null;
   let routeId: string | null;
   let navegacion: unknown[] | null;
   let creacion: { request: unknown; usuarioId: number } | null;

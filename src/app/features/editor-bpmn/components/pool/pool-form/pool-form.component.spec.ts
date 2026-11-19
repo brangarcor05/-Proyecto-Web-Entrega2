@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { ApiErrorService } from '../../../../../core/services/api-error.service';
-import { SesionResponse } from '../../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../../models/auth/auth.model';
 import { PermisoPool } from '../../../../../models/permisopool/permiso-pool.model';
 import { Pool } from '../../../../../models/pool/pool.model';
 import { Proceso } from '../../../../../models/proceso/proceso.model';
@@ -14,7 +14,7 @@ import { ProcesoService } from '../../../../../services/proceso/proceso.service'
 import { PoolFormComponent } from './pool-form.component';
 
 describe('PoolFormComponent', () => {
-  const sesionEditor: SesionResponse = {
+  const sesionEditor: UsuarioSesion = {
     usuarioId: 4,
     nombre: 'Editor',
     email: 'editor@example.com',
@@ -43,7 +43,7 @@ describe('PoolFormComponent', () => {
     activo: true,
   };
 
-  let sesion: SesionResponse | null;
+  let sesion: UsuarioSesion | null;
   let routeParams: Record<string, string | null>;
   let procesoConsultado: Proceso;
   let creacion: { request: unknown; usuarioId: number } | null;

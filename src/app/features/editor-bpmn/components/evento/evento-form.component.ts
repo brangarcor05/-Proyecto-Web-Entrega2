@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
-import { SesionResponse } from '../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../models/auth/auth.model';
 import { Pool } from '../../../../models/pool/pool.model';
 import { TipoEvento } from '../../../../models/evento/tipo-evento.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
@@ -64,7 +64,7 @@ export class EventoFormComponent implements OnInit {
     }
   }
 
-  private cargarPools(sesion: SesionResponse): void {
+  private cargarPools(sesion: UsuarioSesion): void {
     this.poolService.listarPorProceso(this.procesoId!).subscribe({
       next: (pools) => {
         this.pools = pools;
@@ -138,7 +138,7 @@ export class EventoFormComponent implements OnInit {
     });
   }
 
-  private obtenerSesion(): SesionResponse | null {
+  private obtenerSesion(): UsuarioSesion | null {
     const sesion = this.autenticacionService.sesion();
     if (!sesion) {
       this.router.navigate(['/login']);

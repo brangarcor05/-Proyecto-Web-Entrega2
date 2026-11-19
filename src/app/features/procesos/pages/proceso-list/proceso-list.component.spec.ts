@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
-import { SesionResponse } from '../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../models/auth/auth.model';
 import { PageResponse } from '../../../../models/common/page-response.model';
 import { ConsultarProcesosParams } from '../../../../models/proceso/consultar-procesos-params.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
@@ -24,7 +24,7 @@ describe('ProcesoListComponent', () => {
     empty: true,
   };
 
-  const sesionActiva: SesionResponse = {
+  const sesionActiva: UsuarioSesion = {
     usuarioId: 17,
     nombre: 'Juan',
     email: 'juan@example.com',
@@ -33,7 +33,7 @@ describe('ProcesoListComponent', () => {
     empresaNombre: 'Empresa de prueba',
   };
 
-  let sesion: SesionResponse | null;
+  let sesion: UsuarioSesion | null;
   let parametrosConsultados: ConsultarProcesosParams | null;
   let navegacion: unknown[] | null;
 

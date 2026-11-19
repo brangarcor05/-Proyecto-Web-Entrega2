@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
-import { SesionResponse } from '../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../models/auth/auth.model';
 import { ActualizarProcesoRequest } from '../../../../models/proceso/actualizar-proceso-request.model';
 import { CrearProcesoRequest } from '../../../../models/proceso/crear-proceso-request.model';
 import { EstadoProceso } from '../../../../models/proceso/estado-proceso.model';
@@ -166,7 +166,7 @@ export class ProcesoFormComponent implements OnInit {
     this.camposInvalidos.set({});
   }
 
-  private obtenerSesion(): SesionResponse | null {
+  private obtenerSesion(): UsuarioSesion | null {
     const sesion = this.autenticacionService.sesion();
     if (!sesion) {
       void this.router.navigate(['/login']);

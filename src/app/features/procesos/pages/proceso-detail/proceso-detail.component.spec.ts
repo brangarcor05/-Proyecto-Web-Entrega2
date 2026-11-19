@@ -3,14 +3,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
-import { SesionResponse } from '../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../models/auth/auth.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso/proceso.service';
 import { ProcesoDetailComponent } from './proceso-detail.component';
 
 describe('ProcesoDetailComponent', () => {
-  const sesionAdmin: SesionResponse = {
+  const sesionAdmin: UsuarioSesion = {
     usuarioId: 1,
     nombre: 'Admin',
     email: 'admin@example.com',
@@ -31,7 +31,7 @@ describe('ProcesoDetailComponent', () => {
     soloLectura: false,
   };
 
-  let sesion: SesionResponse | null;
+  let sesion: UsuarioSesion | null;
   let routeId: string | null;
   let navegacion: unknown[] | null;
   let busqueda: { id: number; empresaId: number } | null;

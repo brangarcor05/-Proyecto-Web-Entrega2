@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../../core/services/api-error.service';
-import { SesionResponse } from '../../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../../models/auth/auth.model';
 import { PermisoPool } from '../../../../../models/permisopool/permiso-pool.model';
 import { AutenticacionService } from '../../../../../services/auth/auth.service';
 import { PermisoPoolService } from '../../../../../services/permisoPool/permiso-pool.service';
@@ -117,7 +117,7 @@ export class PoolFormComponent implements OnInit {
     });
   }
 
-  private validarPermiso(sesion: SesionResponse): void {
+  private validarPermiso(sesion: UsuarioSesion): void {
     this.cargando = true;
     this.cdr.markForCheck();
     this.permisoPoolService.consultar(sesion.empresaId).subscribe({
@@ -148,7 +148,7 @@ export class PoolFormComponent implements OnInit {
     return control.invalid && (control.dirty || control.touched);
   }
 
-  private validarProcesoEditable(procesoId: number, sesion: SesionResponse): void {
+  private validarProcesoEditable(procesoId: number, sesion: UsuarioSesion): void {
     this.procesoService.buscarPorId(procesoId, sesion.empresaId).subscribe({
       next: (proceso) => {
         if (proceso.soloLectura) {
@@ -203,7 +203,7 @@ export class PoolFormComponent implements OnInit {
     return id;
   }
 
-  private obtenerSesion(): SesionResponse | null {
+  private obtenerSesion(): UsuarioSesion | null {
     const sesion = this.autenticacionService.sesion();
     if (!sesion) {
       void this.router.navigate(['/login']);

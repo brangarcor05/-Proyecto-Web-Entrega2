@@ -4,7 +4,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { SesionResponse } from '../../models/auth/auth.model';
+import { UsuarioSesion } from '../../models/auth/auth.model';
 import { Proceso } from '../../models/proceso/proceso.model';
 import { Evento } from '../../models/evento/evento.model';
 import { AutenticacionService } from '../../services/auth/auth.service';
@@ -16,7 +16,7 @@ import { EventoFormComponent } from './components/evento-form/evento-form.compon
 class DestinoComponent {}
 
 describe('Recorrido de Evento', () => {
-  const sesionInicial: SesionResponse = {
+  const sesionInicial: UsuarioSesion = {
     usuarioId: 17,
     empresaId: 23,
     nombre: 'Juliana',
@@ -46,7 +46,7 @@ describe('Recorrido de Evento', () => {
     posicionY: null,
     tipo: 'INICIO',
   };
-  const sesion = signal<SesionResponse | null>(null);
+  const sesion = signal<UsuarioSesion | null>(null);
   let http: HttpTestingController;
   let harness: RouterTestingHarness;
 

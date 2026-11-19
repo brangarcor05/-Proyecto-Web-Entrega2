@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
-import { SesionResponse } from '../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../models/auth/auth.model';
 import {
   ActualizarRolProcesoRequest,
   CrearRolProcesoRequest,
@@ -95,8 +95,8 @@ export class RolProcesoFormComponent implements OnInit {
     const id = this.rolId;
 
     const operacion = id === null
-      ? this.rolProcesoService.crear(this.construirCreacion(valor, sesion.empresaId), sesion.usuarioId)
-      : this.rolProcesoService.actualizar(id, this.construirActualizacion(valor), sesion.usuarioId);
+      ? this.rolProcesoService.crear(this.construirCreacion(valor))
+      : this.rolProcesoService.actualizar(id, this.construirActualizacion(valor));
 
     operacion.pipe(finalize(() => {
       this.guardando = false;
@@ -113,16 +113,11 @@ export class RolProcesoFormComponent implements OnInit {
   }
 
   private cargarRol(id: number): void {
-    const sesion = this.obtenerSesion();
-    if (!sesion) {
-      return;
-    }
-
     this.cargando = true;
     this.limpiarError();
     this.cdr.markForCheck();
     this.rolProcesoService
-      .buscarPorId(id, sesion.empresaId)
+      .buscarPorId(id)
       .pipe(finalize(() => {
         this.cargando = false;
         this.cdr.markForCheck();
@@ -136,12 +131,8 @@ export class RolProcesoFormComponent implements OnInit {
       });
   }
 
-  private construirCreacion(
-    valor: typeof this.formulario.value,
-    empresaId: number,
-  ): CrearRolProcesoRequest {
+  private construirCreacion(valor: typeof this.formulario.value): CrearRolProcesoRequest {
     return {
-      empresaId,
       nombre: valor.nombre?.trim() ?? '',
       descripcion: valor.descripcion?.trim() || undefined,
     };
@@ -165,7 +156,7 @@ export class RolProcesoFormComponent implements OnInit {
     this.camposInvalidos = {};
   }
 
-  private obtenerSesion(): SesionResponse | null {
+  private obtenerSesion(): UsuarioSesion | null {
     const sesion = this.autenticacionService.sesion();
     if (!sesion) {
       void this.router.navigate(['/login']);

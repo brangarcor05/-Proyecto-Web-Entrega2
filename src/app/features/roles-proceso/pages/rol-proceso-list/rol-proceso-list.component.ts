@@ -6,7 +6,7 @@ import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { PageResponse } from '../../../../models/common/page-response.model';
 import { ConsultarRolesProcesoParams } from '../../../../models/bpmn/rolProceso/consultar-roles-proceso-params.model';
 import { RolProceso } from '../../../../models/bpmn/rolProceso/rolProceso.model';
-import { SesionResponse } from '../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../models/auth/auth.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { RolProcesoService } from '../../../../services/rolProceso/rolProceso.service';
 import { puedeAdministrarRolesProceso } from '../../rol-proceso-permisos';
@@ -85,7 +85,7 @@ export class RolProcesoListComponent implements OnInit {
     this.limpiarError();
     this.cdr.markForCheck();
     this.rolProcesoService
-      .eliminar(rol.id, sesion.usuarioId)
+      .eliminar(rol.id)
       .pipe(finalize(() => {
         this.eliminandoId = null;
         this.cdr.markForCheck();
@@ -107,7 +107,6 @@ export class RolProcesoListComponent implements OnInit {
     this.cdr.markForCheck();
 
     const parametros: ConsultarRolesProcesoParams = {
-      empresaId: sesion.empresaId,
       nombre: this.filtroNombre || undefined,
       page: numeroPagina,
       size: 10,
@@ -143,7 +142,7 @@ export class RolProcesoListComponent implements OnInit {
     this.camposInvalidos = {};
   }
 
-  private obtenerSesion(): SesionResponse | null {
+  private obtenerSesion(): UsuarioSesion | null {
     const sesion = this.autenticacionService.sesion();
     if (!sesion) {
       void this.router.navigate(['/login']);

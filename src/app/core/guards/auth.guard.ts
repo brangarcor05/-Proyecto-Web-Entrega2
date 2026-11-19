@@ -17,5 +17,6 @@ export const rolGuard = (...roles: RolUsuario[]): CanActivateFn => () => {
   const router = inject(Router);
   const sesion = auth.sesion();
   if (!sesion) return router.createUrlTree(['/login']);
-  return roles.includes(sesion.rolUsuario) ? true : router.createUrlTree(['/usuarios']);
+  // /procesos es accesible para todos los roles (evita un bucle si /usuarios exige ADMIN)
+  return roles.includes(sesion.rolUsuario) ? true : router.createUrlTree(['/procesos']);
 };

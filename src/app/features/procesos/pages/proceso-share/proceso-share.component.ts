@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
-import { SesionResponse } from '../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../models/auth/auth.model';
 import { Empresa } from '../../../../models/empresa/empresa.model';
 import { CompartirProcesoRequest } from '../../../../models/proceso/compartir-proceso-request.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
@@ -150,7 +150,7 @@ export class ProcesoShareComponent implements OnInit {
       });
   }
 
-  private obtenerSesion(): SesionResponse | null {
+  private obtenerSesion(): UsuarioSesion | null {
     const sesion = this.autenticacionService.sesion();
     if (!sesion) {
       void this.router.navigate(['/login']);
