@@ -5,7 +5,7 @@ import { finalize } from 'rxjs';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { PageResponse } from '../../../../models/common/page-response.model';
 import { ConsultarProcesosParams } from '../../../../models/proceso/consultar-procesos-params.model';
-import { SesionResponse } from '../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../models/auth/auth.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ProcesoService } from '../../../../services/proceso/proceso.service';
@@ -146,7 +146,7 @@ export class ProcesoListComponent implements OnInit {
     this.camposInvalidos = {};
   }
 
-  private obtenerSesion(): SesionResponse | null {
+  private obtenerSesion(): UsuarioSesion | null {
     const sesion = this.autenticacionService.sesion();
     if (!sesion) {
       void this.router.navigate(['/login']);

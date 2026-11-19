@@ -3,7 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { ApiErrorService } from '../../../../../core/services/api-error.service';
-import { SesionResponse } from '../../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../../models/auth/auth.model';
 import { PermisoPool } from '../../../../../models/permisopool/permiso-pool.model';
 import { Pool } from '../../../../../models/pool/pool.model';
 import { AutenticacionService } from '../../../../../services/auth/auth.service';
@@ -62,7 +62,7 @@ export class PoolListComponent implements OnInit {
     this.cargarPools(procesoId);
   }
 
-  private cargarPermiso(sesion: SesionResponse): void {
+  private cargarPermiso(sesion: UsuarioSesion): void {
     this.permisoPoolService.consultar(sesion.empresaId).subscribe({
       next: (permisos) => {
         this.permisoActual = permisos.find(
@@ -106,7 +106,7 @@ export class PoolListComponent implements OnInit {
       });
   }
 
-  private cargarProceso(procesoId: number, sesion: SesionResponse): void {
+  private cargarProceso(procesoId: number, sesion: UsuarioSesion): void {
     this.procesoService.buscarPorId(procesoId, sesion.empresaId).subscribe({
       next: (proceso) => {
         this.procesoSoloLectura = proceso.soloLectura;
@@ -148,7 +148,7 @@ export class PoolListComponent implements OnInit {
     return id;
   }
 
-  private obtenerSesion(): SesionResponse | null {
+  private obtenerSesion(): UsuarioSesion | null {
     const sesion = this.autenticacionService.sesion();
     if (!sesion) {
       void this.router.navigate(['/login']);

@@ -89,11 +89,10 @@ export class LaneListComponent implements OnChanges {
   }
 
   private cargarRolesDisponibles(): void {
-    const sesion = this.autenticacionService.sesion();
-    if (!sesion) {
+    if (!this.autenticacionService.sesion()) {
       return;
     }
-    this.rolProcesoService.listarTodos(sesion.empresaId).subscribe({
+    this.rolProcesoService.listarTodos().subscribe({
       next: (pagina) => this.rolesDisponibles.set(pagina.content.filter((rol) => rol.activo)),
       error: (error: unknown) => this.manejarError(error),
     });

@@ -11,7 +11,7 @@ vi.mock('bpmn-js-properties-panel', () => ({
 }));
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
-import { SesionResponse } from '../../../../models/auth/auth.model';
+import { UsuarioSesion } from '../../../../models/auth/auth.model';
 import { Proceso } from '../../../../models/proceso/proceso.model';
 import { AutenticacionService } from '../../../../services/auth/auth.service';
 import { ArcoService } from '../../../../services/arco/arco.service';
@@ -34,9 +34,9 @@ interface BpmnEditorComponentePrueba {
   inicializarEditor(): void;
   cargarDiagrama(procesoId: number, empresaId: number): void;
   actualizarArcosDiagrama(): void;
-  sincronizarGateways(sesion: SesionResponse): void;
-  sincronizarActividades(sesion: SesionResponse): void;
-  sincronizarArcos(sesion: SesionResponse): void;
+  sincronizarGateways(sesion: UsuarioSesion): void;
+  sincronizarActividades(sesion: UsuarioSesion): void;
+  sincronizarArcos(sesion: UsuarioSesion): void;
 }
 
 function accederMetodosPrivados(
@@ -46,7 +46,7 @@ function accederMetodosPrivados(
 }
 
 describe('BpmnEditorComponent', () => {
-  const sesionAdmin: SesionResponse = {
+  const sesionAdmin: UsuarioSesion = {
     usuarioId: 1,
     nombre: 'Admin',
     email: 'admin@example.com',
@@ -67,7 +67,7 @@ describe('BpmnEditorComponent', () => {
     soloLectura: false,
   };
 
-  let sesion: SesionResponse | null;
+  let sesion: UsuarioSesion | null;
   let routeId: string | null;
   let procesoRespuesta: Proceso;
   let errorProceso: unknown | null;

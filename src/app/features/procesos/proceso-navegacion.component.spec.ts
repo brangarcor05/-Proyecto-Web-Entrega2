@@ -4,7 +4,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { SesionResponse } from '../../models/auth/auth.model';
+import { UsuarioSesion } from '../../models/auth/auth.model';
 import { Proceso } from '../../models/proceso/proceso.model';
 import { Historial } from '../../models/proceso/historial.model';
 import { AutenticacionService } from '../../services/auth/auth.service';
@@ -46,7 +46,7 @@ describe('Navegacion de procesos hacia el diagrama', () => {
         {
           provide: AutenticacionService,
           useValue: {
-            sesion: signal<SesionResponse | null>({
+            sesion: signal<UsuarioSesion | null>({
               usuarioId: 17,
               empresaId: 23,
               nombre: 'Juliana',

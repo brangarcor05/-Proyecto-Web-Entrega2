@@ -2,10 +2,11 @@
 <nav>
   @if (sesion(); as usuarioActual) {
     <a routerLink="/procesos">Procesos</a>
+    <!-- HU-20: todos los usuarios consultan el catálogo; solo ADMIN lo modifica -->
+    <a routerLink="/roles-proceso">Roles de proceso</a>
     @if (usuarioActual.rolUsuario === 'ADMIN') {
       <a routerLink="/usuarios">Usuarios</a>
       <a routerLink="/configuracion/permisos-pool">Permisos de pools</a>
-      <a routerLink="/roles-proceso">Roles de proceso</a>
     }
     <span>{{ usuarioActual.nombre }} · {{ usuarioActual.empresaNombre }}</span>
     <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>

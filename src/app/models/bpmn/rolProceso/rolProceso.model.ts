@@ -8,18 +8,17 @@ export interface RolProceso {
   nombre: string;
   descripcion: string;
   activo: boolean;
-  //ndica si el rol está siendo usado en alguna lane (HU-20).
+  // Indica si el rol está siendo usado en alguna lane (HU-20).
   enUso: boolean;
   // Nombres de los procesos donde se usa el rol (HU-20).
   procesosDondeSeUsa: string[];
 }
 
 /**
- * Request para crear un rol de proceso (HU-17).
- * Mientras no exista HU-03 (inicio de sesión), la empresa llega en la petición.
+ * Request para crear un rol de proceso (HU-17). No lleva empresaId: el rol
+ * se crea en la empresa del usuario autenticado (sale del token).
  */
 export interface CrearRolProcesoRequest {
-  empresaId: number;
   nombre: string;
   descripcion?: string;
 }

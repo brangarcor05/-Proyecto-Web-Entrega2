@@ -13,16 +13,20 @@ import { ConsultarRolesProcesoParams } from '../../models/bpmn/rolProceso/consul
 
 /**
  * Roles de proceso (HU-17 a HU-20): catálogo de funciones de la empresa
- * que se usa para nombrar lanes. Solo el administrador puede crear,
- * editar o eliminar roles (ver RolProcesoService en el backend).
+ * que se usa para nombrar lanes.
+ *
+ * Ya no se envían empresaId ni usuarioId: el backend los toma del access token, así
+ * que un usuario solo puede ver y modificar los roles de su propia empresa.
+ * Consultar está permitido a todos los roles de acceso; crear, editar y eliminar
+ * solo al ADMIN (el backend responde 403 a los demás).
  */
 @Injectable({ providedIn: 'root' })
 export class RolProcesoService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/roles-proceso`;
 
-  consultar(filtros: ConsultarRolesProcesoParams): Observable<PageResponse<RolProceso>> {
-    let params = new HttpParams().set('empresaId', filtros.empresaId);
+  consultar(filtros: ConsultarRolesProcesoParams = {}): Observable<PageResponse<RolProceso>> {
+    let params = new HttpParams();
 
     if (filtros.nombre) {
       params = params.set('nombre', filtros.nombre);
@@ -41,31 +45,23 @@ export class RolProcesoService {
   }
 
   /** Catálogo completo (sin paginar) para usarlo en selects, como el del formulario de lanes. */
-  listarTodos(empresaId: number): Observable<PageResponse<RolProceso>> {
-    return this.consultar({ empresaId, size: 200, sort: 'nombre,asc' });
+  listarTodos(): Observable<PageResponse<RolProceso>> {
+    return this.consultar({ size: 200, sort: 'nombre,asc' });
   }
 
-  buscarPorId(id: number, empresaId: number): Observable<RolProceso> {
-    const params = new HttpParams().set('empresaId', empresaId);
-    return this.http.get<RolProceso>(`${this.apiUrl}/${id}`, { params });
+  buscarPorId(id: number): Observable<RolProceso> {
+    return this.http.get<RolProceso>(`${this.apiUrl}/${id}`);
   }
 
-  crear(request: CrearRolProcesoRequest, usuarioId: number): Observable<RolProceso> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.post<RolProceso>(this.apiUrl, request, { params });
+  crear(request: CrearRolProcesoRequest): Observable<RolProceso> {
+    return this.http.post<RolProceso>(this.apiUrl, request);
   }
 
-  actualizar(
-    id: number,
-    request: ActualizarRolProcesoRequest,
-    usuarioId: number,
-  ): Observable<RolProceso> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.put<RolProceso>(`${this.apiUrl}/${id}`, request, { params });
+  actualizar(id: number, request: ActualizarRolProcesoRequest): Observable<RolProceso> {
+    return this.http.put<RolProceso>(`${this.apiUrl}/${id}`, request);
   }
 
-  eliminar(id: number, usuarioId: number): Observable<void> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { params });
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }
