@@ -99,7 +99,7 @@ export class ProcesoShareComponent implements OnInit {
     this.guardando.set(true);
     this.error.set('');
     this.procesoService
-      .compartir(proceso.id, request, sesion.usuarioId)
+      .compartir(proceso.id, request)
       .pipe(finalize(() => this.guardando.set(false)))
       .subscribe({
         next: (actualizado) => void this.router.navigate(['/procesos', actualizado.id]),
@@ -115,7 +115,7 @@ export class ProcesoShareComponent implements OnInit {
 
     this.cargando.set(true);
     this.procesoService
-      .buscarPorId(id, sesion.empresaId)
+      .buscarPorId(id)
       .pipe(finalize(() => this.cargando.set(false)))
       .subscribe({
         next: (proceso) => {

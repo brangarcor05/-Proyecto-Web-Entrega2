@@ -80,11 +80,12 @@ describe('ProcesoListComponent', () => {
       .compileComponents();
   });
 
-  it('consulta los procesos de la empresa de la sesión', () => {
+  it('consulta los procesos con sesión, sin enviar la empresa (sale del token)', () => {
     const fixture = TestBed.createComponent(ProcesoListComponent);
     fixture.detectChanges();
 
-    expect(parametrosConsultados?.empresaId).toBe(23);
+    expect(parametrosConsultados).not.toBeNull();
+    expect(parametrosConsultados && 'empresaId' in parametrosConsultados).toBe(false);
     expect(navegacion).toBeNull();
   });
 

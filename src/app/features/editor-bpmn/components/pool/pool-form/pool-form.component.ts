@@ -96,8 +96,8 @@ export class PoolFormComponent implements OnInit {
     const valor = this.formulario.getRawValue();
     const datos = { nombre: valor.nombre.trim(), cajaNegra: valor.cajaNegra };
     const operacion = this.poolId === null
-      ? this.poolService.crear({ procesoId: this.procesoId, ...datos }, sesion.usuarioId)
-      : this.poolService.actualizar(this.poolId, datos, sesion.usuarioId);
+      ? this.poolService.crear({ procesoId: this.procesoId, ...datos })
+      : this.poolService.actualizar(this.poolId, datos);
 
     this.guardando = true;
     this.error = '';
@@ -120,7 +120,7 @@ export class PoolFormComponent implements OnInit {
   private validarPermiso(sesion: UsuarioSesion): void {
     this.cargando = true;
     this.cdr.markForCheck();
-    this.permisoPoolService.consultar(sesion.empresaId).subscribe({
+    this.permisoPoolService.consultar().subscribe({
       next: (permisos) => {
         this.permisoActual = permisos.find(
           (permiso) => permiso.rolUsuario === sesion.rolUsuario,
@@ -132,7 +132,7 @@ export class PoolFormComponent implements OnInit {
           void this.router.navigate(['/procesos', this.procesoId, 'pools']);
           return;
         }
-        this.validarProcesoEditable(this.procesoId!, sesion);
+        this.validarProcesoEditable(this.procesoId!);
         this.cdr.markForCheck();
       },
       error: (error: unknown) => {
@@ -148,8 +148,8 @@ export class PoolFormComponent implements OnInit {
     return control.invalid && (control.dirty || control.touched);
   }
 
-  private validarProcesoEditable(procesoId: number, sesion: UsuarioSesion): void {
-    this.procesoService.buscarPorId(procesoId, sesion.empresaId).subscribe({
+  private validarProcesoEditable(procesoId: number): void {
+    this.procesoService.buscarPorId(procesoId).subscribe({
       next: (proceso) => {
         if (proceso.soloLectura) {
           void this.router.navigate(['/procesos', procesoId, 'pools']);

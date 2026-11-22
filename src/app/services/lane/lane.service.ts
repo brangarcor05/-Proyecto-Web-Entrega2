@@ -24,28 +24,24 @@ export class LaneService {
     return this.http.get<Lane[]>(this.apiUrl, { params });
   }
 
-  crear(request: CrearLaneRequest, usuarioId: number): Observable<Lane> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.post<Lane>(this.apiUrl, request, { params });
+  crear(request: CrearLaneRequest): Observable<Lane> {
+    return this.http.post<Lane>(this.apiUrl, request);
   }
 
-  actualizar(id: number, request: ActualizarLaneRequest, usuarioId: number): Observable<Lane> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.put<Lane>(`${this.apiUrl}/${id}`, request, { params });
+  actualizar(id: number, request: ActualizarLaneRequest): Observable<Lane> {
+    return this.http.put<Lane>(`${this.apiUrl}/${id}`, request);
   }
 
   /** HU-22: reordena todas las lanes de un pool en un solo llamado. */
   reordenar(
     poolId: number,
-    request: ReordenarLanesRequest,
-    usuarioId: number,
+    request: ReordenarLanesRequest
   ): Observable<Lane[]> {
-    const params = new HttpParams().set('poolId', poolId).set('usuarioId', usuarioId);
+    const params = new HttpParams().set('poolId', poolId);
     return this.http.put<Lane[]>(`${this.apiUrl}/reordenar`, request, { params });
   }
 
-  eliminar(id: number, usuarioId: number): Observable<void> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { params });
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

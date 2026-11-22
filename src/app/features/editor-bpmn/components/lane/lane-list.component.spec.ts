@@ -56,7 +56,7 @@ describe('LaneListComponent', () => {
 
   let sesion: UsuarioSesion | null;
   let permisosConfigurados: PermisoPool[];
-  let creacion: { request: unknown; usuarioId: number } | null;
+  let creacion: { request: unknown } | null;
 
   function configurar(): void {
     TestBed.configureTestingModule({
@@ -65,8 +65,8 @@ describe('LaneListComponent', () => {
         { provide: AutenticacionService, useValue: { sesion: () => sesion } },
         { provide: LaneService, useValue: {
           listarPorPool: () => of([lane]),
-          crear: (request: unknown, usuarioId: number) => {
-            creacion = { request, usuarioId };
+          crear: (request: unknown) => {
+            creacion = { request };
             return of(lane);
           },
         } },
@@ -118,7 +118,7 @@ describe('LaneListComponent', () => {
     expect(fixture.componentInstance.puedeEliminar).toBe(true);
   });
 
-  it('crea una lane con el poolId recibido y el usuario de la sesion', () => {
+  it('crea una lane con el poolId recibido', () => {
     configurar();
     const fixture = TestBed.createComponent(LaneListComponent);
     fixture.componentInstance.poolId = 20;
@@ -128,6 +128,6 @@ describe('LaneListComponent', () => {
     fixture.componentInstance.formulario.setValue({ rolProcesoId: 2 });
     fixture.componentInstance.guardar();
 
-    expect(creacion).toEqual({ request: { poolId: 20, rolProcesoId: 2 }, usuarioId: 4 });
+    expect(creacion).toEqual({ request: { poolId: 20, rolProcesoId: 2 } });
   });
 });

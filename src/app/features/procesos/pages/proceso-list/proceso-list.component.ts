@@ -95,7 +95,7 @@ export class ProcesoListComponent implements OnInit {
     this.eliminandoId = proceso.id;
     this.limpiarError();
     this.procesoService
-      .eliminar(proceso.id, sesion.usuarioId)
+      .eliminar(proceso.id)
       .pipe(finalize(() => (this.eliminandoId = null)))
       .subscribe({
         next: () => this.consultar(this.pagina?.number ?? 0),
@@ -113,7 +113,6 @@ export class ProcesoListComponent implements OnInit {
     this.limpiarError();
 
     const parametros: ConsultarProcesosParams = {
-      empresaId: sesion.empresaId,
       ...this.filtros,
       page: numeroPagina,
       size: 9,

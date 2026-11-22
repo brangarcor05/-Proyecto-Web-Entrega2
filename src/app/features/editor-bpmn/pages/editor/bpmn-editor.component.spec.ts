@@ -32,7 +32,7 @@ interface EditorBpmnSimulado {
 interface BpmnEditorComponentePrueba {
   editor: EditorBpmnSimulado | null;
   inicializarEditor(): void;
-  cargarDiagrama(procesoId: number, empresaId: number): void;
+  cargarDiagrama(procesoId: number): void;
   actualizarArcosDiagrama(): void;
   sincronizarGateways(sesion: UsuarioSesion): void;
   sincronizarActividades(sesion: UsuarioSesion): void;
@@ -72,11 +72,11 @@ describe('BpmnEditorComponent', () => {
   let procesoRespuesta: Proceso;
   let errorProceso: unknown | null;
   let navegacion: unknown[] | null;
-  let busqueda: { id: number; empresaId: number } | null;
+  let busqueda: { id: number } | null;
   let diagramaRespuesta: string;
   let errorDiagrama: unknown | null;
   let arcosSincronizados: unknown[] | null;
-  let sincronizacion: { procesoId: number; usuarioId: number } | null;
+  let sincronizacion: { procesoId: number } | null;
   let errorSincronizacion: unknown | null;
   let poolsRespuesta: Array<{ id: number; esPropietario: boolean }>;
   let lanesRespuesta: Array<{ id: number; activo: boolean }>;
@@ -121,8 +121,8 @@ describe('BpmnEditorComponent', () => {
         {
           provide: ProcesoService,
           useValue: {
-            buscarPorId: (id: number, empresaId: number) => {
-              busqueda = { id, empresaId };
+            buscarPorId: (id: number) => {
+              busqueda = { id };
               return errorProceso ? throwError(() => errorProceso) : of(procesoRespuesta);
             },
             obtenerDiagrama: () => errorDiagrama
@@ -133,8 +133,8 @@ describe('BpmnEditorComponent', () => {
         {
           provide: ArcoService,
           useValue: {
-            sincronizar: (procesoId: number, arcos: unknown[], usuarioId: number) => {
-              sincronizacion = { procesoId, usuarioId };
+            sincronizar: (procesoId: number, arcos: unknown[]) => {
+              sincronizacion = { procesoId };
               arcosSincronizados = arcos;
               return errorSincronizacion
                 ? throwError(() => errorSincronizacion)
@@ -198,7 +198,7 @@ describe('BpmnEditorComponent', () => {
   it('consulta el proceso usando la empresa de la sesión', () => {
     const componente = crearComponente();
 
-    expect(busqueda).toEqual({ id: 9, empresaId: 4 });
+    expect(busqueda).toEqual({ id: 9 });
     expect(componente.puedeEditar).toBe(true);
   });
 
@@ -304,7 +304,7 @@ describe('BpmnEditorComponent', () => {
     componentePrueba.editor = { importXML: importarXml, destroy: () => undefined };
     errorDiagrama = new HttpErrorResponse({ status: 404 });
 
-    componentePrueba.cargarDiagrama(9, 4);
+    componentePrueba.cargarDiagrama(9);
 
     expect(importarXml).toHaveBeenCalledOnce();
     expect(componente.mensaje).toBe('El proceso todavía no tiene un diagrama guardado.');
@@ -318,7 +318,7 @@ describe('BpmnEditorComponent', () => {
     componentePrueba.editor = { importXML: importarXml, destroy: () => undefined };
     errorDiagrama = new HttpErrorResponse({ status: 500 });
 
-    componentePrueba.cargarDiagrama(9, 4);
+    componentePrueba.cargarDiagrama(9);
 
     expect(importarXml).not.toHaveBeenCalled();
     expect(componente.mensaje).toBe('');
@@ -416,7 +416,7 @@ describe('BpmnEditorComponent', () => {
       posicionY: 180,
       canvasId: 'Gateway_1',
     });
-    expect(sincronizacion).toEqual({ procesoId: 9, usuarioId: 1 });
+    expect(sincronizacion).toEqual({ procesoId: 9 });
   });
 
   it('sincroniza una actividad nueva usando una lane activa antes de los arcos', () => {
@@ -450,7 +450,7 @@ describe('BpmnEditorComponent', () => {
       posicionY: 190,
       canvasId: 'Activity_1',
     });
-    expect(sincronizacion).toEqual({ procesoId: 9, usuarioId: 1 });
+    expect(sincronizacion).toEqual({ procesoId: 9 });
   });
 
   it('envía los SequenceFlow al backend usando sus canvasId', () => {
@@ -468,7 +468,7 @@ describe('BpmnEditorComponent', () => {
 
     accederMetodosPrivados(componente).sincronizarArcos(sesionAdmin);
 
-    expect(sincronizacion).toEqual({ procesoId: 9, usuarioId: 1 });
+    expect(sincronizacion).toEqual({ procesoId: 9 });
     expect(arcosSincronizados).toEqual([{
       canvasId: 'Flow_1',
       origenCanvasId: 'StartEvent_1',

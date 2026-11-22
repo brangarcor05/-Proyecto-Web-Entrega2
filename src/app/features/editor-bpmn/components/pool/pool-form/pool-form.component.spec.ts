@@ -46,8 +46,8 @@ describe('PoolFormComponent', () => {
   let sesion: UsuarioSesion | null;
   let routeParams: Record<string, string | null>;
   let procesoConsultado: Proceso;
-  let creacion: { request: unknown; usuarioId: number } | null;
-  let actualizacion: { id: number; request: unknown; usuarioId: number } | null;
+  let creacion: { request: unknown } | null;
+  let actualizacion: { id: number; request: unknown } | null;
   let navegacion: unknown[] | null;
 
   function permisoSesion(): PermisoPool {
@@ -94,12 +94,12 @@ describe('PoolFormComponent', () => {
           provide: PoolService,
           useValue: {
             buscarPorId: () => of(pool),
-            crear: (request: unknown, usuarioId: number) => {
-              creacion = { request, usuarioId };
+            crear: (request: unknown) => {
+              creacion = { request };
               return of(pool);
             },
-            actualizar: (id: number, request: unknown, usuarioId: number) => {
-              actualizacion = { id, request, usuarioId };
+            actualizar: (id: number, request: unknown) => {
+              actualizacion = { id, request };
               return of(pool);
             },
           },
@@ -114,7 +114,7 @@ describe('PoolFormComponent', () => {
       .compileComponents();
   });
 
-  it('crea un participante externo usando proceso y usuario de la sesión', () => {
+  it('crea un participante externo en el proceso de la ruta', () => {
     const fixture = TestBed.createComponent(PoolFormComponent);
     fixture.detectChanges();
     fixture.componentInstance.formulario.setValue({ nombre: '  Proveedor  ', cajaNegra: true });
@@ -123,7 +123,6 @@ describe('PoolFormComponent', () => {
 
     expect(creacion).toEqual({
       request: { procesoId: 10, nombre: 'Proveedor', cajaNegra: true },
-      usuarioId: 4,
     });
     expect(navegacion).toEqual(['/procesos', 10, 'pools']);
   });
@@ -140,7 +139,6 @@ describe('PoolFormComponent', () => {
     expect(actualizacion).toEqual({
       id: 2,
       request: { nombre: 'Cliente externo', cajaNegra: true },
-      usuarioId: 4,
     });
   });
 

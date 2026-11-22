@@ -100,8 +100,8 @@ export class ProcesoFormComponent implements OnInit {
     const id = this.procesoId;
 
     const operacion = id === null
-      ? this.procesoService.crear(this.construirCreacion(valor, sesion.empresaId), sesion.usuarioId)
-      : this.procesoService.actualizar(id, this.construirActualizacion(valor), sesion.usuarioId);
+      ? this.procesoService.crear(this.construirCreacion(valor))
+      : this.procesoService.actualizar(id, this.construirActualizacion(valor));
 
     operacion.pipe(finalize(() => this.guardando.set(false))).subscribe({
       next: (proceso) => void this.router.navigate(['/procesos', proceso.id]),
@@ -123,7 +123,7 @@ export class ProcesoFormComponent implements OnInit {
     this.cargando.set(true);
     this.limpiarError();
     this.procesoService
-      .buscarPorId(id, sesion.empresaId)
+      .buscarPorId(id)
       .pipe(finalize(() => this.cargando.set(false)))
       .subscribe({
         next: (proceso) => {
@@ -138,9 +138,8 @@ export class ProcesoFormComponent implements OnInit {
       });
   }
 
-  private construirCreacion(valor: typeof this.formulario.value, empresaId: number): CrearProcesoRequest {
+  private construirCreacion(valor: typeof this.formulario.value): CrearProcesoRequest {
     return {
-      empresaId,
       nombre: valor.nombre?.trim() ?? '',
       descripcion: valor.descripcion?.trim() ?? '',
       categoria: valor.categoria?.trim() ?? '',

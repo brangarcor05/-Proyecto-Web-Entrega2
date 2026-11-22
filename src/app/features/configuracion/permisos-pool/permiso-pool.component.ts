@@ -43,7 +43,7 @@ export class PermisoPoolComponent implements OnInit {
     this.cargando = true;
     this.cdr.markForCheck(); // <-- Forzamos actualización al iniciar
 
-    this.permisoPoolService.consultar(sesion.empresaId)
+    this.permisoPoolService.consultar()
       .pipe(finalize(() => {
         this.cargando = false;
         this.cdr.markForCheck(); // <-- Forzamos actualización al terminar
@@ -84,7 +84,7 @@ export class PermisoPoolComponent implements OnInit {
     this.mensaje = '';
     this.cdr.markForCheck(); // <-- Actualizamos al empezar a guardar
 
-    this.permisoPoolService.configurar(request, sesion.usuarioId)
+    this.permisoPoolService.configurar(request)
       .pipe(finalize(() => {
         this.guardandoRol = null;
         this.cdr.markForCheck(); // <-- Actualizamos al terminar de guardar

@@ -33,9 +33,9 @@ describe('PermisoPoolService', () => {
   afterEach(() => httpTesting.verify());
 
   it('consulta los permisos de la empresa autenticada', () => {
-    service.consultar(3).subscribe((resultado) => expect(resultado).toEqual([permiso]));
+    service.consultar().subscribe((resultado) => expect(resultado).toEqual([permiso]));
 
-    const request = httpTesting.expectOne(`${apiUrl}?empresaId=3`);
+    const request = httpTesting.expectOne(`${apiUrl}`);
     expect(request.request.method).toBe('GET');
     request.flush([permiso]);
   });
@@ -49,9 +49,9 @@ describe('PermisoPoolService', () => {
     };
     const actualizado: PermisoPool = { ...permiso, id: 8, puedeEliminar: true, configurado: true };
 
-    service.configurar(body, 5).subscribe((resultado) => expect(resultado).toEqual(actualizado));
+    service.configurar(body).subscribe((resultado) => expect(resultado).toEqual(actualizado));
 
-    const request = httpTesting.expectOne(`${apiUrl}?usuarioId=5`);
+    const request = httpTesting.expectOne(`${apiUrl}`);
     expect(request.request.method).toBe('PUT');
     expect(request.request.body).toEqual(body);
     request.flush(actualizado);

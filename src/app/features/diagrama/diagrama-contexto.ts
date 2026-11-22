@@ -71,7 +71,7 @@ export abstract class DiagramaContexto implements OnInit {
             return EMPTY;
           }
           this.procesoId = procesoId;
-          return this.procesos.buscarPorId(procesoId, sesion.empresaId).pipe(
+          return this.procesos.buscarPorId(procesoId).pipe(
             tap((proceso) => {
               if (proceso.id !== procesoId) throw new Error('Proceso incorrecto');
               this.proceso = proceso;

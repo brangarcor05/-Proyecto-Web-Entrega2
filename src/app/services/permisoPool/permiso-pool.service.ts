@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -11,16 +11,13 @@ export class PermisoPoolService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/permisos-pool`;
 
-  consultar(empresaId: number): Observable<PermisoPool[]> {
-    const params = new HttpParams().set('empresaId', empresaId);
-    return this.http.get<PermisoPool[]>(this.apiUrl, { params });
+  consultar(): Observable<PermisoPool[]> {
+    return this.http.get<PermisoPool[]>(this.apiUrl);
   }
 
   configurar(
-    request: ConfigurarPermisoPoolRequest,
-    usuarioId: number,
+    request: ConfigurarPermisoPoolRequest
   ): Observable<PermisoPool> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.put<PermisoPool>(this.apiUrl, request, { params });
+    return this.http.put<PermisoPool>(this.apiUrl, request);
   }
 }

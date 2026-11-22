@@ -53,7 +53,7 @@ export class EventoListComponent extends DiagramaContexto {
     this.eliminando = true;
     this.error = '';
     this.service
-      .eliminar(elemento.id, sesion.usuarioId)
+      .eliminar(elemento.id)
       .pipe(
         finalize(() => {
           this.eliminando = false;

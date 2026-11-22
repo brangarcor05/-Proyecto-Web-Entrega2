@@ -86,7 +86,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
   private cargarProceso(procesoId: number, sesion: UsuarioSesion): void {
     this.cargando = true;
     this.error = '';
-    this.procesoService.buscarPorId(procesoId, sesion.empresaId)
+    this.procesoService.buscarPorId(procesoId)
       .pipe(finalize(() => {
         this.cargando = false;
         this.cdr.markForCheck();
@@ -96,7 +96,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
           this.soloLectura = proceso.soloLectura
             || !puedeCrearOEditarProceso(sesion.rolUsuario);
           this.inicializarEditor();
-          this.cargarDiagrama(procesoId, sesion.empresaId);
+          this.cargarDiagrama(procesoId);
         },
         error: (error: unknown) => {
           this.error = this.apiErrorService.obtenerMensaje(error);
@@ -130,10 +130,10 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     this.suscribirCambiosDiagrama();
   }
 
-  private cargarDiagrama(procesoId: number, empresaId: number): void {
+  private cargarDiagrama(procesoId: number): void {
     if (!this.editor) return;
 
-    this.procesoService.obtenerDiagrama(procesoId, empresaId).subscribe({
+    this.procesoService.obtenerDiagrama(procesoId).subscribe({
       next: (xml) => {
         const esValido = xml && xml.includes('<bpmndi:BPMNDiagram');
         const xmlACargar = esValido ? xml : this.xmlVacio();
@@ -175,11 +175,11 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
         return;
       }
 
-      this.procesoService.guardarDiagrama(this.procesoId!, xml, sesion.usuarioId)
+      this.procesoService.guardarDiagrama(this.procesoId!, xml)
         .subscribe({
           next: () => {
             // 2. Sincronizamos los eventos del canvas con la base de datos
-            this.sincronizarEventos(sesion);
+            this.sincronizarEventos();
           },
           error: (err) => {
             this.guardando = false;
@@ -304,9 +304,9 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     if (!sesion) this.router.navigate(['/login']);
     return sesion;
   }
-  private sincronizarEventos(sesion: UsuarioSesion): void {
+  private sincronizarEventos(): void {
     if (!this.editor) {
-      this.sincronizarGateways(sesion);
+      this.sincronizarGateways();
       return;
     }
 
@@ -320,7 +320,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     );
 
     if (eventosCanvas.length === 0) {
-      this.sincronizarGateways(sesion);
+      this.sincronizarGateways();
       return;
     }
 
@@ -355,10 +355,10 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
                   tipo: tipo as 'INICIO' | 'FIN',
                   canvasId: canvasId,
                 };
-                this.eventoService.crear(request, sesion.usuarioId).subscribe({
+                this.eventoService.crear(request).subscribe({
                   next: () => {
                     pendientes--;
-                    if (pendientes === 0) this.sincronizarGateways(sesion);
+                    if (pendientes === 0) this.sincronizarGateways();
                   },
                   error: (err: unknown) => {
                     this.finalizarConError(this.apiErrorService.obtenerMensaje(err));
@@ -366,7 +366,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
                 });
               } else {
                 pendientes--;
-                if (pendientes === 0) this.sincronizarGateways(sesion);
+                if (pendientes === 0) this.sincronizarGateways();
               }
             },
             error: (err: unknown) => {
@@ -381,7 +381,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     });
   }
 
-  private sincronizarGateways(sesion: UsuarioSesion): void {
+  private sincronizarGateways(): void {
     if (!this.editor || !this.procesoId) {
       this.finalizarConError('No fue posible identificar el proceso del diagrama.');
       return;
@@ -394,7 +394,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     );
 
     if (gatewaysCanvas.length === 0) {
-      this.sincronizarActividades(sesion);
+      this.sincronizarActividades();
       return;
     }
 
@@ -426,7 +426,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
               operacion.subscribe({
                 next: () => {
                   pendientes--;
-                  if (pendientes === 0) this.sincronizarActividades(sesion);
+                  if (pendientes === 0) this.sincronizarActividades();
                 },
                 error: (error: unknown) =>
                   this.finalizarConError(this.apiErrorService.obtenerMensaje(error)),
@@ -442,7 +442,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     });
   }
 
-  private sincronizarActividades(sesion: UsuarioSesion): void {
+  private sincronizarActividades(): void {
     if (!this.editor || !this.procesoId) {
       this.finalizarConError('No fue posible identificar el proceso del diagrama.');
       return;
@@ -456,7 +456,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     );
 
     if (actividadesCanvas.length === 0) {
-      this.sincronizarArcos(sesion);
+      this.sincronizarArcos();
       return;
     }
 
@@ -497,7 +497,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
                   operacion.subscribe({
                     next: () => {
                       pendientes--;
-                      if (pendientes === 0) this.sincronizarArcos(sesion);
+                      if (pendientes === 0) this.sincronizarArcos();
                     },
                     error: (error: unknown) =>
                       this.finalizarConError(this.apiErrorService.obtenerMensaje(error)),
@@ -527,7 +527,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
     return tipoBpmn.replace('bpmn:', '').replace('Task', '').toUpperCase() || 'TAREA';
   }
 
-  private sincronizarArcos(sesion: UsuarioSesion): void {
+  private sincronizarArcos(): void {
     if (!this.procesoId) {
       this.finalizarConError('No fue posible identificar el proceso del diagrama.');
       return;
@@ -541,7 +541,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
       condicion: arco.condicion,
     }));
 
-    this.arcoService.sincronizar(this.procesoId, solicitudes, sesion.usuarioId).subscribe({
+    this.arcoService.sincronizar(this.procesoId, solicitudes).subscribe({
       next: () => {
         this.arcoPanel?.recargar();
         this.finalizarGuardado();

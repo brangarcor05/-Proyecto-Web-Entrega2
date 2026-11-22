@@ -54,7 +54,7 @@ describe('ArcoService', () => {
     request.flush(arco);
   });
 
-  it('crea un arco con el usuario de la sesión', () => {
+  it('crea un arco sin enviar el usuario (sale del token)', () => {
     const body: CrearArcoRequest = {
       procesoId: 3,
       origenId: 10,
@@ -62,9 +62,9 @@ describe('ArcoService', () => {
       etiqueta: 'Aprobada',
       condicion: null,
     };
-    service.crear(body, 4).subscribe((resultado) => expect(resultado).toEqual(arco));
+    service.crear(body).subscribe((resultado) => expect(resultado).toEqual(arco));
 
-    const request = httpTesting.expectOne(`${apiUrl}?usuarioId=4`);
+    const request = httpTesting.expectOne(`${apiUrl}`);
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual(body);
     request.flush(arco, { status: 201, statusText: 'Created' });
@@ -77,9 +77,9 @@ describe('ArcoService', () => {
       etiqueta: 'Revisada',
       condicion: 'monto > 1000',
     };
-    service.actualizar(7, body, 4).subscribe((resultado) => expect(resultado).toEqual(arco));
+    service.actualizar(7, body).subscribe((resultado) => expect(resultado).toEqual(arco));
 
-    const request = httpTesting.expectOne(`${apiUrl}/7?usuarioId=4`);
+    const request = httpTesting.expectOne(`${apiUrl}/7`);
     expect(request.request.method).toBe('PUT');
     expect(request.request.body).toEqual(body);
     request.flush(arco);
@@ -90,9 +90,9 @@ describe('ArcoService', () => {
       id: 7,
       advertencias: ["'Validar solicitud' queda sin camino de salida"],
     };
-    service.eliminar(7, 4).subscribe((resultado) => expect(resultado).toEqual(respuesta));
+    service.eliminar(7).subscribe((resultado) => expect(resultado).toEqual(respuesta));
 
-    const request = httpTesting.expectOne(`${apiUrl}/7?usuarioId=4`);
+    const request = httpTesting.expectOne(`${apiUrl}/7`);
     expect(request.request.method).toBe('DELETE');
     request.flush(respuesta);
   });
@@ -106,23 +106,23 @@ describe('ArcoService', () => {
       condicion: null,
     }];
 
-    service.sincronizar(3, body, 4).subscribe((resultado) => expect(resultado).toEqual([arco]));
+    service.sincronizar(3, body).subscribe((resultado) => expect(resultado).toEqual([arco]));
 
-    const request = httpTesting.expectOne(`${apiUrl}/sincronizar?procesoId=3&usuarioId=4`);
+    const request = httpTesting.expectOne(`${apiUrl}/sincronizar?procesoId=3`);
     expect(request.request.method).toBe('PUT');
     expect(request.request.body).toEqual(body);
     request.flush([arco]);
   });
 
   it('propaga las validaciones de negocio del backend', () => {
-    service.crear({ procesoId: 3, origenId: 10, destinoId: 10 }, 4).subscribe({
+    service.crear({ procesoId: 3, origenId: 10, destinoId: 10 }).subscribe({
       next: () => {
         throw new Error('La creación debía fallar');
       },
       error: (error) => expect(error.status).toBe(400),
     });
 
-    httpTesting.expectOne(`${apiUrl}?usuarioId=4`).flush(
+    httpTesting.expectOne(`${apiUrl}`).flush(
       { mensaje: 'Un arco no puede tener el mismo elemento como origen y destino' },
       { status: 400, statusText: 'Bad Request' },
     );
