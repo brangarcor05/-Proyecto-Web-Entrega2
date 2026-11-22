@@ -59,8 +59,8 @@ describe('ProcesoShareComponent', () => {
   let sesion: UsuarioSesion | null;
   let routeId: string | null;
   let navegacion: unknown[] | null;
-  let busqueda: { id: number; empresaId: number } | null;
-  let comparticion: { id: number; request: unknown; usuarioId: number } | null;
+  let busqueda: { id: number } | null;
+  let comparticion: { id: number; request: unknown } | null;
 
   beforeEach(async () => {
     sesion = sesionAdmin;
@@ -87,12 +87,12 @@ describe('ProcesoShareComponent', () => {
         {
           provide: ProcesoService,
           useValue: {
-            buscarPorId: (id: number, empresaId: number) => {
-              busqueda = { id, empresaId };
+            buscarPorId: (id: number) => {
+              busqueda = { id };
               return of(proceso);
             },
-            compartir: (id: number, request: unknown, usuarioId: number) => {
-              comparticion = { id, request, usuarioId };
+            compartir: (id: number, request: unknown) => {
+              comparticion = { id, request };
               return of({ ...proceso, compartido: true });
             },
           },
@@ -108,7 +108,7 @@ describe('ProcesoShareComponent', () => {
     const fixture = TestBed.createComponent(ProcesoShareComponent);
     fixture.detectChanges();
 
-    expect(busqueda).toEqual({ id: 15, empresaId: 7 });
+    expect(busqueda).toEqual({ id: 15 });
     expect(fixture.componentInstance.proceso()).toEqual(proceso);
     expect(fixture.componentInstance.empresas()).toEqual([empresas[1]]);
     expect(fixture.componentInstance.formulario.controls.empresasIds.value).toEqual([2]);
@@ -136,7 +136,6 @@ describe('ProcesoShareComponent', () => {
     expect(comparticion).toEqual({
       id: 15,
       request: { compartido: true, empresasIds: [2, 3] },
-      usuarioId: 3,
     });
     expect(navegacion).toEqual(['/procesos', 15]);
   });

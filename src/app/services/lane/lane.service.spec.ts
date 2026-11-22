@@ -45,33 +45,33 @@ describe('LaneService', () => {
   });
 
   it('crear envia usuarioId como query param y el body de creacion', () => {
-    service.crear({ poolId: 10, rolProcesoId: 2 }, 5).subscribe((resultado) => {
+    service.crear({ poolId: 10, rolProcesoId: 2 }).subscribe((resultado) => {
       expect(resultado).toEqual(lane);
     });
 
-    const peticion = httpTesting.expectOne((req) => req.url === apiUrl && req.params.get('usuarioId') === '5');
+    const peticion = httpTesting.expectOne((req) => req.url === apiUrl && !req.params.has('usuarioId'));
     expect(peticion.request.method).toBe('POST');
     expect(peticion.request.body).toEqual({ poolId: 10, rolProcesoId: 2 });
     peticion.flush(lane);
   });
 
   it('actualizar hace PUT a /lanes/{id} con usuarioId', () => {
-    service.actualizar(1, { rolProcesoId: 3 }, 5).subscribe((resultado) => {
+    service.actualizar(1, { rolProcesoId: 3 }).subscribe((resultado) => {
       expect(resultado).toEqual(lane);
     });
 
-    const peticion = httpTesting.expectOne((req) => req.url === `${apiUrl}/1` && req.params.get('usuarioId') === '5');
+    const peticion = httpTesting.expectOne((req) => req.url === `${apiUrl}/1` && !req.params.has('usuarioId'));
     expect(peticion.request.method).toBe('PUT');
     peticion.flush(lane);
   });
 
   it('reordenar hace PUT a /lanes/reordenar con poolId y usuarioId', () => {
-    service.reordenar(10, { laneIdsEnOrden: [2, 1] }, 5).subscribe((resultado) => {
+    service.reordenar(10, { laneIdsEnOrden: [2, 1] }).subscribe((resultado) => {
       expect(resultado).toEqual([lane]);
     });
 
     const peticion = httpTesting.expectOne(
-      (req) => req.url === `${apiUrl}/reordenar` && req.params.get('poolId') === '10' && req.params.get('usuarioId') === '5',
+      (req) => req.url === `${apiUrl}/reordenar` && req.params.get('poolId') === '10' && !req.params.has('usuarioId'),
     );
     expect(peticion.request.method).toBe('PUT');
     expect(peticion.request.body).toEqual({ laneIdsEnOrden: [2, 1] });
@@ -79,9 +79,9 @@ describe('LaneService', () => {
   });
 
   it('eliminar hace DELETE a /lanes/{id} con usuarioId', () => {
-    service.eliminar(1, 5).subscribe();
+    service.eliminar(1).subscribe();
 
-    const peticion = httpTesting.expectOne((req) => req.url === `${apiUrl}/1` && req.params.get('usuarioId') === '5');
+    const peticion = httpTesting.expectOne((req) => req.url === `${apiUrl}/1` && !req.params.has('usuarioId'));
     expect(peticion.request.method).toBe('DELETE');
     peticion.flush(null);
   });

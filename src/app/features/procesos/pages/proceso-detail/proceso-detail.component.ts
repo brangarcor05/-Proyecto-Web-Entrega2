@@ -68,7 +68,7 @@ export class ProcesoDetailComponent implements OnInit {
     this.eliminando = true;
     this.error = '';
     this.procesoService
-      .eliminar(proceso.id, sesion.usuarioId)
+      .eliminar(proceso.id)
       .pipe(finalize(() => (this.eliminando = false)))
       .subscribe({
         next: () => void this.router.navigate(['/procesos']),
@@ -85,7 +85,7 @@ export class ProcesoDetailComponent implements OnInit {
     this.cargando = true;
     this.error = '';
     this.procesoService
-      .buscarPorId(id, sesion.empresaId)
+      .buscarPorId(id)
       .pipe(
         finalize(() => {
           this.cargando = false;

@@ -21,18 +21,15 @@ export class PoolService {
     return this.http.get<Pool>(`${this.apiUrl}/${id}`);
   }
 
-  crear(request: CrearPoolRequest, usuarioId: number): Observable<Pool> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.post<Pool>(this.apiUrl, request, { params });
+  crear(request: CrearPoolRequest): Observable<Pool> {
+    return this.http.post<Pool>(this.apiUrl, request);
   }
 
-  actualizar(id: number, request: ActualizarPoolRequest, usuarioId: number): Observable<Pool> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.put<Pool>(`${this.apiUrl}/${id}`, request, { params });
+  actualizar(id: number, request: ActualizarPoolRequest): Observable<Pool> {
+    return this.http.put<Pool>(`${this.apiUrl}/${id}`, request);
   }
 
-  eliminar(id: number, usuarioId: number): Observable<void> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { params });
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

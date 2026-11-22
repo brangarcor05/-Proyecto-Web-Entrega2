@@ -22,24 +22,19 @@ export class NotificacionExternaService {
   }
 
   crear(
-    request: CrearNotificacionExternaRequest,
-    usuarioId: number,
+    request: CrearNotificacionExternaRequest
   ): Observable<NotificacionExterna> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.post<NotificacionExterna>(this.apiUrl, request, { params });
+    return this.http.post<NotificacionExterna>(this.apiUrl, request);
   }
 
   actualizar(
     id: number,
-    request: ActualizarNotificacionExternaRequest,
-    usuarioId: number,
+    request: ActualizarNotificacionExternaRequest
   ): Observable<NotificacionExterna> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.put<NotificacionExterna>(`${this.apiUrl}/${id}`, request, { params });
+    return this.http.put<NotificacionExterna>(`${this.apiUrl}/${id}`, request);
   }
 
-  eliminar(id: number, usuarioId: number): Observable<void> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { params });
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

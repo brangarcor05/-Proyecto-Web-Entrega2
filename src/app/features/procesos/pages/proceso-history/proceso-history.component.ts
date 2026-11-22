@@ -41,7 +41,7 @@ export class ProcesoHistoryComponent implements OnInit {
     this.procesoId.set(id);
     this.cargando.set(true);
     this.procesoService
-      .consultarHistorial(id, sesion.empresaId)
+      .consultarHistorial(id)
       .pipe(finalize(() => this.cargando.set(false)))
       .subscribe({
         next: (registros) => this.registros.set(registros ?? []),

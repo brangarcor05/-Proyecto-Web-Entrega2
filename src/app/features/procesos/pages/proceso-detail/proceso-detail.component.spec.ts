@@ -34,8 +34,8 @@ describe('ProcesoDetailComponent', () => {
   let sesion: UsuarioSesion | null;
   let routeId: string | null;
   let navegacion: unknown[] | null;
-  let busqueda: { id: number; empresaId: number } | null;
-  let eliminacion: { id: number; usuarioId: number } | null;
+  let busqueda: { id: number } | null;
+  let eliminacion: { id: number } | null;
 
   beforeEach(async () => {
     sesion = sesionAdmin;
@@ -61,12 +61,12 @@ describe('ProcesoDetailComponent', () => {
         {
           provide: ProcesoService,
           useValue: {
-            buscarPorId: (id: number, empresaId: number) => {
-              busqueda = { id, empresaId };
+            buscarPorId: (id: number) => {
+              busqueda = { id };
               return of(proceso);
             },
-            eliminar: (id: number, usuarioId: number) => {
-              eliminacion = { id, usuarioId };
+            eliminar: (id: number) => {
+              eliminacion = { id };
               return of(undefined);
             },
           },
@@ -82,7 +82,7 @@ describe('ProcesoDetailComponent', () => {
     const fixture = TestBed.createComponent(ProcesoDetailComponent);
     fixture.detectChanges();
 
-    expect(busqueda).toEqual({ id: 9, empresaId: 4 });
+    expect(busqueda).toEqual({ id: 9 });
     expect(fixture.componentInstance.proceso).toEqual(proceso);
   });
 
@@ -117,7 +117,7 @@ describe('ProcesoDetailComponent', () => {
 
     fixture.componentInstance.eliminar();
 
-    expect(eliminacion).toEqual({ id: 9, usuarioId: 1 });
+    expect(eliminacion).toEqual({ id: 9 });
     expect(navegacion).toEqual(['/procesos']);
   });
 

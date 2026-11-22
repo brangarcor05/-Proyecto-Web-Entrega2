@@ -58,7 +58,6 @@ describe('ProcesoService', () => {
 
     service
       .consultar({
-        empresaId: 1,
         nombre: 'Solicitud',
         estado: 'BORRADOR',
         categoria: 'Compras',
@@ -72,7 +71,8 @@ describe('ProcesoService', () => {
     const request = httpTesting.expectOne((candidate) => candidate.url === apiUrl);
 
     expect(request.request.method).toBe('GET');
-    expect(request.request.params.get('empresaId')).toBe('1');
+    // La empresa sale del token: el cliente ya no la envía
+    expect(request.request.params.has('empresaId')).toBe(false);
     expect(request.request.params.get('nombre')).toBe('Solicitud');
     expect(request.request.params.get('estado')).toBe('BORRADOR');
     expect(request.request.params.get('categoria')).toBe('Compras');
@@ -85,11 +85,11 @@ describe('ProcesoService', () => {
   });
 
   it('busca un proceso por id y empresa', () => {
-    service.buscarPorId(1, 2).subscribe((resultado) => {
+    service.buscarPorId(1).subscribe((resultado) => {
       expect(resultado).toEqual(proceso);
     });
 
-    const request = httpTesting.expectOne(`${apiUrl}/1?empresaId=2`);
+    const request = httpTesting.expectOne(`${apiUrl}/1`);
 
     expect(request.request.method).toBe('GET');
     request.flush(proceso);
@@ -109,11 +109,11 @@ describe('ProcesoService', () => {
       },
     ];
 
-    service.consultarHistorial(1, 2).subscribe((resultado) => {
+    service.consultarHistorial(1).subscribe((resultado) => {
       expect(resultado).toEqual(historial);
     });
 
-    const request = httpTesting.expectOne(`${apiUrl}/1/historial?empresaId=2`);
+    const request = httpTesting.expectOne(`${apiUrl}/1/historial`);
 
     expect(request.request.method).toBe('GET');
     request.flush(historial);
@@ -121,17 +121,16 @@ describe('ProcesoService', () => {
 
   it('crea un proceso', () => {
     const body: CrearProcesoRequest = {
-      empresaId: 1,
       nombre: 'Solicitud de compra',
       descripcion: 'Proceso interno de compras',
       categoria: 'Compras',
     };
 
-    service.crear(body, 3).subscribe((resultado) => {
+    service.crear(body).subscribe((resultado) => {
       expect(resultado).toEqual(proceso);
     });
 
-    const request = httpTesting.expectOne(`${apiUrl}?usuarioId=3`);
+    const request = httpTesting.expectOne(`${apiUrl}`);
 
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual(body);
@@ -146,11 +145,11 @@ describe('ProcesoService', () => {
       estado: 'PUBLICADO',
     };
 
-    service.actualizar(1, body, 3).subscribe((resultado) => {
+    service.actualizar(1, body).subscribe((resultado) => {
       expect(resultado).toEqual(proceso);
     });
 
-    const request = httpTesting.expectOne(`${apiUrl}/1?usuarioId=3`);
+    const request = httpTesting.expectOne(`${apiUrl}/1`);
 
     expect(request.request.method).toBe('PUT');
     expect(request.request.body).toEqual(body);
@@ -163,11 +162,11 @@ describe('ProcesoService', () => {
       empresasIds: [2, 3],
     };
 
-    service.compartir(1, body, 4).subscribe((resultado) => {
+    service.compartir(1, body).subscribe((resultado) => {
       expect(resultado).toEqual(proceso);
     });
 
-    const request = httpTesting.expectOne(`${apiUrl}/1/comparticion?usuarioId=4`);
+    const request = httpTesting.expectOne(`${apiUrl}/1/comparticion`);
 
     expect(request.request.method).toBe('PUT');
     expect(request.request.body).toEqual(body);
@@ -177,13 +176,13 @@ describe('ProcesoService', () => {
   it('elimina un proceso', () => {
     let completed = false;
 
-    service.eliminar(1, 5).subscribe({
+    service.eliminar(1).subscribe({
       complete: () => {
         completed = true;
       },
     });
 
-    const request = httpTesting.expectOne(`${apiUrl}/1?usuarioId=5`);
+    const request = httpTesting.expectOne(`${apiUrl}/1`);
 
     expect(request.request.method).toBe('DELETE');
     request.flush(null, { status: 204, statusText: 'No Content' });
@@ -193,20 +192,20 @@ describe('ProcesoService', () => {
   it('consulta el XML BPMN de un proceso como texto', () => {
     const xml = '<bpmn:definitions />';
 
-    service.obtenerDiagrama(1, 2).subscribe((resultado) => expect(resultado).toBe(xml));
+    service.obtenerDiagrama(1).subscribe((resultado) => expect(resultado).toBe(xml));
 
-    const request = httpTesting.expectOne(`${apiUrl}/1/diagrama?empresaId=2`);
+    const request = httpTesting.expectOne(`${apiUrl}/1/diagrama`);
     expect(request.request.method).toBe('GET');
     expect(request.request.responseType).toBe('text');
     request.flush(xml);
   });
 
-  it('guarda el XML BPMN con el usuario de la sesión', () => {
+  it('guarda el XML BPMN sin enviar el usuario (sale del token)', () => {
     const xml = '<bpmn:definitions />';
 
-    service.guardarDiagrama(1, xml, 5).subscribe();
+    service.guardarDiagrama(1, xml).subscribe();
 
-    const request = httpTesting.expectOne(`${apiUrl}/1/diagrama?usuarioId=5`);
+    const request = httpTesting.expectOne(`${apiUrl}/1/diagrama`);
     expect(request.request.method).toBe('PUT');
     expect(request.request.body).toBe(xml);
     expect(request.request.headers.get('Content-Type')).toBe('text/plain');

@@ -30,13 +30,13 @@ describe('PermisoPoolComponent', () => {
   };
 
   let sesion: UsuarioSesion | null;
-  let empresaConsultada: number | null;
-  let configuracion: { request: ConfigurarPermisoPoolRequest; usuarioId: number } | null;
+  let consultas: number;
+  let configuracion: { request: ConfigurarPermisoPoolRequest } | null;
   let navegacion: unknown[] | null;
 
   beforeEach(async () => {
     sesion = sesionAdmin;
-    empresaConsultada = null;
+    consultas = 0;
     configuracion = null;
     navegacion = null;
 
@@ -56,12 +56,12 @@ describe('PermisoPoolComponent', () => {
         {
           provide: PermisoPoolService,
           useValue: {
-            consultar: (empresaId: number) => {
-              empresaConsultada = empresaId;
+            consultar: () => {
+              consultas++;
               return of([permisoEditor]);
             },
-            configurar: (request: ConfigurarPermisoPoolRequest, usuarioId: number) => {
-              configuracion = { request, usuarioId };
+            configurar: (request: ConfigurarPermisoPoolRequest) => {
+              configuracion = { request };
               return of({ ...permisoEditor, ...request, id: 4, configurado: true });
             },
           },
@@ -73,11 +73,12 @@ describe('PermisoPoolComponent', () => {
       .compileComponents();
   });
 
-  it('consulta los permisos de la empresa del administrador', () => {
+  it('consulta los permisos (la empresa sale del token)', () => {
     const fixture = TestBed.createComponent(PermisoPoolComponent);
     fixture.detectChanges();
 
-    expect(empresaConsultada).toBe(9);
+    // La empresa sale del token: el componente ya no la envía
+    expect(consultas).toBe(1);
     expect(fixture.componentInstance.permisos).toEqual([permisoEditor]);
   });
 
@@ -87,7 +88,7 @@ describe('PermisoPoolComponent', () => {
     fixture.detectChanges();
 
     expect(navegacion).toEqual(['/login']);
-    expect(empresaConsultada).toBeNull();
+    expect(consultas).toBe(0);
   });
 
   it('impide que un usuario no administrador configure permisos', () => {
@@ -96,10 +97,10 @@ describe('PermisoPoolComponent', () => {
     fixture.detectChanges();
 
     expect(navegacion).toEqual(['/procesos']);
-    expect(empresaConsultada).toBeNull();
+    expect(consultas).toBe(0);
   });
 
-  it('guarda la configuración con el usuario de la sesión', () => {
+  it('guarda la configuración del rol', () => {
     const fixture = TestBed.createComponent(PermisoPoolComponent);
     fixture.detectChanges();
     fixture.componentInstance.actualizarValor(permisoEditor, 'puedeEliminar', true);
@@ -113,7 +114,6 @@ describe('PermisoPoolComponent', () => {
         puedeEditar: true,
         puedeEliminar: true,
       },
-      usuarioId: 1,
     });
     expect(fixture.componentInstance.mensaje).toContain('EDITOR');
   });

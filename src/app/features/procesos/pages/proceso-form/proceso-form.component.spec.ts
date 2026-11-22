@@ -35,9 +35,9 @@ describe('ProcesoFormComponent', () => {
   let sesion: UsuarioSesion | null;
   let routeId: string | null;
   let navegacion: unknown[] | null;
-  let creacion: { request: unknown; usuarioId: number } | null;
-  let actualizacion: { id: number; request: unknown; usuarioId: number } | null;
-  let busqueda: { id: number; empresaId: number } | null;
+  let creacion: { request: unknown } | null;
+  let actualizacion: { id: number; request: unknown } | null;
+  let busqueda: { id: number } | null;
   let procesoConsultado: Proceso;
 
   beforeEach(async () => {
@@ -69,16 +69,16 @@ describe('ProcesoFormComponent', () => {
         {
           provide: ProcesoService,
           useValue: {
-            buscarPorId: (id: number, empresaId: number) => {
-              busqueda = { id, empresaId };
+            buscarPorId: (id: number) => {
+              busqueda = { id };
               return of(procesoConsultado);
             },
-            crear: (request: unknown, usuarioId: number) => {
-              creacion = { request, usuarioId };
+            crear: (request: unknown) => {
+              creacion = { request };
               return of(proceso);
             },
-            actualizar: (id: number, request: unknown, usuarioId: number) => {
-              actualizacion = { id, request, usuarioId };
+            actualizar: (id: number, request: unknown) => {
+              actualizacion = { id, request };
               return of(proceso);
             },
           },
@@ -110,7 +110,7 @@ describe('ProcesoFormComponent', () => {
     expect(navegacion).toEqual(['/procesos']);
   });
 
-  it('crea un proceso con la empresa y el usuario de la sesión', () => {
+  it('crea un proceso sin enviar empresa ni usuario (salen del token)', () => {
     const fixture = TestBed.createComponent(ProcesoFormComponent);
     fixture.detectChanges();
     fixture.componentInstance.formulario.setValue({
@@ -124,12 +124,10 @@ describe('ProcesoFormComponent', () => {
 
     expect(creacion).toEqual({
       request: {
-        empresaId: 23,
         nombre: 'Solicitud de compra',
         descripcion: 'Proceso interno',
         categoria: 'Compras',
       },
-      usuarioId: 17,
     });
     expect(navegacion).toEqual(['/procesos', 8]);
   });
@@ -139,7 +137,7 @@ describe('ProcesoFormComponent', () => {
     const fixture = TestBed.createComponent(ProcesoFormComponent);
     fixture.detectChanges();
 
-    expect(busqueda).toEqual({ id: 8, empresaId: 23 });
+    expect(busqueda).toEqual({ id: 8 });
     expect(fixture.componentInstance.formulario.controls.nombre.value).toBe('Solicitud de compra');
 
     fixture.componentInstance.formulario.patchValue({ estado: 'PUBLICADO' });
@@ -153,7 +151,6 @@ describe('ProcesoFormComponent', () => {
         categoria: 'Compras',
         estado: 'PUBLICADO',
       },
-      usuarioId: 17,
     });
   });
 

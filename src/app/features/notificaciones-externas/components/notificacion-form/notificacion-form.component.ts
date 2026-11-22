@@ -161,8 +161,8 @@ export class NotificacionExternaFormComponent extends DiagramaContexto {
       poolId: valor.poolId!,
     };
     const operacion = this.id
-      ? this.service.actualizar(this.id, request, sesion.usuarioId)
-      : this.service.crear(crear, sesion.usuarioId);
+      ? this.service.actualizar(this.id, request)
+      : this.service.crear(crear);
     operacion
       .pipe(
         finalize(() => {

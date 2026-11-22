@@ -32,7 +32,7 @@ describe('ProcesoHistoryComponent', () => {
   let sesion: UsuarioSesion | null;
   let routeId: string | null;
   let navegacion: unknown[] | null;
-  let consulta: { id: number; empresaId: number } | null;
+  let consulta: { id: number } | null;
 
   beforeEach(async () => {
     sesion = sesionActiva;
@@ -57,8 +57,8 @@ describe('ProcesoHistoryComponent', () => {
         {
           provide: ProcesoService,
           useValue: {
-            consultarHistorial: (id: number, empresaId: number) => {
-              consulta = { id, empresaId };
+            consultarHistorial: (id: number) => {
+              consulta = { id };
               return of(historial);
             },
           },
@@ -74,7 +74,7 @@ describe('ProcesoHistoryComponent', () => {
     const fixture = TestBed.createComponent(ProcesoHistoryComponent);
     fixture.detectChanges();
 
-    expect(consulta).toEqual({ id: 12, empresaId: 6 });
+    expect(consulta).toEqual({ id: 12 });
     expect(fixture.componentInstance.registros()).toEqual(historial);
   });
 

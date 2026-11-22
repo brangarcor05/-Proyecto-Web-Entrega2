@@ -17,7 +17,7 @@ export class ProcesoService {
   private readonly apiUrl = `${environment.apiUrl}/procesos`;
 
   consultar(filtros: ConsultarProcesosParams): Observable<PageResponse<Proceso>> {
-    let params = new HttpParams().set('empresaId', filtros.empresaId);
+    let params = new HttpParams();
 
     if (filtros.nombre) {
       params = params.set('nombre', filtros.nombre);
@@ -50,56 +50,41 @@ export class ProcesoService {
     return this.http.get<PageResponse<Proceso>>(this.apiUrl, { params });
   }
 
-  buscarPorId(id: number, empresaId: number): Observable<Proceso> {
-    const params = new HttpParams().set('empresaId', empresaId);
-    return this.http.get<Proceso>(`${this.apiUrl}/${id}`, { params });
+  buscarPorId(id: number): Observable<Proceso> {
+    return this.http.get<Proceso>(`${this.apiUrl}/${id}`);
   }
 
-  consultarHistorial(id: number, empresaId: number): Observable<Historial[]> {
-    const params = new HttpParams().set('empresaId', empresaId);
-    return this.http.get<Historial[]>(`${this.apiUrl}/${id}/historial`, {
-      params,
-    });
+  consultarHistorial(id: number): Observable<Historial[]> {
+    return this.http.get<Historial[]>(`${this.apiUrl}/${id}/historial`);
   }
 
-  crear(request: CrearProcesoRequest, usuarioId: number): Observable<Proceso> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.post<Proceso>(this.apiUrl, request, { params });
+  crear(request: CrearProcesoRequest): Observable<Proceso> {
+    return this.http.post<Proceso>(this.apiUrl, request);
   }
 
   actualizar(
     id: number,
-    request: ActualizarProcesoRequest,
-    usuarioId: number,
+    request: ActualizarProcesoRequest
   ): Observable<Proceso> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.put<Proceso>(`${this.apiUrl}/${id}`, request, { params });
+    return this.http.put<Proceso>(`${this.apiUrl}/${id}`, request);
   }
 
-  compartir(id: number, request: CompartirProcesoRequest, usuarioId: number): Observable<Proceso> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.put<Proceso>(`${this.apiUrl}/${id}/comparticion`, request, {
-      params,
-    });
+  compartir(id: number, request: CompartirProcesoRequest): Observable<Proceso> {
+    return this.http.put<Proceso>(`${this.apiUrl}/${id}/comparticion`, request);
   }
 
-  eliminar(id: number, usuarioId: number): Observable<void> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { params });
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  obtenerDiagrama(procesoId: number, empresaId: number): Observable<string> {
-    const params = new HttpParams().set('empresaId', empresaId);
+  obtenerDiagrama(procesoId: number): Observable<string> {
     return this.http.get(`${this.apiUrl}/${procesoId}/diagrama`, {
-      params,
       responseType: 'text',
     });
   }
 
-  guardarDiagrama(procesoId: number, xml: string, usuarioId: number): Observable<void> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
+  guardarDiagrama(procesoId: number, xml: string): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/${procesoId}/diagrama`, xml, {
-      params,
       headers: { 'Content-Type': 'text/plain' },
     });
   }

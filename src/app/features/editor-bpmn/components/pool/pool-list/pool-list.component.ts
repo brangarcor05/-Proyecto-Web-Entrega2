@@ -58,12 +58,12 @@ export class PoolListComponent implements OnInit {
 
     this.procesoId = procesoId;
     this.cargarPermiso(sesion);
-    this.cargarProceso(procesoId, sesion);
+    this.cargarProceso(procesoId);
     this.cargarPools(procesoId);
   }
 
   private cargarPermiso(sesion: UsuarioSesion): void {
-    this.permisoPoolService.consultar(sesion.empresaId).subscribe({
+    this.permisoPoolService.consultar().subscribe({
       next: (permisos) => {
         this.permisoActual = permisos.find(
           (permiso) => permiso.rolUsuario === sesion.rolUsuario,
@@ -89,7 +89,7 @@ export class PoolListComponent implements OnInit {
 
     this.eliminandoId = pool.id;
     this.error = '';
-    this.poolService.eliminar(pool.id, sesion.usuarioId)
+    this.poolService.eliminar(pool.id)
       .pipe(finalize(() => {
         this.eliminandoId = null;
         this.cdr.markForCheck();
@@ -106,8 +106,8 @@ export class PoolListComponent implements OnInit {
       });
   }
 
-  private cargarProceso(procesoId: number, sesion: UsuarioSesion): void {
-    this.procesoService.buscarPorId(procesoId, sesion.empresaId).subscribe({
+  private cargarProceso(procesoId: number): void {
+    this.procesoService.buscarPorId(procesoId).subscribe({
       next: (proceso) => {
         this.procesoSoloLectura = proceso.soloLectura;
         this.cdr.markForCheck();

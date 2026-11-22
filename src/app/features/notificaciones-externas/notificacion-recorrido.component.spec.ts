@@ -98,7 +98,7 @@ describe('Recorrido de NotificacionExterna', () => {
   });
 
   function cargarProceso(soloLectura = false) {
-    http.expectOne('/api/procesos/42?empresaId=23').flush({ ...proceso, soloLectura });
+    http.expectOne('/api/procesos/42').flush({ ...proceso, soloLectura });
   }
 
   async function listado(soloLectura = false) {
@@ -200,12 +200,12 @@ describe('Recorrido de NotificacionExterna', () => {
     http.expectNone((request) => request.method === 'DELETE');
   });
 
-  it('elimina con el usuario de la sesion y actualiza el listado', async () => {
+  it('elimina y actualiza el listado', async () => {
     const component = await listado();
     http.expectOne('/api/notificaciones-externas?procesoId=42').flush([elemento]);
     component.eliminar(elemento);
     component.confirmarEliminacion();
-    const req = http.expectOne('/api/notificaciones-externas/81?usuarioId=17');
+    const req = http.expectOne('/api/notificaciones-externas/81');
     expect(req.request.method).toBe('DELETE');
     req.flush(null, { status: 204, statusText: 'No Content' });
     expect(component.elementos).toEqual([]);
@@ -227,7 +227,7 @@ describe('Recorrido de NotificacionExterna', () => {
     const confirmar = dialogo?.querySelector('button') as HTMLButtonElement;
     confirmar.click();
     http
-      .expectOne('/api/notificaciones-externas/81?usuarioId=17')
+      .expectOne('/api/notificaciones-externas/81')
       .flush(null, { status: 204, statusText: 'No Content' });
     harness.detectChanges();
     expect(harness.routeNativeElement?.querySelector('dialog')).toBeNull();
@@ -249,7 +249,7 @@ describe('Recorrido de NotificacionExterna', () => {
     component.eliminar(elemento);
     component.confirmarEliminacion();
     http
-      .expectOne('/api/notificaciones-externas/81?usuarioId=17')
+      .expectOne('/api/notificaciones-externas/81')
       .flush({ mensaje: 'No puedes eliminar' }, { status: 403, statusText: 'Forbidden' });
     expect(component.error).toBe('No puedes eliminar');
     expect(component.elementos).toHaveLength(1);
@@ -298,11 +298,11 @@ describe('Recorrido de NotificacionExterna', () => {
     http.expectNone((request) => request.method === 'POST');
   });
 
-  it('crea con proceso y usuario reales y navega al detalle', async () => {
+  it('crea en el proceso de la ruta y navega al detalle', async () => {
     const component = await formulario();
     completar(component);
     component.guardar();
-    const req = http.expectOne('/api/notificaciones-externas?usuarioId=17');
+    const req = http.expectOne('/api/notificaciones-externas');
     expect(req.request.method).toBe('POST');
     expect(req.request.body.procesoId).toBe(42);
     expect(req.request.body.poolId).toBe(51);
@@ -319,7 +319,7 @@ describe('Recorrido de NotificacionExterna', () => {
     expect(component.formulario.controls.poolId.disabled).toBe(true);
     component.formulario.controls.nombre.setValue('Actualizado');
     component.guardar();
-    const req = http.expectOne('/api/notificaciones-externas/81?usuarioId=17');
+    const req = http.expectOne('/api/notificaciones-externas/81');
     expect(req.request.method).toBe('PUT');
     expect(req.request.body.nombre).toBe('Actualizado');
     expect(req.request.body.procesoId).toBeUndefined();
@@ -332,7 +332,7 @@ describe('Recorrido de NotificacionExterna', () => {
     completar(component);
     component.guardar();
     http
-      .expectOne('/api/notificaciones-externas?usuarioId=17')
+      .expectOne('/api/notificaciones-externas')
       .flush(
         { mensaje: 'Datos invalidos', camposInvalidos: { nombre: 'Nombre repetido' } },
         { status: 400, statusText: 'Bad Request' },
@@ -363,7 +363,7 @@ describe('Recorrido de NotificacionExterna', () => {
     const component = await listado();
     http.expectOne('/api/notificaciones-externas?procesoId=42').flush([elemento]);
     await harness.navigateByUrl('/procesos/43/notificaciones');
-    http.expectOne('/api/procesos/43?empresaId=23').flush({ ...proceso, id: 43 });
+    http.expectOne('/api/procesos/43').flush({ ...proceso, id: 43 });
     http.expectOne('/api/notificaciones-externas?procesoId=43').flush([]);
     expect(component.procesoId).toBe(43);
     expect(component.elementos).toEqual([]);
@@ -434,7 +434,7 @@ describe('Recorrido de NotificacionExterna', () => {
     completar(component);
     component.formulario.controls.actividadManejoErrorId.setValue(61);
     component.guardar();
-    const req = http.expectOne('/api/notificaciones-externas?usuarioId=17');
+    const req = http.expectOne('/api/notificaciones-externas');
     expect(req.request.body.actividadManejoErrorId).toBeNull();
     req.flush(null, { status: 400, statusText: 'Bad Request' });
   });

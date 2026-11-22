@@ -92,7 +92,7 @@ describe('Navegacion de procesos hacia el diagrama', () => {
 
   it('muestra los accesos a eventos y notificaciones al recibir el detalle', async () => {
     await harness.navigateByUrl('/procesos/42');
-    http.expectOne('/api/procesos/42?empresaId=23').flush(proceso);
+    http.expectOne('/api/procesos/42').flush(proceso);
     await harness.fixture.whenStable();
     expect(
       harness.routeNativeElement?.querySelector('a[href="/procesos/42/eventos"]'),
@@ -116,7 +116,7 @@ describe('Navegacion de procesos hacia el diagrama', () => {
     }];
 
     await harness.navigateByUrl('/procesos/42/historial');
-    http.expectOne('/api/procesos/42/historial?empresaId=23').flush(historial);
+    http.expectOne('/api/procesos/42/historial').flush(historial);
     await harness.fixture.whenStable();
 
     expect(harness.routeNativeElement?.textContent).toContain('Proceso creado');
@@ -125,7 +125,7 @@ describe('Navegacion de procesos hacia el diagrama', () => {
 
   it('muestra el formulario editado al recibir el proceso sin requerir otra navegacion', async () => {
     await harness.navigateByUrl('/procesos/42/editar');
-    http.expectOne('/api/procesos/42?empresaId=23').flush(proceso);
+    http.expectOne('/api/procesos/42').flush(proceso);
     await harness.fixture.whenStable();
 
     const nombre = harness.routeNativeElement?.querySelector<HTMLInputElement>(
@@ -161,7 +161,7 @@ describe('Navegacion de procesos hacia el diagrama', () => {
         adminUsuarioId: 18,
       },
     ]);
-    http.expectOne('/api/procesos/42?empresaId=23').flush({
+    http.expectOne('/api/procesos/42').flush({
       ...proceso,
       compartido: true,
       empresasCompartidasIds: [24],

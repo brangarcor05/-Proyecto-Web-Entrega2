@@ -109,7 +109,7 @@ export class LaneListComponent implements OnChanges {
     if (!sesion) {
       return;
     }
-    this.permisoPoolService.consultar(sesion.empresaId).subscribe({
+    this.permisoPoolService.consultar().subscribe({
       next: (permisos) => {
         const configurado = permisos.find((permiso) => permiso.rolUsuario === sesion.rolUsuario);
         this.permiso.set(configurado ?? this.permisoPorDefecto(sesion.rolUsuario));
@@ -167,8 +167,8 @@ export class LaneListComponent implements OnChanges {
     this.error.set('');
 
     const operacion = idEnEdicion === null
-      ? this.laneService.crear({ poolId: this.poolId, rolProcesoId }, sesion.usuarioId)
-      : this.laneService.actualizar(idEnEdicion, { rolProcesoId }, sesion.usuarioId);
+      ? this.laneService.crear({ poolId: this.poolId, rolProcesoId })
+      : this.laneService.actualizar(idEnEdicion, { rolProcesoId });
 
     operacion.pipe(finalize(() => this.guardando.set(false))).subscribe({
       next: () => {
@@ -195,7 +195,7 @@ export class LaneListComponent implements OnChanges {
     this.eliminandoId.set(lane.id);
     this.error.set('');
     this.laneService
-      .eliminar(lane.id, sesion.usuarioId)
+      .eliminar(lane.id)
       .pipe(finalize(() => this.eliminandoId.set(null)))
       .subscribe({
         next: () => this.cargarLanes(),
@@ -229,7 +229,7 @@ export class LaneListComponent implements OnChanges {
     this.reordenando.set(true);
     this.error.set('');
     this.laneService
-      .reordenar(this.poolId, { laneIdsEnOrden: ordenActual }, sesion.usuarioId)
+      .reordenar(this.poolId, { laneIdsEnOrden: ordenActual })
       .pipe(finalize(() => this.reordenando.set(false)))
       .subscribe({
         next: (lanes) => this.lanes.set(lanes),

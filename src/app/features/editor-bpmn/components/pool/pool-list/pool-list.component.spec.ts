@@ -55,7 +55,7 @@ describe('PoolListComponent', () => {
   let sesion: UsuarioSesion | null;
   let procesoConsultado: Proceso;
   let consultaPools: number | null;
-  let eliminacion: { id: number; usuarioId: number } | null;
+  let eliminacion: { id: number } | null;
   let navegacion: unknown[] | null;
 
   beforeEach(async () => {
@@ -91,8 +91,8 @@ describe('PoolListComponent', () => {
               consultaPools = procesoId;
               return of([pool]);
             },
-            eliminar: (id: number, usuarioId: number) => {
-              eliminacion = { id, usuarioId };
+            eliminar: (id: number) => {
+              eliminacion = { id };
               return of(undefined);
             },
           },
@@ -147,7 +147,7 @@ describe('PoolListComponent', () => {
 
     fixture.componentInstance.eliminar(pool);
 
-    expect(eliminacion).toEqual({ id: 2, usuarioId: 1 });
+    expect(eliminacion).toEqual({ id: 2 });
     expect(fixture.componentInstance.pools).toEqual([]);
   });
 

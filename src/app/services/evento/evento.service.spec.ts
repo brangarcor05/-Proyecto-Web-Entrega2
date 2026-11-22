@@ -64,8 +64,8 @@ describe('EventoService', () => {
       posicionX: null,
       posicionY: 0,
     };
-    service.crear(request, 7).subscribe((datos) => expect(datos).toEqual(respuesta));
-    const req = httpTesting.expectOne(`${apiUrl}?usuarioId=7`);
+    service.crear(request).subscribe((datos) => expect(datos).toEqual(respuesta));
+    const req = httpTesting.expectOne(`${apiUrl}`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(request);
     req.flush(respuesta, { status: 201, statusText: 'Created' });
@@ -79,8 +79,8 @@ describe('EventoService', () => {
       posicionY: null,
     };
     const actualizada = { ...respuesta, ...request };
-    service.actualizar(5, request, 7).subscribe((datos) => expect(datos).toEqual(actualizada));
-    const req = httpTesting.expectOne(`${apiUrl}/5?usuarioId=7`);
+    service.actualizar(5, request).subscribe((datos) => expect(datos).toEqual(actualizada));
+    const req = httpTesting.expectOne(`${apiUrl}/5`);
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual(request);
     expect(req.request.body.procesoId).toBeUndefined();
@@ -90,12 +90,12 @@ describe('EventoService', () => {
 
   it('elimina y acepta una respuesta sin contenido', () => {
     let completada = false;
-    service.eliminar(5, 7).subscribe({
+    service.eliminar(5).subscribe({
       complete: () => {
         completada = true;
       },
     });
-    const req = httpTesting.expectOne(`${apiUrl}/5?usuarioId=7`);
+    const req = httpTesting.expectOne(`${apiUrl}/5`);
     expect(req.request.method).toBe('DELETE');
     expect(req.request.body).toBeNull();
     req.flush(null, { status: 204, statusText: 'No Content' });
@@ -120,13 +120,13 @@ describe('EventoService', () => {
   });
 
   it('propaga la denegacion de permisos al eliminar', () => {
-    service.eliminar(5, 7).subscribe({
+    service.eliminar(5).subscribe({
       next: () => {
         throw new Error('La eliminacion debia fallar');
       },
       error: (response) => expect(response.status).toBe(403),
     });
-    httpTesting.expectOne(`${apiUrl}/5?usuarioId=7`).flush(null, {
+    httpTesting.expectOne(`${apiUrl}/5`).flush(null, {
       status: 403,
       statusText: 'Forbidden',
     });

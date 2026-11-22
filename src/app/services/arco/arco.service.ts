@@ -23,29 +23,24 @@ export class ArcoService {
     return this.http.get<Arco>(`${this.apiUrl}/${id}`);
   }
 
-  crear(request: CrearArcoRequest, usuarioId: number): Observable<Arco> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.post<Arco>(this.apiUrl, request, { params });
+  crear(request: CrearArcoRequest): Observable<Arco> {
+    return this.http.post<Arco>(this.apiUrl, request);
   }
 
-  actualizar(id: number, request: ActualizarArcoRequest, usuarioId: number): Observable<Arco> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.put<Arco>(`${this.apiUrl}/${id}`, request, { params });
+  actualizar(id: number, request: ActualizarArcoRequest): Observable<Arco> {
+    return this.http.put<Arco>(`${this.apiUrl}/${id}`, request);
   }
 
   sincronizar(
     procesoId: number,
-    arcos: SincronizarArcoRequest[],
-    usuarioId: number,
+    arcos: SincronizarArcoRequest[]
   ): Observable<Arco[]> {
     const params = new HttpParams()
-      .set('procesoId', procesoId)
-      .set('usuarioId', usuarioId);
+      .set('procesoId', procesoId);
     return this.http.put<Arco[]>(`${this.apiUrl}/sincronizar`, arcos, { params });
   }
 
-  eliminar(id: number, usuarioId: number): Observable<ArcoEliminado> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.delete<ArcoEliminado>(`${this.apiUrl}/${id}`, { params });
+  eliminar(id: number): Observable<ArcoEliminado> {
+    return this.http.delete<ArcoEliminado>(`${this.apiUrl}/${id}`);
   }
 }

@@ -48,11 +48,11 @@ describe('PoolService', () => {
     request.flush(pool);
   });
 
-  it('crea un pool con el usuario de la sesión', () => {
+  it('crea un pool sin enviar el usuario (sale del token)', () => {
     const body: CrearPoolRequest = { procesoId: 8, nombre: 'Cliente', cajaNegra: false };
-    service.crear(body, 4).subscribe((resultado) => expect(resultado).toEqual(pool));
+    service.crear(body).subscribe((resultado) => expect(resultado).toEqual(pool));
 
-    const request = httpTesting.expectOne(`${apiUrl}?usuarioId=4`);
+    const request = httpTesting.expectOne(`${apiUrl}`);
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual(body);
     request.flush(pool, { status: 201, statusText: 'Created' });
@@ -60,18 +60,18 @@ describe('PoolService', () => {
 
   it('actualiza un pool', () => {
     const body: ActualizarPoolRequest = { nombre: 'Cliente externo', cajaNegra: true };
-    service.actualizar(2, body, 4).subscribe((resultado) => expect(resultado).toEqual(pool));
+    service.actualizar(2, body).subscribe((resultado) => expect(resultado).toEqual(pool));
 
-    const request = httpTesting.expectOne(`${apiUrl}/2?usuarioId=4`);
+    const request = httpTesting.expectOne(`${apiUrl}/2`);
     expect(request.request.method).toBe('PUT');
     expect(request.request.body).toEqual(body);
     request.flush(pool);
   });
 
   it('elimina lógicamente un pool', () => {
-    service.eliminar(2, 1).subscribe();
+    service.eliminar(2).subscribe();
 
-    const request = httpTesting.expectOne(`${apiUrl}/2?usuarioId=1`);
+    const request = httpTesting.expectOne(`${apiUrl}/2`);
     expect(request.request.method).toBe('DELETE');
     request.flush(null, { status: 204, statusText: 'No Content' });
   });

@@ -21,18 +21,15 @@ export class EventoService {
     return this.http.get<Evento>(`${this.apiUrl}/${id}`);
   }
 
-  crear(request: CrearEventoRequest, usuarioId: number): Observable<Evento> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.post<Evento>(this.apiUrl, request, { params });
+  crear(request: CrearEventoRequest): Observable<Evento> {
+    return this.http.post<Evento>(this.apiUrl, request);
   }
 
-  actualizar(id: number, request: ActualizarEventoRequest, usuarioId: number): Observable<Evento> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.put<Evento>(`${this.apiUrl}/${id}`, request, { params });
+  actualizar(id: number, request: ActualizarEventoRequest): Observable<Evento> {
+    return this.http.put<Evento>(`${this.apiUrl}/${id}`, request);
   }
 
-  eliminar(id: number, usuarioId: number): Observable<void> {
-    const params = new HttpParams().set('usuarioId', usuarioId);
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { params });
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }
