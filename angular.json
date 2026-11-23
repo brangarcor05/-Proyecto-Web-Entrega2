@@ -103,9 +103,17 @@
         },
         "defaultConfiguration": "development"
 },
-        "test": {
-          "builder": "@angular/build:unit-test"
-        }
+"test": {
+  "builder": "@angular/build:unit-test",
+  "options": {
+    "coverageReporters": ["html", "text"],
+    "coverageExclude": [
+      "src/app/models/**",     
+      "src/app/app.routes.ts",   
+      "src/main.ts"              
+    ]
+  }
+}
       }
     }
   }

@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { vi } from 'vitest';
 
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { UsuarioSesion } from '../../../../models/auth/auth.model';
@@ -69,6 +70,7 @@ describe('LaneListComponent', () => {
             creacion = { request };
             return of(lane);
           },
+          eliminar: () => of(undefined), // <-- Agregamos el mock de eliminar
         } },
         { provide: RolProcesoService, useValue: { listarTodos: () => of(rolesPagina) } },
         { provide: PermisoPoolService, useValue: { consultar: () => of(permisosConfigurados) } },
@@ -129,5 +131,82 @@ describe('LaneListComponent', () => {
     fixture.componentInstance.guardar();
 
     expect(creacion).toEqual({ request: { poolId: 20, rolProcesoId: 2 } });
+  });
+
+  it('debería iniciar el modo edición y llenar el formulario', () => {
+    configurar();
+    const fixture = TestBed.createComponent(LaneListComponent);
+    fixture.componentInstance.poolId = 20;
+    fixture.detectChanges();
+    fixture.componentInstance.ngOnChanges();
+
+    fixture.componentInstance.iniciarEdicion(lane);
+
+    expect(fixture.componentInstance.editandoId()).toBe(lane.id);
+    expect(fixture.componentInstance.formulario.value.rolProcesoId).toBe(lane.rolProcesoId);
+    expect(fixture.componentInstance.mostrandoFormulario()).toBe(true);
+  });
+
+  it('debería cancelar la edición y limpiar el formulario', () => {
+    configurar();
+    const fixture = TestBed.createComponent(LaneListComponent);
+    fixture.componentInstance.poolId = 20;
+    fixture.componentInstance.iniciarEdicion(lane);
+
+    fixture.componentInstance.cancelarEdicion();
+
+    expect(fixture.componentInstance.editandoId()).toBeNull();
+    expect(fixture.componentInstance.formulario.value.rolProcesoId).toBeNull();
+    expect(fixture.componentInstance.mostrandoFormulario()).toBe(false);
+  });
+
+  it('debería eliminar una lane si el usuario confirma', () => {
+    configurar(); // Primero configuramos
+    const laneService = TestBed.inject(LaneService); // Luego inyectamos
+    const spyEliminar = vi.spyOn(laneService, 'eliminar').mockReturnValue(of(undefined));
+    vi.spyOn(window, 'confirm').mockReturnValue(true); // Simulamos el OK del usuario
+
+    const fixture = TestBed.createComponent(LaneListComponent);
+    fixture.componentInstance.poolId = 20;
+    fixture.componentInstance.permiso.set({ puedeEliminar: true } as any); // Forzamos permiso
+
+    fixture.componentInstance.eliminar(lane);
+
+    expect(spyEliminar).toHaveBeenCalledWith(lane.id);
+  });
+
+  it('NO debería eliminar si el usuario cancela', () => {
+    configurar();
+    const laneService = TestBed.inject(LaneService);
+    const spyEliminar = vi.spyOn(laneService, 'eliminar');
+    vi.spyOn(window, 'confirm').mockReturnValue(false); // Simulamos el Cancelar
+
+    const fixture = TestBed.createComponent(LaneListComponent);
+    fixture.componentInstance.poolId = 20;
+    fixture.componentInstance.permiso.set({ puedeEliminar: true } as any);
+
+    fixture.componentInstance.eliminar(lane);
+
+    expect(spyEliminar).not.toHaveBeenCalled();
+  });
+
+  it('debería mostrar error si falla la carga de lanes', () => {
+    TestBed.configureTestingModule({
+      imports: [LaneListComponent],
+      providers: [
+        { provide: AutenticacionService, useValue: { sesion: () => sesionEditor } },
+        { provide: LaneService, useValue: { listarPorPool: () => throwError(() => new Error('Error de red')) } },
+        { provide: RolProcesoService, useValue: { listarTodos: () => of(rolesPagina) } },
+        { provide: PermisoPoolService, useValue: { consultar: () => of([]) } },
+        { provide: ApiErrorService, useValue: { obtenerMensaje: () => 'Error de red' } },
+      ],
+    }).overrideComponent(LaneListComponent, { set: { template: '' } });
+
+    const fixture = TestBed.createComponent(LaneListComponent);
+    fixture.componentInstance.poolId = 20;
+    fixture.detectChanges();
+    fixture.componentInstance.ngOnChanges();
+
+    expect(fixture.componentInstance.error()).toBe('Error de red');
   });
 });

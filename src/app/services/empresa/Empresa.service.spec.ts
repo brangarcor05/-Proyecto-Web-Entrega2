@@ -1,42 +1,44 @@
+import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
-
-import { environment } from '../../../environments/environment';
-import { Empresa } from '../../models/empresa/empresa.model';
 import { EmpresaService } from './Empresa.service';
+import { CrearEmpresaRequest, Empresa } from '../../models/empresa/empresa.model';
+import { environment } from '../../../environments/environment';
 
 describe('EmpresaService', () => {
   let service: EmpresaService;
-  let httpTesting: HttpTestingController;
-  const apiUrl = `${environment.apiUrl}/empresas`;
+  let http: HttpTestingController;
+  const url = `${environment.apiUrl}/empresas`;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
-    });
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
     service = TestBed.inject(EmpresaService);
-    httpTesting = TestBed.inject(HttpTestingController);
+    http = TestBed.inject(HttpTestingController);
   });
 
-  afterEach(() => httpTesting.verify());
+  afterEach(() => http.verify());
 
-  it('lista las empresas disponibles', () => {
-    const empresa = {
-      id: 2,
-      nombre: 'Beta',
-      rut: '900000002',
-      razonSocial: 'Beta S.A.S.',
-      email: 'beta@example.com',
-      estado: 'ACTIVO',
-      fechaRegistro: '2026-10-26T10:00:00',
-      adminUsuarioId: 4,
-    } satisfies Empresa;
+  it('crear hace POST /empresas con los datos de la empresa y del administrador', () => {
+    const request: CrearEmpresaRequest = {
+      nombre: 'Acme S.A.S.', rut: '900123456-7', razonSocial: 'Acme Sociedad Anónima',
+      email: 'contacto@acme.com', adminNombre: 'Juan Pérez', adminPassword: 'claveSegura123'
+    };
+    service.crear(request).subscribe();
 
-    service.listar().subscribe((respuesta) => expect(respuesta).toEqual([empresa]));
+    const req = http.expectOne(url);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(request);
+    req.flush({ id: 1, nombre: 'Acme S.A.S.' } as Empresa);
+  });
 
-    const req = httpTesting.expectOne(apiUrl);
+  it('obtener hace GET /empresas/{id}', () => {
+    let resultado: Empresa | undefined;
+    service.obtener(1).subscribe(e => (resultado = e));
+
+    const req = http.expectOne(`${url}/1`);
     expect(req.request.method).toBe('GET');
-    req.flush([empresa]);
+    req.flush({ id: 1, nombre: 'Acme S.A.S.' } as Empresa);
+
+    expect(resultado?.nombre).toBe('Acme S.A.S.');
   });
 });
