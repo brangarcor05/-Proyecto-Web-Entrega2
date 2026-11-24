@@ -14,9 +14,9 @@ name: Frontend CI/CD
 
 on:
   push:
-    branches: [develop, main]
+    branches: [develop]
   pull_request:
-    branches: [develop, main]
+    branches: [develop]
   workflow_dispatch:            # boton manual en la pestana Actions
 
 env:
@@ -48,7 +48,7 @@ jobs:
   imagen:
     name: Construir y publicar imagen
     needs: pruebas              # no se publica nada si las pruebas fallan
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -71,7 +71,7 @@ jobs:
   despliegue:
     name: Desplegar en Kubernetes
     needs: imagen
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/develop'
     runs-on: [self-hosted, despliegue]   # runner instalado en la VM de Ubuntu del cluster
     steps:
       - uses: actions/checkout@v4
