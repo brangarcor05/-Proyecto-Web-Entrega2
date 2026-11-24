@@ -72,7 +72,7 @@ jobs:
     name: Desplegar en Kubernetes
     needs: imagen
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/develop'
-    runs-on: [self-hosted, despliegue]   # runner instalado en la VM de Ubuntu del cluster
+    runs-on: [self-hosted]   # runner instalado en la VM de Ubuntu del cluster
     steps:
       - uses: actions/checkout@v4
 
