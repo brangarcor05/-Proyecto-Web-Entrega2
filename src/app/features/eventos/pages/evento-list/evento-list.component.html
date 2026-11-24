@@ -1,0 +1,69 @@
+<main class="pagina" [attr.inert]="pendiente ? '' : null">
+  <a [routerLink]="['/procesos', procesoId]">← Volver al proceso</a>
+  <nav aria-label="Secciones del proceso">
+    <a [routerLink]="['/procesos', procesoId, 'eventos']">Eventos</a>
+    <a [routerLink]="['/procesos', procesoId, 'notificaciones']">Notificaciones externas</a>
+  </nav>
+  <header>
+    <div>
+      <p class="subtitulo">{{ proceso?.nombre }}</p>
+      <h1>Eventos</h1>
+    </div>
+    @if (puedeEditar && !cargando) {
+      <a
+        class="boton"
+        data-testid="crear"
+        [routerLink]="['/procesos', procesoId, 'eventos', 'nuevo']"
+        >Crear evento</a
+      >
+    }
+  </header>
+  @if (cargando) {
+    <p class="estado" role="status">Cargando eventos…</p>
+  }
+  @if (error) {
+    <p class="estado error" role="alert">{{ error }}</p>
+  }
+  @if (!cargando && proceso && !puedeEditar) {
+    <p class="estado">Tienes acceso de solo lectura a estos elementos.</p>
+  }
+  @if (!cargando && !error) {
+    <section class="lista" aria-label="Eventos">
+      @for (item of elementos; track item.id) {
+        <app-evento-card
+          [elemento]="item"
+          [puedeEditar]="puedeEditar"
+          [puedeEliminar]="puedeEliminar"
+          [eliminando]="eliminando"
+          (eliminar)="eliminar($event)"
+        />
+      } @empty {
+        <p class="estado">Todavía no hay eventos en este proceso.</p>
+      }
+    </section>
+  }
+</main>
+@if (pendiente; as seleccionado) {
+  <dialog
+    open
+    aria-modal="true"
+    aria-labelledby="confirmar-eliminacion"
+    (keydown.escape)="cancelarEliminacion()"
+  >
+    <h2 id="confirmar-eliminacion">Confirmar eliminación</h2>
+    <p>¿Deseas eliminar “{{ seleccionado.nombre }}”? El elemento quedará inactivo.</p>
+    <div class="acciones">
+      <button
+        type="button"
+        class="peligro"
+        [disabled]="eliminando"
+        (click)="confirmarEliminacion()"
+      >
+        {{ eliminando ? 'Eliminando…' : 'Confirmar eliminación' }}
+      </button>
+      <button type="button" autofocus [disabled]="eliminando" (click)="cancelarEliminacion()">
+        Cancelar
+      </button>
+    </div>
+  </dialog>
+}

@@ -1,0 +1,54 @@
+<main class="pagina-formulario">
+  <a class="volver" [routerLink]="['/procesos', procesoId, 'eventos']">← Volver a eventos</a>
+  <header>
+    <p>{{ esEdicion ? 'Edición' : 'Creación' }}</p>
+    <h1>{{ esEdicion ? 'Editar evento' : 'Crear evento' }}</h1>
+  </header>
+
+  @if (cargando) {
+    <p class="mensaje">Cargando información…</p>
+  }
+  @if (error) {
+    <p class="mensaje mensaje--error" role="alert">{{ error }}</p>
+  }
+
+  @if (!cargando) {
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
+      <label class="campo">
+        Pool contenedor
+        <select formControlName="poolId">
+          <option [ngValue]="null">Seleccione un pool</option>
+          @for (pool of pools; track pool.id) {
+            <option [ngValue]="pool.id">{{ pool.nombre }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="campo">
+        Nombre
+        <input type="text" formControlName="nombre" maxlength="150" />
+      </label>
+
+      <label class="campo">
+        Tipo
+        <select formControlName="tipo">
+          <option value="INICIO">Inicio</option>
+          <option value="FIN">Fin</option>
+        </select>
+      </label>
+
+      <label class="campo">
+        ID en el Canvas (opcional)
+        <input type="text" formControlName="canvasId" placeholder="Ej: StartEvent_1" />
+        <small>Este es el ID que se le asigna al elemento en el editor BPMN para vincularlos.</small>
+      </label>
+
+      <div class="acciones">
+        <button class="btn btn--primario" type="submit" [disabled]="guardando">
+          {{ guardando ? 'Guardando…' : 'Guardar' }}
+        </button>
+        <a class="btn btn--secundario" [routerLink]="['/procesos', procesoId, 'eventos']">Cancelar</a>
+      </div>
+    </form>
+  }
+</main>

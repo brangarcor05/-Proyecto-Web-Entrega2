@@ -1,0 +1,18 @@
+<article class="tarjeta">
+  <h3>{{ usuario().nombre }}</h3>
+  <p>{{ usuario().email }}</p>
+  <p>Estado: {{ usuario().activo ? 'Activo' : 'Inactivo' }}</p>
+
+  <label>
+    Rol de acceso
+    <select [value]="usuario().rolUsuario" (change)="onRolChange($event)">
+      @for (r of roles; track r) {
+        <option [value]="r" [selected]="r === usuario().rolUsuario">{{ r }}</option>
+      }
+    </select>
+  </label>
+
+  @if (usuario().activo) {
+    <button type="button" (click)="desactivar.emit(usuario())">Desactivar</button>
+  }
+</article>

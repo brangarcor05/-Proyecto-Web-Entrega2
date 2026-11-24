@@ -1,0 +1,15 @@
+.pagina-permisos { max-width: 980px; margin: 0 auto; padding: 2rem; }
+.volver { font-weight: 700; }
+header { margin: 1.5rem 0; }
+header p { color: var(--primary); font-size: .8rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+header h1 { margin: .2rem 0; }
+header span { color: var(--text-dim); }
+.tabla-contenedor { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card); box-shadow: var(--shadow); }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 1rem; border-bottom: 1px solid var(--border); text-align: center; }
+th:first-child { text-align: left; }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+input[type='checkbox'] { width: 1.15rem; height: 1.15rem; accent-color: var(--primary); }
+.mensaje { margin: 1rem 0; }
+.mensaje--exito { background: #ecfdf5; color: var(--success); }
+@media (max-width: 680px) { .pagina-permisos { padding: 1rem; } th, td { padding: .75rem; } }

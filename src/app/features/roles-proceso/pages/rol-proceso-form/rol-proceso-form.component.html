@@ -1,0 +1,51 @@
+<main class="pagina-formulario">
+  <a class="volver" routerLink="/roles-proceso">← Volver al listado</a>
+  <header>
+    <p>{{ esEdicion ? 'Edición' : 'Creación' }}</p>
+    <h1>{{ esEdicion ? 'Editar rol de proceso' : 'Crear rol de proceso' }}</h1>
+  </header>
+
+  @if (cargando) {
+    <p class="mensaje">Cargando información del rol de proceso…</p>
+  }
+
+  @if (error) {
+    <section class="mensaje mensaje--error" role="alert">
+      <p>{{ error }}</p>
+      @if (entradasCamposInvalidos.length > 0) {
+        <ul>
+          @for (campo of entradasCamposInvalidos; track campo[0]) {
+            <li>{{ campo[0] }}: {{ campo[1] }}</li>
+          }
+        </ul>
+      }
+    </section>
+  }
+
+  @if (!cargando) {
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
+      <label class="campo">
+        Nombre
+        <input type="text" formControlName="nombre" maxlength="100" placeholder="Analista, Supervisor…" />
+        @if (campoInvalido('nombre')) {
+          <small>El nombre es obligatorio y no puede superar 100 caracteres.</small>
+        }
+      </label>
+
+      <label class="campo">
+        Descripción
+        <textarea formControlName="descripcion" rows="4" maxlength="500"></textarea>
+        @if (campoInvalido('descripcion')) {
+          <small>La descripción no puede superar 500 caracteres.</small>
+        }
+      </label>
+
+      <div class="acciones">
+        <button type="submit" class="btn btn--primario" [disabled]="guardando">
+          {{ guardando ? 'Guardando…' : esEdicion ? 'Actualizar rol' : 'Crear rol' }}
+        </button>
+        <a class="btn btn--secundario" routerLink="/roles-proceso">Cancelar</a>
+      </div>
+    </form>
+  }
+</main>

@@ -1,0 +1,90 @@
+.pagina {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.pagina__encabezado {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.pagina__encabezado h1,
+.pagina__encabezado p {
+  margin: 0;
+}
+
+.pagina__encabezado h1 {
+  margin: 0.2rem 0 0.6rem;
+}
+
+.pagina__sobrelinea {
+  color: #3346c8;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.boton-primario {
+  border-radius: 0.65rem;
+  padding: 0.75rem 1rem;
+  background: #3346c8;
+  color: white;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.mensaje {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: #eef2ff;
+}
+
+.mensaje--error {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.paginacion button {
+  border: 1px solid #cbd5e1;
+  border-radius: 0.55rem;
+  padding: 0.55rem 0.85rem;
+  background: #fff;
+  cursor: pointer;
+}
+
+.paginacion button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 680px) {
+  .pagina {
+    padding: 1rem;
+  }
+
+  .pagina__encabezado {
+    flex-direction: column;
+  }
+}

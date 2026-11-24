@@ -1,0 +1,220 @@
+.editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden; /* Evita scrolls raros */
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #f3f4f6;
+  border-bottom: 1px solid #d1d5db;
+  z-index: 10; /* Asegura que la toolbar esté arriba */
+}
+
+.btn {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  color: black;
+  font-size: 14px;
+}
+
+.btn:hover {
+  background-color: #e5e7eb;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mensaje {
+  margin-left: auto;
+  color: #10b981;
+  font-weight: bold;
+}
+
+.solo-lectura {
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-weight: 700;
+}
+
+.estado {
+  margin: 1rem;
+  padding: 1rem;
+  border-radius: 6px;
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.estado--error {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.main-content--oculto {
+  visibility: hidden;
+}
+
+/* AQUÍ ESTÁ LA MAGIA PARA LA PALETA */
+.canvas {
+  flex: 1;
+  position: relative; /* bpmn-js necesita esto para posicionar la paleta */
+  height: 100%;
+  width: 100%;
+}
+
+.inspector {
+  width: 320px;
+  border-left: 1px solid #d1d5db;
+  overflow-y: auto;
+  background: white;
+  z-index: 5;
+}
+
+.properties-panel {
+  min-height: 0;
+}
+
+.properties-panel--oculto {
+  display: none;
+}
+/* =========================================
+   ESTILOS PARA EL PANEL DE PROPIEDADES (BPMN-JS)
+   ========================================= */
+
+/* Contenedor principal de la barra lateral */
+.inspector {
+  width: 350px;
+  background-color: #ffffff;
+  border-left: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05); /* Sombra suave a la izquierda */
+}
+
+/* El contenedor donde bpmn-js inyecta el panel */
+.properties-panel {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* El header del panel (donde dice "End Event", "Start Event", etc.) */
+.bio-properties-panel-header {
+  padding: 16px;
+  background-color: #f8fafc; /* Gris muy claro */
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.bio-properties-panel-header-icon {
+  width: 24px;
+  height: 24px;
+  color: #3b82f6; /* Azul para los iconos */
+}
+
+.bio-properties-panel-header-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Títulos de los grupos (General, Documentation, etc.) */
+.bio-properties-panel-group-header {
+  padding: 12px 16px;
+  background-color: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+  font-weight: 600;
+  font-size: 12px;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.bio-properties-panel-group-header:hover {
+  background-color: #e2e8f0;
+}
+
+/* El contenido del grupo */
+.bio-properties-panel-group-entries {
+  padding: 16px;
+  background-color: #ffffff;
+}
+
+/* Etiquetas de los inputs (Name, ID, etc.) */
+.bio-properties-panel-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* Inputs de texto y textareas */
+.bio-properties-panel-input,
+.bio-properties-panel-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #1e293b;
+  background-color: #ffffff;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.bio-properties-panel-input:focus,
+.bio-properties-panel-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Espaciado entre las entradas */
+.bio-properties-panel-entry {
+  margin-bottom: 16px;
+}
+
+/* Ajuste para el textarea de documentación */
+.bio-properties-panel-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Ocultar el botón por defecto de bpmn-js que se ve feo */
+.bio-properties-panel-group-header button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-left: auto;
+}

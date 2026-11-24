@@ -1,0 +1,36 @@
+<div class="contenedor-vista">
+    <header class="cabecera-seccion">
+        <h2>Gestión de Gateways</h2>
+        <button class="boton boton--primario" (click)="irANuevo()">
+            + Nuevo Gateway
+        </button>
+    </header>
+
+    <div class="lista-elementos">
+        @if (gateways().length === 0) {
+        <p class="sin-registros">No hay gateways registrados para este proceso.</p>
+        } @else {
+        @for (gateway of gateways(); track gateway.id) {
+        <div class="tarjeta-elemento">
+            <div class="info">
+                <h3>{{ gateway.nombre || 'Gateway sin nombre' }}</h3>
+                <p><strong>Tipo:</strong> {{ gateway.tipo }}</p>
+            </div>
+
+            <div class="acciones">
+                <button class="boton boton--secundario" (click)="irAEditar(gateway.id)">
+                    Editar
+                </button>
+                <button class="boton boton--peligro" (click)="eliminar(gateway.id)">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+        }
+        }
+    </div>
+
+    <div class="footer-acciones">
+        <a class="boton boton--regresar" [routerLink]="['/procesos', procesoId]">Volver al Proceso</a>
+    </div>
+</div>

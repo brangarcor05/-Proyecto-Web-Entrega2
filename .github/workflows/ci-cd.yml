@@ -1,0 +1,91 @@
+# CI/CD del frontend (Angular).
+#
+# - CI: en cada push y en cada Pull Request a develop o main se instalan las
+#   dependencias, se corren las pruebas (Vitest) y se compila para produccion.
+# - CD: solo cuando el codigo llega a main: se construye la imagen (Nginx con la
+#   SPA), se publica en Docker Hub con el hash del commit y se despliega en
+#   Kubernetes desde un runner self-hosted.
+#
+# Secretos de GitHub necesarios (Settings > Secrets and variables > Actions):
+#   DOCKERHUB_USERNAME  usuario de Docker Hub (brangarcor05)
+#   DOCKERHUB_TOKEN     token de acceso de Docker Hub (no la contrasena)
+
+name: Frontend CI/CD
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+  workflow_dispatch:            # boton manual en la pestana Actions
+
+env:
+  IMAGE: brangarcor05/frontend-procesos
+
+jobs:
+  pruebas:
+    name: Probar y compilar
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar las pruebas
+        run: npx ng test --watch=false
+
+      - name: Compilar para produccion
+        run: npx ng build
+
+  imagen:
+    name: Construir y publicar imagen
+    needs: pruebas              # no se publica nada si las pruebas fallan
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Iniciar sesion en Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Construir y publicar
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ github.sha }}
+            ${{ env.IMAGE }}:latest
+
+  despliegue:
+    name: Desplegar en Kubernetes
+    needs: imagen
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/develop'
+    runs-on: [self-hosted]   # runner instalado en la VM de Ubuntu del cluster
+    steps:
+      - uses: actions/checkout@v4
+
+      # El manifiesto del repo indica una etiqueta fija (v1). Antes de aplicarlo se
+      # reemplaza por la imagen de este commit: asi hay un solo rolling update y el
+      # clúster nunca vuelve, ni por un momento, a la version del manifiesto.
+      - name: Usar la imagen de este commit en el manifiesto
+        run: |
+          sed -i "s#image: ${{ env.IMAGE }}:.*#image: ${{ env.IMAGE }}:${{ github.sha }}#" frontend.yaml
+          grep "image:" frontend.yaml
+
+      - name: Aplicar el deployment
+        run: kubectl apply -f frontend.yaml
+
+      - name: Esperar a que el pod nuevo quede listo
+        run: kubectl rollout status deployment/frontend --timeout=300s

@@ -1,0 +1,38 @@
+<header class="pagina__encabezado">
+  <div>
+    <h2>Usuarios de {{ sesion()?.empresaNombre }}</h2>
+  </div>
+  <div class="acciones">
+    <a routerLink="/procesos" class="btn btn--secundario">Ver procesos</a>
+    <a routerLink="/usuarios/nuevo" class="btn btn--primario">Invitar usuario</a>
+    <button type="button" (click)="cerrarSesion()" class="btn btn--peligro">Cerrar sesión</button>
+  </div>
+</header>
+
+@if (message()) {
+  <p class="mensaje mensaje--error">{{ message() }}</p>
+}
+
+@switch (status()) {
+  @case ('loading') {
+    <p class="estado">Cargando…</p>
+  }
+  @case ('error') {
+    <button type="button" (click)="load()" class="btn btn--secundario">Reintentar</button>
+  }
+  @case ('success') {
+    @if (usuarios().length === 0) {
+      <p class="estado">Aún no hay usuarios.</p>
+    } @else {
+      <div class="lista-usuarios">
+        @for (usuario of usuarios(); track usuario.id) {
+          <app-tarjeta-usuario
+            [usuario]="usuario"
+            (desactivar)="desactivar($event)"
+            (cambiarRol)="cambiarRol($event)">
+          </app-tarjeta-usuario>
+        }
+      </div>
+    }
+  }
+}

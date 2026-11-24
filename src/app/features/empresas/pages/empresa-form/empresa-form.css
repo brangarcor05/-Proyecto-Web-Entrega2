@@ -1,0 +1,37 @@
+/* empresa-form.component.css */
+.pagina-formulario {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.pagina-formulario h2 {
+  text-align: center;
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+}
+
+.pagina-formulario form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pagina-formulario h3:not(:first-of-type) {
+  margin-top: 1rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--border);
+}
+
+.nota {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}

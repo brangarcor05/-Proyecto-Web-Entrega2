@@ -1,0 +1,44 @@
+<article class="tarjeta">
+  <h2>{{ elemento().nombre }}</h2>
+  <dl>
+    <div>
+      <dt>Tipo</dt>
+      <dd>{{ elemento().tipo === 'INICIO' ? 'Inicio' : 'Fin' }}</dd>
+    </div>
+    <div>
+      <dt>Pool de origen</dt>
+      <dd>{{ elemento().poolId }}</dd>
+    </div>
+    <div>
+      <dt>Posición X / Y</dt>
+      <dd>
+        {{ elemento().posicionX ?? 'Sin definir' }} / {{ elemento().posicionY ?? 'Sin definir' }}
+      </dd>
+    </div>
+  </dl>
+  <footer>
+    @if (!detalle()) {
+      <a [routerLink]="['/procesos', elemento().procesoId, 'eventos', elemento().id]"
+        >Ver detalle</a
+      >
+    }
+    @if (puedeEditar()) {
+      <a
+        data-testid="editar"
+        [routerLink]="['/procesos', elemento().procesoId, 'eventos', elemento().id, 'editar']"
+        >Editar</a
+      >
+    }
+    @if (puedeEliminar()) {
+      <button
+        type="button"
+        class="peligro"
+        data-testid="eliminar"
+        [disabled]="eliminando()"
+        (click)="eliminar.emit(elemento())"
+      >
+        {{ eliminando() ? 'Eliminando…' : 'Eliminar' }}
+      </button>
+    }
+  </footer>
+</article>

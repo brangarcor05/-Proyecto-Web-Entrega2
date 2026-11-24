@@ -1,0 +1,12 @@
+.pagina-formulario { max-width: 720px; margin: 0 auto; padding: 2rem; }
+.volver { font-weight: 700; }
+header { margin: 1.5rem 0; }
+header p { color: var(--primary); font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+header h1, header p { margin: 0; }
+form { display: grid; gap: 1.2rem; padding: 1.5rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card); box-shadow: var(--shadow); }
+.casilla { display: flex; align-items: center; gap: .65rem; font-weight: 700; }
+.ayuda { margin-top: -.8rem; color: var(--text-dim); font-size: .9rem; }
+.acciones { display: flex; gap: .7rem; flex-wrap: wrap; }
+.mensaje { margin: 1rem 0; }
+.mensaje ul { margin: .5rem 0 0 1.25rem; }
+@media (max-width: 680px) { .pagina-formulario { padding: 1rem; } }

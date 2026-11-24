@@ -1,0 +1,51 @@
+<div class="contenedor-vista">
+    <header class="cabecera-seccion">
+        <h2>Gestión de Mensajes de Recepción</h2>
+        <button class="boton boton--primario" (click)="irANuevo()">
+            + Nuevo Mensaje Recepción
+        </button>
+    </header>
+
+    @if (status() === 'loading') {
+    <p>Cargando mensajes de recepción...</p>
+    }
+
+    @if (status() === 'error') {
+    <div class="error-message">
+        <p>{{ errorMessage() }}</p>
+    </div>
+    }
+
+    @if (status() === 'success') {
+    <div class="lista-elementos">
+        @if (mensajesRecepcion().length === 0) {
+        <p class="sin-registros">No hay mensajes de recepción registrados para este proceso.</p>
+        } @else {
+        @for (msg of mensajesRecepcion(); track msg.id) {
+        <div class="tarjeta-elemento">
+            <div class="info">
+                <h3>{{ msg.nombreMensaje }}</h3>
+                <p><strong>Variante:</strong> {{ msg.variante }}</p>
+                <p><strong>Origen Externo:</strong> {{ msg.origenExterno ? 'Sí' : 'No' }}</p>
+                <p><strong>Clave Correlación:</strong> {{ msg.claveCorrelacion || 'N/A' }}</p>
+                <p><strong>Activo:</strong> {{ msg.activo ? 'Sí' : 'No' }}</p>
+            </div>
+
+            <div class="acciones">
+                <button class="boton boton--secundario" (click)="irAEditar(msg.id)">
+                    Editar
+                </button>
+                <button class="boton boton--peligro" (click)="eliminar(msg.id)">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+        }
+        }
+    </div>
+    }
+
+    <div class="footer-acciones">
+        <a class="boton boton--regresar" [routerLink]="['/procesos', procesoId]">Volver al Proceso</a>
+    </div>
+</div>

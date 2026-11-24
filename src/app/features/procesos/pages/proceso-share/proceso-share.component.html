@@ -1,0 +1,56 @@
+<main class="compartir">
+  <a class="volver" [routerLink]="['/procesos', proceso()?.id]">← Volver al proceso</a>
+  <header>
+    <h1>Compartir proceso</h1>
+    @if (proceso(); as actual) {
+      <span>{{ actual.nombre }}</span>
+    }
+  </header>
+
+  @if (cargando()) {
+    <p class="mensaje">Cargando proceso…</p>
+  }
+
+  @if (error()) {
+    <p class="mensaje mensaje--error" role="alert">{{ error() }}</p>
+  }
+
+  @if (!cargando() && proceso(); as actual) {
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
+      <label class="casilla">
+        <input type="checkbox" formControlName="compartido" />
+        Permitir que otras empresas consulten este proceso
+      </label>
+
+      @if (formulario.controls.compartido.value) {
+        <fieldset class="empresas" [disabled]="guardando() || cargandoEmpresas()">
+          <legend>Empresas invitadas</legend>
+          @if (cargandoEmpresas()) {
+            <p>Cargando empresas…</p>
+          } @else if (empresas().length === 0) {
+            <p>No hay otras empresas activas disponibles.</p>
+          } @else {
+            @for (empresa of empresas(); track empresa.id) {
+              <label class="empresa-opcion">
+                <input
+                  type="checkbox"
+                  [checked]="formulario.controls.empresasIds.value.includes(empresa.id)"
+                  (change)="cambiarEmpresa(empresa.id, $any($event.target).checked)"
+                />
+                <span>{{ empresa.nombre }} <small>{{ empresa.rut }}</small></span>
+              </label>
+            }
+          }
+          <small>Las empresas seleccionadas tendrán acceso de solo lectura.</small>
+        </fieldset>
+      }
+
+      <div class="acciones">
+        <button type="submit" [disabled]="guardando() || formulario.disabled">
+          {{ guardando() ? 'Guardando…' : 'Guardar compartición' }}
+        </button>
+        <a [routerLink]="['/procesos', actual.id]">Cancelar</a>
+      </div>
+    </form>
+  }
+</main>

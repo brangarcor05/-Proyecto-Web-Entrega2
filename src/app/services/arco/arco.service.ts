@@ -1,0 +1,46 @@
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+
+import { environment } from '../../../environments/environment';
+import { ActualizarArcoRequest } from '../../models/arco/actualizar-arco-request.model';
+import { ArcoEliminado } from '../../models/arco/arco-eliminado.model';
+import { Arco } from '../../models/arco/arco.model';
+import { CrearArcoRequest } from '../../models/arco/crear-arco-request.model';
+import { SincronizarArcoRequest } from '../../models/arco/sincronizar-arco-request.model';
+
+@Injectable({ providedIn: 'root' })
+export class ArcoService {
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = `${environment.apiUrl}/arcos`;
+
+  listarPorProceso(procesoId: number): Observable<Arco[]> {
+    const params = new HttpParams().set('procesoId', procesoId);
+    return this.http.get<Arco[]>(this.apiUrl, { params });
+  }
+
+  buscarPorId(id: number): Observable<Arco> {
+    return this.http.get<Arco>(`${this.apiUrl}/${id}`);
+  }
+
+  crear(request: CrearArcoRequest): Observable<Arco> {
+    return this.http.post<Arco>(this.apiUrl, request);
+  }
+
+  actualizar(id: number, request: ActualizarArcoRequest): Observable<Arco> {
+    return this.http.put<Arco>(`${this.apiUrl}/${id}`, request);
+  }
+
+  sincronizar(
+    procesoId: number,
+    arcos: SincronizarArcoRequest[]
+  ): Observable<Arco[]> {
+    const params = new HttpParams()
+      .set('procesoId', procesoId);
+    return this.http.put<Arco[]>(`${this.apiUrl}/sincronizar`, arcos, { params });
+  }
+
+  eliminar(id: number): Observable<ArcoEliminado> {
+    return this.http.delete<ArcoEliminado>(`${this.apiUrl}/${id}`);
+  }
+}

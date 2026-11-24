@@ -1,0 +1,16 @@
+export type TipoGateway = 'EXCLUSIVO' | 'PARALELO' | 'INCLUSIVO';
+
+export interface Gateway {
+    id: number;
+    procesoId: number;
+    poolId?: number;
+    laneId?: number;
+    nombre: string;
+    tipo: TipoGateway;
+    posicionX?: number;
+    posicionY?: number;
+    activo: boolean;
+    canvasId?: string | null;
+}
+
+export type NewGateway = Omit<Gateway, 'id' | 'activo'>;
