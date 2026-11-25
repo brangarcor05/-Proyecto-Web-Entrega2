@@ -1,0 +1,6 @@
+projectKey=Proyecto-front
+serverUrl=http://localhost:9000
+serverVersion=26.9.0.129388
+dashboardUrl=http://localhost:9000/dashboard?id=Proyecto-front
+ceTaskId=7649cd58-4113-4f10-a57e-624cc67bd8e3
+ceTaskUrl=http://localhost:9000/api/ce/task?id=7649cd58-4113-4f10-a57e-624cc67bd8e3
