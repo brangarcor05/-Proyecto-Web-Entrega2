@@ -54,7 +54,9 @@
               }
             ],
             "styles": ["src/styles.css", "node_modules/bpmn-js/dist/assets/diagram-js.css",
-  "node_modules/bpmn-js/dist/assets/bpmn-font/css/bpmn.css"]
+  "node_modules/bpmn-js/dist/assets/bpmn-js.css",
+  "node_modules/bpmn-js/dist/assets/bpmn-font/css/bpmn.css",
+  "node_modules/@bpmn-io/properties-panel/dist/assets/properties-panel.css"]
           },
           "configurations": {
             "production": {

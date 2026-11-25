@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -10,7 +10,6 @@ import {
   BpmnPropertiesProviderModule,
 } from 'bpmn-js-properties-panel';
 import { finalize } from 'rxjs';
-
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { UsuarioSesion } from '../../../../models/auth/auth.model';
 import { ArcoDiagrama } from '../../../../models/arco/arco-diagrama.model';
@@ -31,6 +30,7 @@ import { ArcoPanelComponent } from '../../components/arco/arco-panel.component';
   imports: [CommonModule, RouterLink, ArcoPanelComponent],
   templateUrl: './bpmn-editor.component.html',
   styleUrl: './bpmn-editor.component.css',
+  encapsulation: ViewEncapsulation.None,
 })
 export class BpmnEditorComponent implements OnInit, OnDestroy {
   @ViewChild('canvasContainer', { static: true }) canvasContainer!: ElementRef;
@@ -65,6 +65,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
   readonly arcosDiagrama = signal<ArcoDiagrama[]>([]);
   readonly puedeDeshacer = signal(false);
   readonly puedeRehacer = signal(false);
+  readonly pestana = signal<'propiedades' | 'arcos'>('propiedades');
 
   get puedeEditar(): boolean {
     return !this.soloLectura;
@@ -95,6 +96,7 @@ export class BpmnEditorComponent implements OnInit, OnDestroy {
         next: (proceso) => {
           this.soloLectura = proceso.soloLectura
             || !puedeCrearOEditarProceso(sesion.rolUsuario);
+          this.pestana.set(this.soloLectura ? 'arcos' : 'propiedades');  
           this.inicializarEditor();
           this.cargarDiagrama(procesoId);
         },

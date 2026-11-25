@@ -33,10 +33,27 @@
   <div class="main-content" [class.main-content--oculto]="cargando || error">
     <div #canvasContainer class="canvas"></div>
     <aside class="inspector">
-      <div #propertiesContainer class="properties-panel" [class.properties-panel--oculto]="soloLectura"></div>
-      @if (procesoId) {
-        <app-arco-panel [procesoId]="procesoId" [arcosDiagrama]="arcosDiagrama()" />
-      }
-    </aside>
+  <nav class="inspector-tabs">
+    @if (puedeEditar) {
+      <button type="button" class="tab" [class.tab--activa]="pestana() === 'propiedades'"
+              (click)="pestana.set('propiedades')">
+        Propiedades
+      </button>
+    }
+    <button type="button" class="tab" [class.tab--activa]="pestana() === 'arcos'"
+            (click)="pestana.set('arcos')">
+      Arcos
+    </button>
+  </nav>
+
+  <div #propertiesContainer class="properties-panel"
+       [class.properties-panel--oculto]="soloLectura || pestana() !== 'propiedades'"></div>
+
+  @if (procesoId) {
+    <div class="arcos-wrapper" [class.properties-panel--oculto]="pestana() !== 'arcos'">
+      <app-arco-panel [procesoId]="procesoId" [arcosDiagrama]="arcosDiagrama()" />
+    </div>
+  }
+</aside>
   </div>
 </div>

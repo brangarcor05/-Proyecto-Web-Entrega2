@@ -97,3 +97,58 @@
 .properties-panel--oculto {
   display: none;
 }
+.inspector {
+  width: 340px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-left: 1px solid #e5e7eb;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.inspector-tabs {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.tab {
+  flex: 1;
+  padding: 12px 8px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.tab:hover {
+  background: #eef2ff;
+}
+
+.tab--activa {
+  color: #3730a3;
+  border-bottom-color: #3730a3;
+  background: #ffffff;
+}
+
+.properties-panel,
+.arcos-wrapper {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.arcos-wrapper {
+  padding: 8px;
+}
+
+.properties-panel--oculto {
+  display: none;
+}
