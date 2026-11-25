@@ -97,124 +97,58 @@
 .properties-panel--oculto {
   display: none;
 }
-/* =========================================
-   ESTILOS PARA EL PANEL DE PROPIEDADES (BPMN-JS)
-   ========================================= */
-
-/* Contenedor principal de la barra lateral */
 .inspector {
-  width: 350px;
-  background-color: #ffffff;
-  border-left: 1px solid #e5e7eb;
+  width: 340px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05); /* Sombra suave a la izquierda */
+  background: #ffffff;
+  border-left: 1px solid #e5e7eb;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
 }
 
-/* El contenedor donde bpmn-js inyecta el panel */
-.properties-panel {
+.inspector-tabs {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.tab {
   flex: 1;
+  padding: 12px 8px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.tab:hover {
+  background: #eef2ff;
+}
+
+.tab--activa {
+  color: #3730a3;
+  border-bottom-color: #3730a3;
+  background: #ffffff;
+}
+
+.properties-panel,
+.arcos-wrapper {
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
-/* El header del panel (donde dice "End Event", "Start Event", etc.) */
-.bio-properties-panel-header {
-  padding: 16px;
-  background-color: #f8fafc; /* Gris muy claro */
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+.arcos-wrapper {
+  padding: 8px;
 }
 
-.bio-properties-panel-header-icon {
-  width: 24px;
-  height: 24px;
-  color: #3b82f6; /* Azul para los iconos */
-}
-
-.bio-properties-panel-header-label {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-/* Títulos de los grupos (General, Documentation, etc.) */
-.bio-properties-panel-group-header {
-  padding: 12px 16px;
-  background-color: #f1f5f9;
-  border-bottom: 1px solid #e2e8f0;
-  font-weight: 600;
-  font-size: 12px;
-  color: #475569;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-}
-
-.bio-properties-panel-group-header:hover {
-  background-color: #e2e8f0;
-}
-
-/* El contenido del grupo */
-.bio-properties-panel-group-entries {
-  padding: 16px;
-  background-color: #ffffff;
-}
-
-/* Etiquetas de los inputs (Name, ID, etc.) */
-.bio-properties-panel-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: #475569;
-  margin-bottom: 4px;
-  display: block;
-}
-
-/* Inputs de texto y textareas */
-.bio-properties-panel-input,
-.bio-properties-panel-textarea {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 13px;
-  color: #1e293b;
-  background-color: #ffffff;
-  transition: all 0.2s ease;
-  box-sizing: border-box;
-  font-family: inherit;
-}
-
-.bio-properties-panel-input:focus,
-.bio-properties-panel-textarea:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* Espaciado entre las entradas */
-.bio-properties-panel-entry {
-  margin-bottom: 16px;
-}
-
-/* Ajuste para el textarea de documentación */
-.bio-properties-panel-textarea {
-  min-height: 80px;
-  resize: vertical;
-}
-
-/* Ocultar el botón por defecto de bpmn-js que se ve feo */
-.bio-properties-panel-group-header button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  margin-left: auto;
+.properties-panel--oculto {
+  display: none;
 }
