@@ -20,3 +20,4 @@ export interface CrearUsuarioRequest {
 export interface CambiarRolRequest {
   rolUsuario: RolUsuario;
 }
+
