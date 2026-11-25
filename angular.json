@@ -106,7 +106,7 @@
 "test": {
   "builder": "@angular/build:unit-test",
   "options": {
-    "coverageReporters": ["html", "text"],
+    "coverageReporters": ["html", "text", "lcov"],
     "coverageExclude": [
       "src/app/models/**",     
       "src/app/app.routes.ts",   
